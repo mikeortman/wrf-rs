@@ -38,6 +38,13 @@ addition. Translation and scaling are contiguous pointwise loops and may be
 auto-vectorized; explicit SIMD requires generated-code inspection and a release
 benchmark before adoption.
 
+A `pulp` prototype later vectorized those pointwise loops with one runtime
+dispatch per kernel and preserved exact bits across vector/tail boundaries. It
+was removed because normal Criterion measurements slowed the representative
+one- and four-worker cases. The scalar implementation is intentionally the
+current optimized choice; the experiment and measurements are retained in the
+performance baseline.
+
 ## Three-dimensional slab variant
 
 `positive_definite_slab` applies the same translation-and-rescaling idea to

@@ -123,6 +123,12 @@ measurement shows one or two 1,520-byte Rayon/crossbeam queue allocations per
 zero Rayon-dispatch allocations; the precise measured amortized cost is
 0.01–0.02 allocations and 15.2–30.4 bytes per million-point call.
 
+`pulp` 0.22.3 was then prototyped for only the pointwise passes. It preserved
+exact bits across 14 vector/tail lengths and the upstream fixtures, but slowed
+the one- and four-worker benchmarks by about 1–4%. Gains appeared only at 16
+workers. The implementation and dependency were removed; keep the scalar path
+for this kernel. `pulp` remains a candidate for more pointwise-dominant kernels.
+
 ## WRF time oracle
 
 The bundled Fortran `external/esmf_time_f90/Test1.F90` is compiled locally
@@ -175,10 +181,10 @@ match raw IEEE-754 bits, and the slab boundary/halo fixture matches exactly.
 
 - `bb6cc55` — pinned source tooling, time parity, compute architecture, both
   positive-definite kernels, wiki, coverage ledger, and upstream findings.
+- `0ee002d` — Criterion throughput/scaling harness and scalar baseline.
+- `7389443` — instrumented steady-state allocation budgets and measurements.
 
 ## Immediate next actions
 
-1. Prototype `pulp` only for the pointwise translate/scale passes; retain scalar
-   ordered reductions and require exact scalar/SIMD differential parity.
-2. Select the next dependency-closed ARW numerical kernel using the same
+1. Select the next dependency-closed ARW numerical kernel using the same
    Fortran-oracle, adversarial-test, wiki, rustdoc, and findings workflow.

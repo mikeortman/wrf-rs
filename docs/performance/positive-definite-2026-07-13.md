@@ -88,3 +88,29 @@ The machine was not isolated, frequency-pinned, or restricted to performance
 cores. Criterion reported 2–11% outliers depending on the case. These results
 are appropriate as a local optimization baseline, not as a cross-machine WRF
 performance comparison.
+
+## Rejected `pulp` SIMD experiment
+
+`pulp` 0.22.3 was prototyped with one runtime dispatch per kernel. Minimum and
+sum reductions stayed scalar and ordered; only translation and the two ordered
+multiplications used SIMD lanes. Temporary differential tests compared runtime
+NEON with `pulp::Scalar` across line lengths 1–257, vector-width boundaries,
+tails, and an unaligned slab subrange. Every value matched exactly by bits, and
+the upstream Fortran fixtures continued to pass.
+
+The full Criterion run did not justify keeping the added abstraction:
+
+| Kernel | Workers | Scalar baseline | SIMD prototype | Change |
+|---|---:|---:|---:|---:|
+| Sheet | 1 | 1.1569 ms | 1.1741 ms | 1.5% slower |
+| Sheet | 4 | 316.00 µs | 320.37 µs | 1.4% slower |
+| Sheet | 16 | 274.85 µs | 268.76 µs | 2.2% faster |
+| Slab | 1 | 1.8084 ms | 1.8761 ms | 3.7% slower |
+| Slab | 4 | 483.08 µs | 500.29 µs | 3.6% slower |
+| Slab | 16 | 347.98 µs | 325.50 µs | 6.5% faster |
+
+The per-core and four-worker regressions outweigh gains seen only at 16 workers,
+where scheduling, mixed performance/efficiency cores, and system noise have
+more influence. The implementation and dependency were removed. This decision
+is kernel-specific: `pulp` remains a strong candidate for longer pointwise
+kernels with fewer ordered reduction passes.

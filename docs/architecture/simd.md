@@ -60,3 +60,9 @@ loops; LLVM did not emit packed NEON arithmetic. See
 `pulp` for the independent pointwise passes while retaining scalar ordered
 reductions. It does not by itself prove that manual SIMD will improve total
 kernel throughput.
+
+The subsequent `pulp` 0.22.3 prototype achieved exact bit parity but regressed
+the representative one- and four-worker cases by roughly 1–4%. It improved
+only the 16-worker measurements. The path was therefore removed; see the
+baseline report for the full table. Explicit SIMD remains an evidence-based
+per-kernel choice, not a workspace-wide requirement.
