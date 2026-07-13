@@ -118,7 +118,10 @@ slab speedup over one. AArch64 release assembly contains scalar rather than
 packed NEON arithmetic in the pointwise loops. See
 `docs/performance/positive-definite-2026-07-13.md` for environment, confidence
 intervals, throughput, and caveats. End-to-end steady-state allocation
-measurement remains pending; do not claim zero Rayon-dispatch allocations.
+measurement shows one or two 1,520-byte Rayon/crossbeam queue allocations per
+100 dispatches, independent of worker count, and no reallocations. Do not claim
+zero Rayon-dispatch allocations; the precise measured amortized cost is
+0.01–0.02 allocations and 15.2–30.4 bytes per million-point call.
 
 ## WRF time oracle
 
@@ -175,7 +178,7 @@ match raw IEEE-754 bits, and the slab boundary/halo fixture matches exactly.
 
 ## Immediate next actions
 
-1. Add a representative release benchmark and allocation/scaling evidence for
-   the positive-definite kernels before considering explicit `pulp` SIMD.
+1. Prototype `pulp` only for the pointwise translate/scale passes; retain scalar
+   ordered reductions and require exact scalar/SIMD differential parity.
 2. Select the next dependency-closed ARW numerical kernel using the same
    Fortran-oracle, adversarial-test, wiki, rustdoc, and findings workflow.

@@ -60,3 +60,9 @@ not fixture restoration. Sheet and slab variants report element throughput.
 Use `-- --quick` for a development smoke run. Saved performance claims must use
 the normal statistical run, record CPU/OS/toolchain details, and retain the raw
 Criterion output or machine-readable artifact.
+
+`cargo run -p wrf-dynamics --release --example
+measure_positive_definite_allocations` measures two warmed 100-dispatch phases
+with an instrumented system allocator. It enforces no reallocations, fewer than
+one small allocation per ten calls, and at most 64 KiB allocated per phase.
+These are scheduler budgets, not permission for numerical scratch allocation.

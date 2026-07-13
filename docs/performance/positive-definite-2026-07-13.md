@@ -57,14 +57,30 @@ The pointwise translation and two-step scaling loops are therefore credible
 explicit-SIMD candidates. Minimum and sum reductions remain ordered scalar
 loops because reassociation would change parity.
 
-## Allocation status
+## Allocation measurement
 
-Source inspection proves that the Rust kernels allocate no scratch line and do
-not copy corrected lines. This does not yet prove zero allocations across the
-entire Rayon dispatch path. A trustworthy steady-state allocator measurement
-is still required before recording a zero-allocation claim. The benchmark's
-input clone is outside the measured interval but intentionally allocates during
-fixture setup.
+`stats_alloc` wraps the system allocator in a release example without local
+unsafe code. The persistent pool and 1,048,576-value fields are created first;
+100 dispatches warm each kernel; then two consecutive 100-dispatch phases are
+measured. Fixture restoration is an in-place slice copy.
+
+```sh
+cargo run -p wrf-dynamics --release \
+  --example measure_positive_definite_allocations
+```
+
+Across 1, 4, and 16 workers, each 100-dispatch phase recorded either one
+1,520-byte allocation or two totaling 3,040 bytes, with zero reallocations.
+This is amortized Rayon/crossbeam injection-queue storage: it is independent of
+field size and worker count, and it persists even after workload warm-up. The
+numerical kernels still allocate no field-sized scratch and copy no corrected
+lines.
+
+The result does **not** support a zero-allocation claim. It supports a much more
+precise one: the measured scheduler cost is 0.01–0.02 small allocations and
+15.2–30.4 bytes per million-point dispatch. A future CPU timestep execution
+scope could batch kernel calls under one pool installation if profiles show
+this amortized injection cost matters.
 
 ## Caveats
 
