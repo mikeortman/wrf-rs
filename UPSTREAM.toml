@@ -1,0 +1,27 @@
+[wrf]
+repository = "https://github.com/wrf-model/WRF"
+tag = "v4.7.1"
+commit = "f52c197ed39d12e087d02c50f412d90d418f6186"
+archive = "https://github.com/wrf-model/WRF/archive/refs/tags/v4.7.1.tar.gz"
+sha256 = "7227916c7871cec36a0a1bf23619fe6d29664474679c8207b4c6f22b10cbab6b"
+
+[submodules.noahmp]
+repository = "https://github.com/NCAR/noahmp"
+commit = "e5c0859874407859936739e8be8741f9aed369ee"
+archive = "https://github.com/NCAR/noahmp/archive/e5c0859874407859936739e8be8741f9aed369ee.tar.gz"
+sha256 = "2470d879cbf1ba2cc0e5fd0710bfc55ace6165fdb2dac277342a93f0e045c8cd"
+path = "upstream/WRF/phys/noahmp"
+
+[submodules.mynn_edmf]
+repository = "https://github.com/NCAR/MYNN-EDMF"
+commit = "90f36c25259ec1960b24325f5b29ac7c5adeac73"
+archive = "https://github.com/NCAR/MYNN-EDMF/archive/90f36c25259ec1960b24325f5b29ac7c5adeac73.tar.gz"
+sha256 = "c68b6d08890e9231f4451927ec5b38e65d93dcf904fd1c034b257e5fe1b71d5d"
+path = "upstream/WRF/phys/MYNN-EDMF"
+
+[submodules.hpc_workflows]
+repository = "https://github.com/islas/hpc-workflows"
+commit = "dfc8e6d823b80497ea41bab94e1fdf3f4594ad18"
+archive = "https://github.com/islas/hpc-workflows/archive/dfc8e6d823b80497ea41bab94e1fdf3f4594ad18.tar.gz"
+sha256 = "2895473aa419b7720f905f818919a97e76c65408669fdd1d40e486e56dcc1c3b"
+path = "upstream/WRF/.ci/hpc-workflows"

@@ -1,0 +1,58 @@
+# System overview
+
+## What WRF is
+
+The Weather Research and Forecasting model is not one solver. It is a modeling
+system whose executable is assembled from a dynamical core, a registry-driven
+state model, domain decomposition and halo exchange, physical parameterization
+suites, initialization programs, nesting, and scientific I/O. WRF v4.7.1 also
+contains related systems such as data assimilation and chemistry. A successful
+Rust port must therefore reproduce contracts between subsystems, not merely
+translate isolated equations.
+
+The current target is the Advanced Research WRF (ARW) core. Whole-model parity
+remains zero until Rust can initialize and advance an upstream case; completed
+utility slices are foundations, not evidence of forecast parity.
+
+## Workspace layers
+
+`wrf-rs` currently has three crates:
+
+- `wrf-time` owns civil-calendar conversion, exact model timestamps, intervals,
+  and clocks. It corresponds to WRF's bundled ESMF-derived time manager.
+- `wrf-compute` owns backend-neutral field shape/storage contracts and the
+  default persistent CPU executor. It contains no weather equations.
+- `wrf-dynamics` owns translated ARW numerical capabilities. Its first kernel
+  is the positive-definite sheet correction.
+
+This split follows ownership. Time can be tested without a grid, compute can be
+tested without atmospheric formulas, and numerical crates depend on a narrow
+execution/storage foundation. Future physics, registry, decomposition, and I/O
+crates should be added at similarly real boundaries rather than as one crate
+per Fortran file.
+
+## Intended model-step flow
+
+The following is an architectural target, not yet an implemented executable:
+
+1. read registry-derived configuration and a WRF initialization dataset;
+2. allocate backend-native fields once for a domain and its halos;
+3. initialize a model clock and domain decomposition;
+4. dispatch dynamics and physics capabilities for each timestep;
+5. exchange halos and synchronize only at required dependency boundaries;
+6. emit history/restart fields with WRF-compatible dimensions and metadata;
+7. compare checkpoint fields and diagnostics with the pinned WRF run.
+
+## Porting philosophy
+
+WRF defines the scientific and observable contract. Fortran implementation
+details do not. Rust code may replace allocatable scratch arrays with in-place
+disjoint mutation, implicit integer conventions with typed indices, and manual
+thread management with a trusted work-stealing runtime. Such changes are
+preferred when they improve safety, readability, or performance and the parity
+suite proves the same required output.
+
+`unsafe` is forbidden in every current crate. If a future dependency contains
+internally audited unsafe code, it must be mature, justified, and hidden behind
+a safe API; local unsafe code requires an explicit architectural decision and
+is not the default escape hatch for performance.

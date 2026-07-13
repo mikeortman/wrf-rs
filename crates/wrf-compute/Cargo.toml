@@ -1,0 +1,17 @@
+[package]
+name = "wrf-compute"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "CPU-first field storage and parallel execution boundaries for wrf-rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+rayon = "1.11"
+
+[lib]
+name = "wrf_compute"
+path = "src/lib.rs"
