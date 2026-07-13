@@ -11,3 +11,10 @@ workspace = true
 
 [dependencies]
 wrf-compute = { path = "../wrf-compute" }
+
+[dev-dependencies]
+criterion = "0.7"
+
+[[bench]]
+name = "positive_definite"
+harness = false

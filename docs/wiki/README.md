@@ -20,6 +20,8 @@ implemented system; proposed work is explicitly labeled.
   numerical kernel.
 - [Development infrastructure](Development-Infrastructure.md) — source pinning,
   scripts, verification gates, and documentation policy.
+- [Positive-definite performance baseline](../performance/positive-definite-2026-07-13.md)
+  — release throughput, scaling, generated-code findings, and caveats.
 
 ## Maintenance rule
 

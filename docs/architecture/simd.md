@@ -50,3 +50,13 @@ CPU pool; it does not create another concurrency layer.
 A SIMD path is accepted only with upstream-derived parity fixtures, scalar vs.
 SIMD differential tests, release-mode benchmarks above and below vector-width
 boundaries, and generated-code inspection for every supported architecture.
+
+## First generated-code finding
+
+The 2026-07-13 AArch64 release inspection of the positive-definite kernels found
+scalar floating-point instructions in the translation, reduction, and scaling
+loops; LLVM did not emit packed NEON arithmetic. See
+`docs/performance/positive-definite-2026-07-13.md`. This justifies prototyping
+`pulp` for the independent pointwise passes while retaining scalar ordered
+reductions. It does not by itself prove that manual SIMD will improve total
+kernel throughput.

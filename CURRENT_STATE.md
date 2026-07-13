@@ -99,10 +99,26 @@ sheet bitwise determinism between one and four workers.
   ISA dispatch. `wide` remains a candidate for controlled build targets.
 - `std::simd` is not the stable production baseline while it requires nightly.
 - SIMD dispatch happens once per kernel and runs inside CPU worker chunks.
+- Criterion 0.7 is a dev-only statistical benchmark dependency; 0.8 is excluded
+  because it exceeds the workspace's declared Rust 1.85 minimum.
 
 See `docs/architecture/compute_backends.md`,
 `docs/architecture/performance_principles.md`, and
 `docs/architecture/simd.md`.
+
+## Positive-definite performance baseline
+
+The 1,048,576-value Criterion baseline on an Apple M3 Max measured:
+
+- sheet: 1.1569 ms (1 worker), 316.00 µs (4), 274.85 µs (16);
+- slab: 1.8084 ms (1 worker), 483.08 µs (4), 347.98 µs (16).
+
+Four workers capture most sheet scaling; 16 workers reach 4.21× sheet and 5.20×
+slab speedup over one. AArch64 release assembly contains scalar rather than
+packed NEON arithmetic in the pointwise loops. See
+`docs/performance/positive-definite-2026-07-13.md` for environment, confidence
+intervals, throughput, and caveats. End-to-end steady-state allocation
+measurement remains pending; do not claim zero Rayon-dispatch allocations.
 
 ## WRF time oracle
 
@@ -151,6 +167,11 @@ match raw IEEE-754 bits, and the slab boundary/halo fixture matches exactly.
 - `UPSTREAM_FINDINGS.md`: reproducible Fortran bugs, test gaps, and performance
   opportunities with confidence labels.
 - Public crates enable missing-doc warnings and deny broken rustdoc links.
+
+## Git checkpoints
+
+- `bb6cc55` — pinned source tooling, time parity, compute architecture, both
+  positive-definite kernels, wiki, coverage ledger, and upstream findings.
 
 ## Immediate next actions
 

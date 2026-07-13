@@ -48,3 +48,15 @@ Every substantial numerical slice should eventually include:
 
 An optimization is accepted only when parity remains within its documented
 policy and the benchmark shows a meaningful gain.
+
+## Current benchmark corpus
+
+`cargo bench -p wrf-dynamics --bench positive_definite` uses Criterion with a
+1,048,576-value field, all lines requiring correction, and worker counts of
+one, four when available, and all host workers. Input cloning occurs in
+Criterion's excluded batch setup so the measured interval contains the kernel,
+not fixture restoration. Sheet and slab variants report element throughput.
+
+Use `-- --quick` for a development smoke run. Saved performance claims must use
+the normal statistical run, record CPU/OS/toolchain details, and retain the raw
+Criterion output or machine-readable artifact.
