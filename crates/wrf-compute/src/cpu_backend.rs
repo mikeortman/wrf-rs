@@ -168,9 +168,10 @@ impl ComputeBackend for CpuBackend {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
     use std::convert::Infallible;
-    use std::sync::Mutex;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::{Condvar, Mutex};
+    use std::time::Duration;
 
     use super::*;
 
@@ -200,17 +201,30 @@ mod tests {
     #[test]
     fn try_for_each_output_chunk_uses_disjoint_parallel_workers() {
         let backend = CpuBackend::try_with_worker_count(4).unwrap();
-        let worker_thread_ids = Mutex::new(HashSet::new());
+        let active_worker_count = Mutex::new(0_usize);
+        let worker_started = Condvar::new();
+        let observed_concurrent_workers = AtomicBool::new(false);
         let mut values = vec![0_usize; 65_536];
 
         backend
             .try_for_each_output_chunk(
                 &mut values,
                 |linear_chunk, output_chunk| -> Result<(), Infallible> {
-                    worker_thread_ids
-                        .lock()
-                        .unwrap()
-                        .insert(thread::current().id());
+                    let mut active_worker_count = active_worker_count.lock().unwrap();
+                    *active_worker_count += 1;
+                    if *active_worker_count > 1 {
+                        observed_concurrent_workers.store(true, Ordering::SeqCst);
+                        worker_started.notify_all();
+                    } else if !observed_concurrent_workers.load(Ordering::SeqCst) {
+                        let (worker_count, _) = worker_started
+                            .wait_timeout_while(active_worker_count, Duration::from_secs(1), |_| {
+                                !observed_concurrent_workers.load(Ordering::SeqCst)
+                            })
+                            .unwrap();
+                        active_worker_count = worker_count;
+                    }
+                    *active_worker_count -= 1;
+                    drop(active_worker_count);
                     for (local_index, value) in output_chunk.iter_mut().enumerate() {
                         *value = linear_chunk.range().start + local_index;
                     }
@@ -220,7 +234,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(values, (0..65_536).collect::<Vec<_>>());
-        assert!(worker_thread_ids.lock().unwrap().len() > 1);
+        assert!(observed_concurrent_workers.load(Ordering::SeqCst));
     }
 
     #[test]

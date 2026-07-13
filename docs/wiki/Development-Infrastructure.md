@@ -15,6 +15,11 @@ coverage, the full WRF time golden oracle, and each numerical differential
 oracle. Numerical slices also need release-mode tests and, before optimization,
 representative benchmarks and allocation measurements.
 
+Every numerical kernel also receives a matched optimized-Fortran baseline.
+Benchmark drivers compile the exact pinned routine, use the same field shape
+and active bounds as Rust, exclude setup, and avoid fast-math. Results and any
+remaining Rust regression are recorded in `PERFORMANCE_PARITY.md`.
+
 ## Documentation contract
 
 Public Rust items explain their invariant, unit, shape/layout, error behavior,

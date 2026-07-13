@@ -18,6 +18,10 @@ compaction or a new session. Update it only with verified current-state facts.
   ownership, names, and structure. Cheap descriptor/`Arc` clones are acceptable;
   field and domain-state clones in hot paths are not.
 - Treat SIMD as a per-kernel CPU implementation layer after scalar parity.
+- Group source by scientific family with nested modules; keep crate roots as
+  stable public facades rather than flat implementation indexes.
+- Benchmark the exact pinned Fortran routine on a matched workload for every
+  numerical kernel and track honest Rust/Fortran ratios.
 
 ## Upstream reference
 
@@ -82,12 +86,24 @@ Implemented:
 - independent west-east lines scheduled through the persistent Rayon pool;
 - scalar ordered minimum/sum reductions for exact parity;
 - typed sheet-shape, total-count, and worker failures.
+- the focused `HeldSuarezDampingKernels` backend capability;
+- WRF `held_suarez_damp` over six borrowed fields with no field clones;
+- typed validation of shapes, ranges, the pressure reference level, and both
+  C-grid staggered predecessors;
+- exact-bit tendency updates over independently scheduled west-east lines;
+- scientific-family directories for `positive_definite` and `held_suarez`,
+  with `lib.rs` retained as the stable public facade.
 
 The differential drivers compile the pinned upstream Fortran module directly.
 The sheet covers nine exact-bit cases, including signed zero and the epsilon
 branch. The slab fixture covers non-one memory origins, domain/tile clipping,
 correction branches, and unchanged halo/stagger sentinels. Rust also proves
 sheet bitwise determinism between one and four workers.
+
+The Held-Suarez differential fixture checks 16 active and boundary values with
+non-one memory origins. Added Rust tests cover one/four-worker determinism,
+shape failure before mutation, all range categories, staggered predecessors,
+and the pressure reference level.
 
 ## Performance decisions
 
@@ -129,6 +145,16 @@ the one- and four-worker benchmarks by about 1–4%. Gains appeared only at 16
 workers. The implementation and dependency were removed; keep the scalar path
 for this kernel. `pulp` remains a candidate for more pointwise-dominant kernels.
 
+## Held-Suarez performance baseline
+
+For 2,097,152 momentum updates on the Apple M3 Max, Criterion measured 0.97808
+ms with one Rust worker, 0.30533 ms with four, and 0.55094 ms with 16. A matched
+GNU Fortran 14.2.0 `-O3 -flto` run of the pinned routine measured a 0.859712 ms
+median across seven samples. Current Rust is 13.8% slower serially and 2.82×
+faster with four workers than serial Fortran. This is an isolated-kernel result,
+not a whole-model claim. See `PERFORMANCE_PARITY.md` and
+`docs/performance/held-suarez-2026-07-13.md`.
+
 ## WRF time oracle
 
 The bundled Fortran `external/esmf_time_f90/Test1.F90` is compiled locally
@@ -161,13 +187,19 @@ cargo test --workspace --release
 ./scripts/check-wrf-time-case-coverage.sh
 ./scripts/run-wrf-time-oracle.sh
 ./scripts/run-positive-definite-oracle.sh
+./scripts/run-held-suarez-oracle.sh
+./scripts/benchmark-held-suarez-fortran.sh
 ```
 
-Result: 38 unit tests and one doctest passed in debug and release modes (11
-`wrf-compute`, 7 `wrf-dynamics`, 20 `wrf-time`), Clippy and rustdoc are clean,
-93/93 active WRF time cases are referenced by executing Rust assertions, both
-Fortran time interfaces match `Test1.out.correct`, all nine sheet oracle cases
-match raw IEEE-754 bits, and the slab boundary/halo fixture matches exactly.
+Result: 44 unit tests and one doctest passed in debug and release modes (11
+`wrf-compute`, 13 `wrf-dynamics`, 20 `wrf-time`), including all-target benchmark
+smoke execution. Clippy and rustdoc are clean. The release gate exposed and
+fixed a scheduler-test assumption that a small workload would necessarily be
+stolen by multiple workers; the test now coordinates overlapping tasks before
+asserting concurrency. All 93 active WRF time cases are referenced by executing
+Rust assertions, both Fortran time interfaces match `Test1.out.correct`, both
+positive-definite oracles match raw IEEE-754 bits, and the 16-selection
+Held-Suarez boundary oracle matches exactly.
 
 ## Maintained knowledge and quality ledgers
 
@@ -175,6 +207,8 @@ match raw IEEE-754 bits, and the slab boundary/halo fixture matches exactly.
 - `TEST_COVERAGE.md`: upstream, adversarial, concurrency, and operational gaps.
 - `UPSTREAM_FINDINGS.md`: reproducible Fortran bugs, test gaps, and performance
   opportunities with confidence labels.
+- `PERFORMANCE_PARITY.md`: matched Rust/Fortran workload policy and cumulative
+  speed ratios.
 - Public crates enable missing-doc warnings and deny broken rustdoc links.
 
 ## Git checkpoints
@@ -183,8 +217,13 @@ match raw IEEE-754 bits, and the slab boundary/halo fixture matches exactly.
   positive-definite kernels, wiki, coverage ledger, and upstream findings.
 - `0ee002d` — Criterion throughput/scaling harness and scalar baseline.
 - `7389443` — instrumented steady-state allocation budgets and measurements.
+- `5b5f7aa` — documented and removed a parity-correct SIMD prototype that
+  regressed representative positive-definite benchmarks.
 
 ## Immediate next actions
 
-1. Select the next dependency-closed ARW numerical kernel using the same
-   Fortran-oracle, adversarial-test, wiki, rustdoc, and findings workflow.
+1. Close the Held-Suarez serial performance gap only if a safe optimization
+   preserves exact-bit parity and wins representative benchmarks.
+2. Backfill matched Fortran baselines for both positive-definite variants.
+3. Select the next dependency-closed ARW numerical kernel using the same
+   oracle, adversarial-test, wiki, rustdoc, findings, and performance workflow.

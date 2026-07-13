@@ -19,3 +19,7 @@ stats_alloc = "0.1.10"
 [[bench]]
 name = "positive_definite"
 harness = false
+
+[[bench]]
+name = "held_suarez"
+harness = false

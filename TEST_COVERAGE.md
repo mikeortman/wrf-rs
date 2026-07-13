@@ -22,10 +22,11 @@ Every numerical slice should accumulate five kinds of evidence:
 | Surface | Upstream parity | Added gap tests | Remaining gaps |
 |---|---|---|---|
 | `wrf-time` | 93/93 active `Test1.F90` cases; `ESMF_` and `WRFU_` golden outputs exact | year zero, negative year, rational normalization, invalid components | randomized long-clock sequences; leap-second policy when a caller requires it |
-| CPU chunk scheduler | Not an upstream surface | disjoint writes, multiple workers, typed kernel error, worker panic | nested-pool behavior; large NUMA systems; cancellation semantics |
+| CPU chunk scheduler | Not an upstream surface | disjoint writes, synchronization-confirmed concurrent workers in debug/release, typed kernel error, worker panic | nested-pool behavior; large NUMA systems; cancellation semantics |
 | CPU exact-block scheduler | Not an upstream surface | exact boundaries, invalid shapes, worker panic | empty-output contract; scaling and allocation measurements |
 | `positive_definite_sheet` | Pinned Fortran routine compiled directly; 9 exact-bit cases | epsilon boundary, signed zero, invalid dimensions/totals, one-vs-four-worker determinism, statistical throughput and warmed allocation budgets | NaN/infinity policy; randomized differential corpus |
 | `positive_definite_slab` | Pinned Fortran routine compiled directly; exact-bit active-region and sentinel fixture | typed half-open region validation, non-one memory-origin translation, domain/tile clipping, untouched halo and stagger points, throughput/scaling and allocation budgets | signed zero and exceptional floats; randomized corpus; broader domain/memory/tile combinations; worker determinism |
+| `held_suarez_damp` | Pinned Fortran module compiled directly; 16 exact-bit active/boundary selections | non-one memory origins, staggered-neighbor and range validation, shape mismatch before mutation, one-vs-four-worker determinism, release scaling baseline | randomized differential corpus; NaN/infinity policy; broader clipped domains; complete Held-Suarez trajectory |
 
 ## Fixture policy
 

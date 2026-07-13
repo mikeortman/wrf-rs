@@ -307,7 +307,7 @@ mod tests {
     }
 
     fn parse_fortran_expected_bits() -> std::collections::HashMap<&'static str, Vec<u32>> {
-        include_str!("../test-data/positive_definite_sheet.out.correct")
+        include_str!("../../test-data/positive_definite_sheet.out.correct")
             .lines()
             .map(|line| {
                 let mut columns = line.split_whitespace();
@@ -339,7 +339,7 @@ mod tests {
     }
 
     fn parse_slab_fortran_expected_bits() -> Vec<u32> {
-        include_str!("../test-data/positive_definite_slab.out.correct")
+        include_str!("../../test-data/positive_definite_slab.out.correct")
             .split_whitespace()
             .skip(1)
             .map(|hexadecimal| u32::from_str_radix(hexadecimal, 16).unwrap())

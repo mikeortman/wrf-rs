@@ -66,3 +66,9 @@ measure_positive_definite_allocations` measures two warmed 100-dispatch phases
 with an instrumented system allocator. It enforces no reallocations, fewer than
 one small allocation per ten calls, and at most 64 KiB allocated per phase.
 These are scheduler budgets, not permission for numerical scratch allocation.
+
+`cargo bench -p wrf-dynamics --bench held_suarez` measures 2,097,152
+momentum-tendency updates over two staggered components. It retains six
+domain-sized fields but restores only the two outputs in excluded setup. The
+2026-07-13 Apple M3 Max baseline found four workers faster than both one and all
+16 host workers; see `docs/performance/held-suarez-2026-07-13.md`.

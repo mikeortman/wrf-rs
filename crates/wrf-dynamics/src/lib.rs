@@ -10,13 +10,14 @@
 
 #![forbid(unsafe_code)]
 
-mod cpu_positive_definite_kernels;
-mod positive_definite_error;
-mod positive_definite_kernels;
-mod positive_definite_slab_axis;
-mod positive_definite_slab_region;
+mod held_suarez;
+mod positive_definite;
 
-pub use positive_definite_error::{PositiveDefiniteError, PositiveDefiniteResult};
-pub use positive_definite_kernels::PositiveDefiniteKernels;
-pub use positive_definite_slab_axis::PositiveDefiniteSlabAxis;
-pub use positive_definite_slab_region::PositiveDefiniteSlabRegion;
+pub use held_suarez::{
+    HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,
+    HeldSuarezDampingKernels, HeldSuarezDampingRegion, HeldSuarezDampingResult,
+};
+pub use positive_definite::{
+    PositiveDefiniteError, PositiveDefiniteKernels, PositiveDefiniteResult,
+    PositiveDefiniteSlabAxis, PositiveDefiniteSlabRegion,
+};

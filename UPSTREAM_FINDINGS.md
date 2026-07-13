@@ -16,6 +16,8 @@ regression until a representative benchmark exists.
 | WRF-002 | Performance opportunity | Source-confirmed, not benchmarked | Positive-definite correction | The sheet and slab routines allocate scratch storage and copy every corrected line into and out of it |
 | WRF-003 | Performance opportunity | Source-confirmed, not benchmarked | Positive-definite correction | A full-array `ANY` scan is followed by a second `ANY` scan of each line |
 | WRF-004 | Test gap | Repository search | Positive-definite correction | No dedicated regression test for either exported routine was found in the WRF tree |
+| WRF-005 | Test gap | Repository search | Held-Suarez damping | No dedicated numerical regression for `held_suarez_damp` was found in the WRF tree |
+| WRF-006 | Performance opportunity | Source-confirmed, not benchmarked | Held-Suarez damping | The surface-pressure denominator is recomputed for every vertical level although it is invariant in `k` |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -99,3 +101,41 @@ The first six are now exercised by the local Fortran oracle. The local slab
 oracle additionally covers non-one memory origins, tile/domain clipping, and
 unchanged halo/stagger sentinels; broader combinations remain worthwhile for
 upstream regression coverage.
+
+## WRF-005: Held-Suarez damping test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the routine definition, its production call
+from `dyn_em/module_em.F`, build dependencies, and commented tangent-linear or
+adjoint references. It finds no dedicated numerical test invocation. Important
+uncovered behavior includes:
+
+- both C-grid momentum staggers and their preceding pressure neighbors;
+- the `sigma = 0.7` zero-damping boundary;
+- surface, partially damped, and unchanged upper levels;
+- clipping of domain and tile bounds; and
+- unchanged halo and excluded vertical points.
+
+The local differential oracle compiles `module_damping_em.F` directly and
+checks raw single-precision bits at 16 active and excluded points with non-one
+memory origins. A full idealized Held-Suarez trajectory remains necessary in
+addition to this routine-level coverage.
+
+## WRF-006: repeated surface-pressure denominator
+
+Status: source-confirmed performance opportunity; benchmark pending.
+
+In both momentum loops in `dyn_em/module_damping_em.F:40-62`, the denominator
+of `sig` uses pressure only at vertical index `1`. It therefore depends on the
+two horizontal stagger points but not on loop variable `k`. The current loop
+nesting is `j`, `k`, `i`, so the same four surface-pressure values are loaded,
+added, and divided into every active vertical level.
+
+Hoisting the denominator is not automatically a win. Reordering to `j`, `i`,
+`k` sacrifices contiguous `i` traversal, while storing reciprocals adds scratch
+traffic. A compiler may also eliminate part of the repeated work. Suggested
+upstream investigation: inspect optimized code and benchmark the current loop
+against a vector-friendly horizontal reciprocal buffer or a fused calling
+context on representative domains. Preserve single-precision expression order
+when evaluating numerical impact.

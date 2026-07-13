@@ -18,10 +18,19 @@ implemented system; proposed work is explicitly labeled.
 - [Positive-definite correction](Positive-Definite-Correction.md) — derivation,
   branch semantics, layout, and performance characteristics of the first
   numerical kernel.
+- [Held-Suarez momentum damping](Held-Suarez-Damping.md) — pressure-dependent
+  Rayleigh friction, staggered pressure geometry, parallel execution, and
+  exact-bit evidence.
 - [Development infrastructure](Development-Infrastructure.md) — source pinning,
   scripts, verification gates, and documentation policy.
 - [Positive-definite performance baseline](../performance/positive-definite-2026-07-13.md)
   — release throughput, scaling, generated-code findings, and caveats.
+- [Held-Suarez performance baseline](../performance/held-suarez-2026-07-13.md)
+  — CPU scaling and the matched optimized-Fortran comparison.
+- [Rust/Fortran performance ledger](../../PERFORMANCE_PARITY.md) — matched
+  workload policy and cumulative comparison table.
+- [Rust module structure](../architecture/module_structure.md) — family-owned
+  source hierarchy and stable crate facades.
 
 ## Maintenance rule
 
