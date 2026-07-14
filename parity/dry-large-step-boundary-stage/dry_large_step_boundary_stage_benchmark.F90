@@ -9,7 +9,7 @@ program dry_large_step_boundary_stage_benchmark
   integer,parameter::ids=1,ide=nx+1,jds=1,jde=ny+1,kds=1,kde=nz+1
   integer,parameter::its=1,ite=nx+1,jts=1,jte=ny+1,kts=1,kte=nz+1
   integer,parameter::boundary_width=5,spec_zone=1,relax_zone=4
-  integer,parameter::samples=11,calls_per_sample=5,warmup_calls=5
+  integer,parameter::samples=31,calls_per_sample=5,warmup_calls=5
   real,allocatable,dimension(:,:,:)::ru_tend,rv_tend,rw_tend,ph_tend,t_tend
   real,allocatable,dimension(:,:,:)::ru_tendf,rv_tendf,rw_tendf,ph_tendf,t_tendf
   real,allocatable,dimension(:,:,:)::u_save,v_save,w_save,ph_save,t_save
