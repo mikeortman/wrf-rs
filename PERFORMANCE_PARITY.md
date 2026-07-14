@@ -80,6 +80,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Acoustic horizontal momentum | 256 × 256 × 40 mass grid plus U/V staggers | 7.569 ms median | 71.852 ms | 7.802 ms (16 workers) | Rust 16-worker 3.1% slower; operationally close, stop tuning pending trajectory profile |
 | Acoustic mass, omega, and theta | 256 × 256 × 40 mass grid | 5.368 ms median | 29.960 ms | 4.241 ms (16 workers) | Rust 16-worker 1.27× faster; stop tuning pending trajectory profile |
 | Implicit acoustic vertical momentum | 256 × 256 × 40 mass grid plus top level | 16.745 ms median `[16.014, 26.746]` | 61.295 ms `[61.074, 61.480]` | 6.621 ms (16 workers) | Rust 4-worker 1.04× faster; Rust 16-worker 2.53× faster; stop tuning pending trajectory profile |
+| Acoustic flux accumulation | three substeps on 256 × 256 × 40 mass grid plus U/V/W staggers | 5.513750 ms median `[5.163000, 6.643500]` | 26.048 ms `[25.922, 26.187]` | 3.6192 ms (16 workers) | Rust 16-worker 1.52× faster; stop tuning pending trajectory profile |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -111,6 +112,7 @@ cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_horizontal_momentum -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_flux_accumulation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -130,6 +132,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-acoustic-horizontal-momentum-fortran.sh
 ./scripts/benchmark-acoustic-mass-theta-fortran.sh
 ./scripts/benchmark-acoustic-vertical-momentum-fortran.sh
+./scripts/benchmark-acoustic-flux-accumulation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 

@@ -8,6 +8,8 @@
 //! tridiagonal factors used by the implicit vertical acoustic solve.
 //! [`AcousticVerticalKernels`] consumes those factors to advance vertical
 //! momentum, geopotential, and normalized time-averaged thermodynamics.
+//! [`AcousticFluxAccumulationKernels`] then accumulates and finalizes the
+//! staggered mass fluxes consumed by conservative scalar transport.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -21,6 +23,7 @@
 
 #![forbid(unsafe_code)]
 
+mod acoustic_flux_accumulation;
 mod acoustic_horizontal_momentum;
 mod acoustic_mass_theta;
 mod acoustic_pressure;
@@ -40,6 +43,12 @@ mod runge_kutta_preparation;
 mod test_support;
 mod vertical_acoustic_coefficients;
 
+pub use acoustic_flux_accumulation::{
+    AcousticFluxAccumulationError, AcousticFluxAccumulationKernels, AcousticFluxAccumulationRegion,
+    AcousticFluxAccumulationResult, AcousticFluxCoefficient, AcousticFluxCurrentFields,
+    AcousticFluxField, AcousticFluxLinearFields, AcousticFluxMapFactors, AcousticFluxMassFields,
+    AcousticFluxRunningAverages, AcousticSubstepPhase,
+};
 pub use acoustic_horizontal_momentum::{
     AcousticHorizontalBoundaryPolicy, AcousticHorizontalMapFactors, AcousticHorizontalMassFields,
     AcousticHorizontalMoistureCoefficients, AcousticHorizontalMomentumAxis,

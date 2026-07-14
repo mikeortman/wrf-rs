@@ -80,3 +80,7 @@ harness = false
 [[bench]]
 name = "acoustic_vertical_momentum"
 harness = false
+
+[[bench]]
+name = "acoustic_flux_accumulation"
+harness = false

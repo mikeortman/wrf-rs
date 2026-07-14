@@ -73,6 +73,9 @@ implemented system; proposed work is explicitly labeled.
 - [Implicit acoustic vertical momentum and geopotential](Implicit-Acoustic-Vertical-Momentum-and-Geopotential.md)
   — geopotential transport, terrain reconstruction, tridiagonal vertical solve,
   upper damping, reusable workspace, and exact pinned-source evidence.
+- [Acoustic flux accumulation](Acoustic-Flux-Accumulation.md) — staggered
+  running sums, final linear recoupling, first-step clearing, parallel storage,
+  and exact three-substep evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -118,6 +121,9 @@ implemented system; proposed work is explicitly labeled.
 - [Implicit acoustic vertical-momentum performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-vertical-momentum-2026-07-14.md)
   — matched complete-column solve, CPU scaling, reusable workspace accounting,
   and the SIMD stopping decision.
+- [Acoustic flux-accumulation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-flux-accumulation-2026-07-14.md)
+  — matched three-substep workload, staggered output scaling, allocation
+  evidence, and the SIMD stopping decision.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.
