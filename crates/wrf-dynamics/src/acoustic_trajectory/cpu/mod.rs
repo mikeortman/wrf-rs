@@ -83,6 +83,30 @@ mod tests {
     }
 
     #[test]
+    fn matches_the_direct_pinned_fortran_trajectory_bits() {
+        let backend = CpuBackend::try_with_worker_count(3).unwrap();
+        let mut fixture = TrajectoryFixture::new(&backend);
+
+        fixture.execute(&backend).unwrap();
+
+        let expected = include_str!("../../../test-data/acoustic_trajectory.out.correct")
+            .lines()
+            .map(|line| u32::from_str_radix(line.split_whitespace().last().unwrap(), 16).unwrap())
+            .collect::<Vec<_>>();
+        let actual = [1, 3, 5, 7, 9]
+            .into_iter()
+            .flat_map(|index| field_bits(&fixture.volume_fields[index]))
+            .chain(field_bits(&fixture.horizontal_fields[1]))
+            .chain(
+                [18, 19, 25, 26, 27]
+                    .into_iter()
+                    .flat_map(|index| field_bits(&fixture.volume_fields[index])),
+            )
+            .collect::<Vec<_>>();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
     fn late_flux_validation_failure_preserves_every_mutable_field() {
         let backend = CpuBackend::try_with_worker_count(2).unwrap();
         let mut fixture = TrajectoryFixture::new(&backend);
@@ -278,8 +302,8 @@ mod tests {
                 half_level_eta_thickness,
                 inverse_half_level_spacing,
                 inverse_full_level_spacing,
-                lower_interpolation_weight,
-                upper_interpolation_weight,
+                upper_full_level_weight,
+                lower_full_level_weight,
             ] = &self.coefficients;
 
             backend.advance_acoustic_trajectory(
@@ -372,8 +396,8 @@ mod tests {
                     half_level_eta_thickness,
                     inverse_half_level_spacing,
                     inverse_full_level_spacing,
-                    lower_interpolation_weight,
-                    upper_interpolation_weight,
+                    upper_full_level_weight,
+                    lower_full_level_weight,
                 ),
                 controls,
                 AcousticTrajectoryRegions::new(
@@ -432,5 +456,9 @@ mod tests {
             AcousticVerticalDamping::Disabled,
         )
         .unwrap()
+    }
+
+    fn field_bits(field: &CpuField<f32>) -> impl Iterator<Item = u32> + '_ {
+        field.values().iter().map(|value| value.to_bits())
     }
 }

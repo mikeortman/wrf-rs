@@ -424,3 +424,19 @@ scientific oracle.
 - The guarded workload's reusable RHS is 10.67 MiB. Every 100 settled calls
   records four scheduler allocations totaling 6,080 bytes, four matching
   deallocations, no reallocations, no field allocation, and no clones.
+
+## Complete local acoustic-trajectory estimate
+
+- The exact trajectory call count is one preparation, four nonhydrostatic
+  pressure diagnoses, one coefficient construction, three horizontal, mass,
+  and vertical advances, and one three-call flux sequence.
+- Summing the matched 256 × 256 × 40 stage medians gives 108.423 ms for
+  optimized serial Fortran, 563.428 ms for one-worker Rust, 150.770 ms for
+  four-worker Rust, and 73.949 ms for 16-worker Rust.
+- The standard host-parallel estimate is 1.47× faster than serial Fortran.
+- This is an arithmetic composition of measured stage medians, not a new fused
+  wall-clock benchmark. Both sides exclude communication and boundary work.
+  Optimization levels remain equivalent: Fortran `-O3 -flto`, Rust level 3
+  with ThinLTO and one codegen unit, no fast-math or native CPU flag.
+- The ordinary path clears the performance gate, so SIMD and fusion stop. A
+  direct integrated measurement waits for the communication/boundary driver.

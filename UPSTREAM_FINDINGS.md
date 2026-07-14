@@ -1064,3 +1064,20 @@ compares all 375 stored values, including halos and stagger-only points.
 Suggested upstream action: add a compact complete-storage regression before
 changing loop fusion or initialization behavior, then include `sumflux` in a
 coupled acoustic trajectory fixture.
+
+## WRF-060: no coupled numerical regression covers a complete local acoustic sequence
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The seven nonlinear routines used by one local nonhydrostatic acoustic
+trajectory are exercised through production drivers, but the repository has no
+focused fixture that runs their exact `solve_em.F` order and compares the
+prognostic state after multiple substeps. Routine-only tests cannot detect
+cross-stage argument swaps such as confusing `fnm` and `fnp`, stale pressure
+diagnostics, or an incorrectly placed flux finalization.
+
+The local oracle extracts all seven exact routine bodies, executes preparation,
+initial pressure and coefficient diagnosis, then three complete substeps, and
+compares 2,196 selected final values by raw IEEE bits. Suggested upstream
+action: add a small serial fixture with intermediate checkpoints, then reuse it
+around halo and physical-boundary insertion in a multi-patch regression.
