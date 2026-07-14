@@ -23,6 +23,8 @@ jobs:
           components: clippy,rustfmt
       - name: Cache Cargo artifacts
         uses: Swatinem/rust-cache@v2
+      - name: Install Open MPI development libraries
+        run: sudo apt-get update && sudo apt-get install --yes libopenmpi-dev openmpi-bin
       - name: Check formatting
         run: cargo fmt --all --check
       - name: Test every workspace target

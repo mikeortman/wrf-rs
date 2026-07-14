@@ -22,7 +22,7 @@ mpifort -cpp -O2 -J"$WORK" -c "$RSL_LITE/f_pack.F90" -o "$WORK/f_pack.o"
 mpifort "$WORK/period.o" "$WORK/buf_for_proc.o" "$WORK/oracle.o" \
     "$WORK/f_pack.o" -o "$WORK/wrf-periodic-halo"
 
-mpirun -n 4 "$WORK/wrf-periodic-halo" >"$WORK/wrf.txt"
+mpirun --oversubscribe -n 4 "$WORK/wrf-periodic-halo" >"$WORK/wrf.txt"
 cargo run --quiet --release --manifest-path "$ROOT/Cargo.toml" \
     -p wrf-domain --example periodic_halo_oracle >"$WORK/rust.txt"
 
