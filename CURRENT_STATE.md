@@ -271,6 +271,17 @@ Implemented:
 - a 3,456-value exact extracted-Fortran oracle covering both governing modes,
   initialization and forward damping, full and partial vertical tiles,
   inactive sentinels, and exceptional IEEE arithmetic;
+- WRF `calc_coef_w` behind a focused
+  `VerticalAcousticCoefficientKernels` capability with typed tridiagonal
+  outputs, mass/moisture/pressure inputs, hybrid-coordinate coefficients,
+  vertical metrics, scalar controls, top-boundary policy, and complete-column
+  region;
+- safe two-phase south-north plane parallelism with level-major contiguous-X
+  traversal, paired forward-elimination outputs, no numerical scratch, and no
+  field clones;
+- a 3,024-value exact extracted-Fortran oracle covering rigid/nonrigid top
+  boundaries, full and partial horizontal tiles, negative/non-one memory
+  origins, inactive sentinels, and exceptional IEEE arithmetic;
 
 The differential drivers compile the pinned upstream Fortran module directly.
 The sheet covers nine exact-bit cases, including signed zero and the epsilon
@@ -354,6 +365,16 @@ geopotential upward. A separate phase enum preserves initialization versus
 forward pressure-history damping. All 3,456 focused values match the extracted
 pinned Fortran routine; validation is failure-atomic and one/four-worker
 results are bit-identical. The Rust API omits nine unused source arguments.
+
+Vertical acoustic coefficient construction now ports `calc_coef_w`, which
+factorizes the tridiagonal system consumed by the implicit `advance_w` solve.
+The region makes WRF's complete-column behavior explicit instead of accepting
+the ignored vertical tile bounds. Typed output roles distinguish the lower
+diagonal, reciprocal eliminated diagonal, and upper elimination factor. All
+3,024 focused values match the extracted pinned Fortran routine; validation is
+failure-atomic and one/four-worker results are bit-identical. The Rust API
+omits the unused coefficient arrays and ignored vertical tile inputs, and the
+implementation removes the redundant horizontal scalar array.
 
 ### `wrf-io`
 
@@ -612,6 +633,22 @@ ordinary four-worker path clears the gate, so explicit SIMD and custom worker
 selection wait for a trajectory profile. See
 `docs/performance/acoustic-pressure-2026-07-14.md`.
 
+## Vertical acoustic coefficient performance baseline
+
+On a matched 256 × 256 × 40 complete-column workload, serial GNU Fortran
+16.1.0 `-O3 -flto` measured a 1.867500 ms median. Portable release Rust
+measured 14.608 ms with one worker, 3.8912 ms with four, and 1.7109 ms with 16.
+The default 16-worker host path is 1.09× faster than serial Fortran.
+
+Changing the first exact implementation from column-strided to WRF-like
+level-major contiguous-X traversal improved serial Rust from 27.881 to 14.608
+ms without changing any oracle bit. Every settled 100-call phase records three
+small scheduler allocations totaling 4,560 bytes, no reallocations, no
+numerical scratch, and no field clones. The default path clears the gate, so
+the remaining serial vectorization gap waits for an integrated trajectory
+profile. See
+`docs/performance/vertical-acoustic-coefficients-2026-07-14.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -690,6 +727,7 @@ cargo test --workspace --release
 ./scripts/run-dry-tendency-assembly-oracle.sh
 ./scripts/run-acoustic-step-preparation-oracle.sh
 ./scripts/run-acoustic-pressure-oracle.sh
+./scripts/run-vertical-acoustic-coefficients-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -711,6 +749,7 @@ cargo test --workspace --release
 ./scripts/benchmark-dry-tendency-assembly-fortran.sh
 ./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-acoustic-pressure-fortran.sh
+./scripts/benchmark-vertical-acoustic-coefficients-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -723,6 +762,7 @@ cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
+cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -735,12 +775,13 @@ cargo run -p wrf-dynamics --release --example measure_runge_kutta_preparation_al
 cargo run -p wrf-dynamics --release --example measure_dry_tendency_assembly_allocations
 cargo run -p wrf-dynamics --release --example measure_acoustic_step_preparation_allocations
 cargo run -p wrf-dynamics --release --example measure_acoustic_pressure_allocations
+cargo run -p wrf-dynamics --release --example measure_vertical_acoustic_coefficient_allocations
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 172 unit tests and 14 doctests passed in debug and release modes (one
+Result: 177 unit tests and 15 doctests passed in debug and release modes (one
 corpus-generator test, 15 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 85 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 90 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -773,6 +814,10 @@ Acoustic pressure diagnosis matches all 3,456 mode/phase, partial-tile,
 hydrostatic-recurrence, exceptional, and sentinel values; its matched timing,
 allocation evidence, layout correction, and performance stopping decision are
 recorded.
+Vertical acoustic coefficient construction matches all 3,024 boundary-mode,
+partial-tile, complete-column, exceptional, and sentinel values; its matched
+timing, allocation evidence, layout correction, and deferred vectorization
+opportunity are recorded.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -825,8 +870,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port `calc_coef_w`, then the acoustic advance routines that consume
-   `small_step_prep` and `calc_p_rho`; compare a complete small-step trajectory.
+1. Port the acoustic advance routines that consume `small_step_prep`,
+   `calc_p_rho`, and `calc_coef_w`; compare a complete small-step trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

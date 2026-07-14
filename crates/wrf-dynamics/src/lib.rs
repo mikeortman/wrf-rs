@@ -4,6 +4,8 @@
 //! GPU implementations can use native storage and execution strategies.
 //! [`RungeKuttaPreparationKernels`] composes the seven translated ARW
 //! diagnostics behind one failure-atomic validation boundary.
+//! [`VerticalAcousticCoefficientKernels`] prepares the complete-column
+//! tridiagonal factors used by the implicit vertical acoustic solve.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -31,6 +33,7 @@ mod pressure_point_geopotential;
 mod runge_kutta_preparation;
 #[cfg(test)]
 mod test_support;
+mod vertical_acoustic_coefficients;
 
 pub use acoustic_pressure::{
     AcousticPressureAxis, AcousticPressureCoefficient, AcousticPressureCoefficients,
@@ -103,4 +106,12 @@ pub use runge_kutta_preparation::{
     RungeKuttaPreparationOutputs, RungeKuttaPreparationRegions, RungeKuttaPreparationResult,
     RungeKuttaPreparationStage, RungeKuttaPreparationThermodynamicInputs,
     RungeKuttaPreparationVelocities,
+};
+pub use vertical_acoustic_coefficients::{
+    VerticalAcousticCoefficient, VerticalAcousticCoefficientAxis, VerticalAcousticCoefficientError,
+    VerticalAcousticCoefficientField, VerticalAcousticCoefficientInputs,
+    VerticalAcousticCoefficientKernels, VerticalAcousticCoefficientParameters,
+    VerticalAcousticCoefficientRegion, VerticalAcousticCoefficientResult,
+    VerticalAcousticMassCoefficients, VerticalAcousticMetrics, VerticalAcousticSolveCoefficients,
+    VerticalAcousticTopBoundary,
 };

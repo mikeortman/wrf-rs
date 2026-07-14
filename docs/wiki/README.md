@@ -61,6 +61,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic pressure and inverse-density diagnosis](Acoustic-Pressure-Diagnosis.md)
   — nonhydrostatic/hydrostatic equations, pressure-history damping, vertical
   geopotential recurrence, and exact mode/phase evidence.
+- [Vertical acoustic solve coefficients](Vertical-Acoustic-Coefficients.md) —
+  tridiagonal factorization, complete-column and top-boundary contracts,
+  parallel XZY traversal, and exact coefficient evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -100,6 +103,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic-pressure performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-pressure-2026-07-14.md)
   — matched governing modes, hydrostatic layout correction, CPU scaling,
   allocations, and the SIMD stopping decision.
+- [Vertical-acoustic coefficient performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/vertical-acoustic-coefficients-2026-07-14.md)
+  — matched tridiagonal construction, layout correction, CPU scaling,
+  allocations, and the deferred SIMD opportunity.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

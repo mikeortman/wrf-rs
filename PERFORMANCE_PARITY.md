@@ -76,6 +76,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Acoustic small-step preparation | 45,543,936 mutable values | 5.877800 ms median `[5.731300, 7.147600]` | 26.123 ms `[25.869, 26.388]` | 6.5595 ms (16 workers) | Rust serial 4.44× slower; Rust 4-worker 26.1% slower; Rust 16-worker 11.6% slower; operationally close, stop tuning pending trajectory profile |
 | Acoustic pressure, nonhydrostatic | 2,621,440 mass points | 1.529500 ms median `[1.512550, 2.006750]` | 1.8319 ms `[1.8075, 1.8596]` | 0.81126 ms (4 workers) | Rust serial 19.8% slower; Rust 4-worker 1.89× faster; stop tuning pending trajectory profile |
 | Acoustic pressure, hydrostatic | 2,621,440 mass points | 1.602750 ms median `[1.563400, 1.765500]` | 2.0816 ms `[2.0569, 2.1137]` | 0.95950 ms (4 workers) | Rust serial 29.9% slower; Rust 4-worker 1.67× faster; stop tuning pending trajectory profile |
+| Vertical acoustic coefficients | 256 × 256 × 40 columns | 1.867500 ms median `[1.829250, 1.956000]` | 14.608 ms `[14.536, 14.686]` | 1.7109 ms (16 workers) | Rust serial 7.82× slower; Rust 16-worker 1.09× faster; stop tuning pending trajectory profile |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -103,6 +104,7 @@ cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
+cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -118,6 +120,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-dry-tendency-assembly-fortran.sh
 ./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-acoustic-pressure-fortran.sh
+./scripts/benchmark-vertical-acoustic-coefficients-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -332,6 +335,23 @@ scientific oracle.
 - The normal multithreaded path clears the gate, so explicit SIMD, unsafe
   fusion, and custom per-kernel worker selection wait for a coupled trajectory
   profile.
+
+## Vertical acoustic coefficient comparison notes
+
+- Both implementations construct `a`, `alpha`, and `gamma` for 256 × 256
+  columns with 40 mass half levels and the additional top full level.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses portable optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or a native CPU flag.
+- One-worker Rust is 7.82× slower and four-worker Rust is 2.08× slower than
+  serial Fortran. The standard 16-worker host path is 1.09× faster.
+- Reordering the first parity-correct column-strided traversal to WRF-like
+  level-major contiguous-X traversal preserved all 3,024 oracle values and
+  improved serial Rust from 27.881 to 14.608 ms.
+- Every 100 settled calls records three scheduler allocations totaling 4,560
+  bytes, no reallocations, no numerical scratch, and no field clones.
+- The default path clears the gate. The remaining serial vectorization gap is
+  recorded for integrated profiling rather than addressed with speculative
+  SIMD during this port slice.
 
 ## Kessler microphysics comparison notes
 

@@ -826,3 +826,65 @@ stored values across both governing modes and both damping phases, including
 partial and exceptional cases. Suggested upstream action: adopt a compact
 routine fixture and include pressure, inverse density, geopotential, and
 pressure history in a per-substep acoustic trajectory comparison.
+
+## WRF-042: `calc_coef_w` carries dead arguments and misleading vertical tile plumbing
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable body never reads `c3h`, `c4h`, `c3f`, or `c4f`. Lower domain
+bounds `ids`, `jds`, and `kds` are also unused. The routine assigns `kts` and
+`kte-1` to local `k_start` and `k_end`, but never reads either local afterward;
+it always constructs the complete column using literal lower indices and
+`kde`. Locals `ij`, `ijp`, and `ijm` are declared but unused as well.
+
+The full-column behavior is consistent with the implicit vertical solve, but
+the accepted vertical tile arguments imply a capability that does not exist.
+The Rust region omits a vertical tile and requires the complete half-level
+domain plus the top full level. Suggested upstream action: remove dead
+arguments and locals during a planned interface revision, or document and
+assert the complete-column invariant at the call boundary.
+
+## WRF-043: `calc_coef_w` allocates an unnecessary horizontal `cof` array
+
+Status: source-confirmed local memory and clarity opportunity; no independent
+whole-model speed claim is made.
+
+`cof(i)` is assigned the same expression,
+`(.5*dts*g*(1.+epssm))**2`, for every active west–east point. The value has no
+`i` dependency, so the automatic `ims:ime` array and initialization loop are
+unnecessary. The Rust implementation calculates one scalar per call and
+preserves exact output bits.
+
+Suggested upstream action: replace `cof(:)` with a scalar calculated once
+outside the horizontal loops. This removes stack storage and makes the actual
+dependency explicit.
+
+## WRF-044: rigid-lid multiplication does not guarantee a zero exceptional coefficient
+
+Status: source-confirmed exceptional-value robustness issue.
+
+When `top_lid` is true, `lid_flag` becomes zero and is multiplied into the top
+lower-diagonal numerator only after inverse spacing and pressure terms have
+already been evaluated. Consequently, an infinite intermediate produces
+`0 * Inf = NaN`, and a zero denominator can produce `0 / 0 = NaN`, instead of
+the mathematically intended zero rigid-lid coupling. The local oracle confirms
+this IEEE behavior, and Rust preserves it for parity.
+
+Suggested upstream action: if rigid-lid decoupling must hold even after an
+upstream numerical failure, branch explicitly and assign `a(i,kde,j)=0.`.
+Changing this behavior should be accompanied by a documented exceptional-value
+policy because it alters current observable results.
+
+## WRF-045: no focused numerical regression for `calc_coef_w`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production use of the factors but no dedicated
+numerical fixture for lower/interior/top coefficients, rigid versus nonrigid
+upper boundaries, forward elimination, partial horizontal tiles, complete
+vertical columns, inactive storage, or exceptional denominators.
+
+The local fixture extracts the exact pinned routine and compares all 3,024
+`a`, `alpha`, `gamma`, and sentinel values across four cases. Suggested
+upstream action: adopt a compact coefficient fixture and then validate the
+factorization through the subsequent forward and backward `advance_w` sweeps.
