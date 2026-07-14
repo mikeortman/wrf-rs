@@ -1,5 +1,6 @@
 mod driver;
 mod kessler;
+mod trajectory;
 
 pub use driver::{
     MicrophysicsBoundaryPolicy, MicrophysicsDriver, MicrophysicsDriverDomain,
@@ -12,4 +13,9 @@ pub use kessler::{
     KesslerMicrophysicsField, KesslerMicrophysicsFields, KesslerMicrophysicsKernels,
     KesslerMicrophysicsParameter, KesslerMicrophysicsParameters, KesslerMicrophysicsRegion,
     KesslerMicrophysicsResult,
+};
+pub use trajectory::{
+    ArwMicrophysicsControl, ArwMicrophysicsControls, ArwMicrophysicsError, ArwMicrophysicsField,
+    ArwMicrophysicsResult, ArwMicrophysicsStage, ArwMicrophysicsStageView, ArwMicrophysicsState,
+    ArwMicrophysicsTrajectory, ArwMicrophysicsWorkspace,
 };

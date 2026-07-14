@@ -142,6 +142,8 @@ jobs:
         run: ./scripts/run-periodic-halo-oracle.sh
       - name: Verify Kessler warm-rain microphysics
         run: ./scripts/run-kessler-oracle.sh
+      - name: Verify Kessler precipitation trajectory
+        run: ./scripts/run-kessler-precipitation-trajectory-oracle.sh
       - name: Verify WRF NetCDF restart compatibility
         run: ./scripts/run-netcdf-restart-oracle.sh
 

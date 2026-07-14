@@ -10,11 +10,14 @@
 mod microphysics;
 
 pub use microphysics::{
-    CpuKesslerMicrophysicsWorkspace, KesslerMicrophysicsAxis, KesslerMicrophysicsError,
-    KesslerMicrophysicsField, KesslerMicrophysicsFields, KesslerMicrophysicsKernels,
-    KesslerMicrophysicsParameter, KesslerMicrophysicsParameters, KesslerMicrophysicsRegion,
-    KesslerMicrophysicsResult, MicrophysicsBoundaryPolicy, MicrophysicsDriver,
-    MicrophysicsDriverDomain, MicrophysicsDriverError, MicrophysicsDriverFields,
-    MicrophysicsDriverResult, MicrophysicsDriverWorkspace, MicrophysicsScheme, MicrophysicsTile,
-    MoistureSpecies, MoistureSpeciesIndex, MoistureSpeciesPackage,
+    ArwMicrophysicsControl, ArwMicrophysicsControls, ArwMicrophysicsError, ArwMicrophysicsField,
+    ArwMicrophysicsResult, ArwMicrophysicsStage, ArwMicrophysicsStageView, ArwMicrophysicsState,
+    ArwMicrophysicsTrajectory, ArwMicrophysicsWorkspace, CpuKesslerMicrophysicsWorkspace,
+    KesslerMicrophysicsAxis, KesslerMicrophysicsError, KesslerMicrophysicsField,
+    KesslerMicrophysicsFields, KesslerMicrophysicsKernels, KesslerMicrophysicsParameter,
+    KesslerMicrophysicsParameters, KesslerMicrophysicsRegion, KesslerMicrophysicsResult,
+    MicrophysicsBoundaryPolicy, MicrophysicsDriver, MicrophysicsDriverDomain,
+    MicrophysicsDriverError, MicrophysicsDriverFields, MicrophysicsDriverResult,
+    MicrophysicsDriverWorkspace, MicrophysicsScheme, MicrophysicsTile, MoistureSpecies,
+    MoistureSpeciesIndex, MoistureSpeciesPackage,
 };

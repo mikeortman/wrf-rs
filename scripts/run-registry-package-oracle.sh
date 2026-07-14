@@ -65,13 +65,19 @@ if ! cmp -s "$build_directory/fixture-packages.txt" "$build_directory/generated-
     exit 1
 fi
 
-gfortran -O0 -ffree-form -ffree-line-length-none \
-    -J "$build_directory/modules" \
-    -I "$build_directory/modules" \
-    -I "$build_directory/wrf/inc" \
-    "$build_directory/wrf/frame/module_state_description.F" \
-    "$fortran_driver" \
-    -o "$build_directory/registry-package-fortran"
+(
+    # Compile from the isolated build directory so an unrelated WRF oracle's
+    # module_state_description.mod in the repository root cannot shadow this
+    # fixture's freshly generated module.
+    cd "$build_directory"
+    gfortran -O0 -ffree-form -ffree-line-length-none \
+        -J "$build_directory/modules" \
+        -I "$build_directory/modules" \
+        -I "$build_directory/wrf/inc" \
+        "$build_directory/wrf/frame/module_state_description.F" \
+        "$fortran_driver" \
+        -o "$build_directory/registry-package-fortran"
+)
 "$build_directory/registry-package-fortran" >>"$build_directory/wrf.txt"
 
 package_count=$(grep -c '^PACKAGE|' "$build_directory/wrf.txt")

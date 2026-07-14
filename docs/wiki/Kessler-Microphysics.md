@@ -129,6 +129,18 @@ reordered three-species layouts are also compared through
 layout behavior remains Registry-owned. Registry syntax stays out of the
 physics crate.
 
+`scripts/run-kessler-precipitation-trajectory-oracle.sh` extends that evidence
+through the pinned `solve_em` time-split order: thermodynamic preparation,
+Registry-selected driver dispatch, and diabatic-tendency finalization. Its
+35,280 exact raw-bit stage and checkpoint values exercise the direct reordered
+species layout, heating-disabled behavior, checkpoint-split execution,
+inactive exceptional IEEE sentinels, and one/four-worker determinism against
+actual live-source WRF preparation and finish routines. Active non-finite
+Kessler evolution is intentionally outside the cross-toolchain bitwise contract
+because WRF `MIN`/`MAX` propagation changes across GNU Fortran versions.
+Separate Rust tests prove canonical and reordered layouts produce identical
+species results.
+
 ## Performance
 
 On the recorded 655,360-point workload, one-worker Rust and optimized serial
@@ -138,8 +150,18 @@ keeps its readable scalar arithmetic; no speculative SIMD layer is present.
 
 See the [detailed baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md).
 
+The accepted time-split trajectory also has a matched three-step benchmark. It
+includes only the dependency-closed Kessler preparation, pinned scheme, and
+finalization work on 128 × 128 × 40 contiguous mass storage plus 41 W levels.
+The Fortran projection excludes pressure-at-W diagnostics that neither path
+consumes; the live-source oracle validates its exact expressions separately.
+On the recorded machine, the serial projection takes 152.494 ms; Rust takes
+139.851 ms with one worker, 76.002 ms with four, and 60.174 ms with 16. Setup
+and fixture reset are outside both timers. See the [trajectory receipt](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-precipitation-trajectory-2026-07-14.md).
+
 ## Remaining integration work
 
-Routine and driver parity do not yet prove forecast parity. Remaining work
-includes ARW tendency coupling, halo scheduling around physics, restart state,
-and idealized precipitation trajectories.
+Routine and time-split trajectory parity do not yet prove forecast parity.
+Remaining work is binding the accepted capability into the Registry-backed ARW
+model runner, scheduling distributed halos around physics, and resuming that
+runner from NetCDF state under issue #84.

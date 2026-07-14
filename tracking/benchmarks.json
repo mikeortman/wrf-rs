@@ -4,9 +4,7 @@
   "global_watch": [
     "Cargo.toml",
     "Cargo.lock",
-    "crates/wrf-compute/src/**",
-    "tools/tracking.py",
-    "tracking/benchmarks.json"
+    "crates/wrf-compute/src/**"
   ],
   "suites": [
     {
@@ -440,6 +438,18 @@
       "fortran_script": "scripts/benchmark-kessler-fortran.sh",
       "parity_oracle": "scripts/run-kessler-oracle.sh",
       "watch": ["crates/wrf-physics/src/microphysics/kessler/**", "crates/wrf-physics/benches/kessler_microphysics.rs", "parity/kessler/**", "scripts/benchmark-kessler-fortran.sh"]
+    },
+    {
+      "id": "kessler-precipitation-trajectory",
+      "label": "Kessler precipitation trajectory",
+      "package": "wrf-physics",
+      "rust_bench": "kessler_precipitation_trajectory",
+      "criterion_group": "kessler_precipitation_trajectory",
+      "rust_case": "three_step_warm_rain",
+      "fortran_case": "default",
+      "fortran_script": "scripts/benchmark-kessler-precipitation-trajectory-fortran.sh",
+      "parity_oracle": "scripts/run-kessler-precipitation-trajectory-oracle.sh",
+      "watch": ["crates/wrf-physics/Cargo.toml", "crates/wrf-physics/src/microphysics/trajectory/**", "crates/wrf-physics/src/microphysics/driver/**", "crates/wrf-physics/src/microphysics/kessler/**", "crates/wrf-physics/benches/kessler_precipitation_trajectory.rs", "crates/wrf-physics/benches/support/kessler_precipitation_trajectory_fixture.rs", "crates/wrf-physics/examples/kessler_precipitation_trajectory_oracle.rs", "crates/wrf-physics/examples/measure_kessler_precipitation_trajectory_allocations.rs", "parity/kessler-precipitation-trajectory/**", "scripts/benchmark-kessler-precipitation-trajectory-fortran.sh", "scripts/run-kessler-precipitation-trajectory-oracle.sh"]
     }
   ]
 }

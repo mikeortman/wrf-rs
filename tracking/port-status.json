@@ -53,9 +53,9 @@
       "id": "physics",
       "area": "Physics drivers and schemes",
       "state": "in-progress",
-      "evidence": "Kessler warm-rain microphysics matches all 660 mutable oracle values; the typed driver matches 8,624 values across seven branches; canonical and reordered Registry layouts bind directly into typed physics packages; and inactive plus deduplicated layouts retain exact generated-index parity in the Registry layer.",
-      "next_gate": "Couple Registry-selected Kessler precipitation through the ARW tendency trajectory.",
-      "tracking_issue": 87
+      "evidence": "Kessler warm-rain microphysics matches all 660 mutable oracle values; the Registry-selected ARW preparation-driver-finish trajectory matches 35,280 pinned-Fortran raw-bit stage and checkpoint values through a reordered species layout, including inactive exceptional sentinels; active non-finite evolution is compiler-dependent, separate tests cover canonical ordering, checkpoint-split execution is exact, and one/four-worker results are deterministic.",
+      "next_gate": "Bind the accepted time-split Kessler trajectory into the Registry-backed ARW model runner; NetCDF resume remains issue #84.",
+      "tracking_issue": 82
     },
     {
       "id": "io",

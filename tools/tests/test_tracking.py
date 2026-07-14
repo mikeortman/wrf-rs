@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import os
@@ -45,6 +46,16 @@ checksum 9.999999E+12
 
 
 class SelectionTests(unittest.TestCase):
+    @staticmethod
+    def catalogs_with_changed_suite(
+        identifier: str,
+    ) -> tuple[dict[str, object], dict[str, object]]:
+        current = tracking.load_benchmarks()
+        previous = copy.deepcopy(current)
+        suite = next(suite for suite in previous["suites"] if suite["id"] == identifier)
+        suite["label"] = f"{suite['label']} before change"
+        return previous, current
+
     def test_selects_a_scientific_family(self) -> None:
         selected = tracking.select_suites(
             ["crates/wrf-dynamics/src/held_suarez/cpu.rs"]
@@ -57,6 +68,99 @@ class SelectionTests(unittest.TestCase):
 
     def test_docs_only_change_selects_nothing(self) -> None:
         self.assertEqual(tracking.select_suites(["docs/wiki/Home.md"]), [])
+
+    def test_kessler_driver_change_selects_only_coupled_trajectory(self) -> None:
+        selected = tracking.select_suites(
+            ["crates/wrf-physics/src/microphysics/driver/microphysics_driver.rs"]
+        )
+        self.assertEqual(
+            [suite["id"] for suite in selected],
+            ["kessler-precipitation-trajectory"],
+        )
+
+    def test_catalog_only_change_selects_the_changed_current_suite(self) -> None:
+        previous, current = self.catalogs_with_changed_suite("held-suarez")
+        selected = tracking.select_suites(
+            ["tracking/benchmarks.json"],
+            benchmarks=current,
+            previous_benchmarks=previous,
+        )
+        self.assertEqual([suite["id"] for suite in selected], ["held-suarez"])
+
+    def test_catalog_and_driver_change_select_only_the_changed_current_suite(self) -> None:
+        current = tracking.load_benchmarks()
+        previous = copy.deepcopy(current)
+        previous["suites"] = [
+            suite
+            for suite in previous["suites"]
+            if suite["id"] != "kessler-precipitation-trajectory"
+        ]
+        previous["global_watch"] = [
+            *current["global_watch"],
+            "tools/tracking.py",
+            "tracking/benchmarks.json",
+        ]
+        selected = tracking.select_suites(
+            [
+                "tracking/benchmarks.json",
+                "crates/wrf-physics/src/microphysics/driver/microphysics_driver.rs",
+            ],
+            benchmarks=current,
+            previous_benchmarks=previous,
+        )
+        self.assertEqual(
+            [suite["id"] for suite in selected],
+            ["kessler-precipitation-trajectory"],
+        )
+
+    def test_routing_catalog_and_driver_change_select_only_changed_suite(self) -> None:
+        current = tracking.load_benchmarks()
+        previous = copy.deepcopy(current)
+        previous["suites"] = [
+            suite
+            for suite in previous["suites"]
+            if suite["id"] != "kessler-precipitation-trajectory"
+        ]
+
+        selected = tracking.select_suites(
+            [
+                "tools/tracking.py",
+                "tracking/benchmarks.json",
+                "crates/wrf-physics/src/microphysics/driver/microphysics_driver.rs",
+            ],
+            benchmarks=current,
+            previous_benchmarks=previous,
+        )
+
+        self.assertEqual(
+            [suite["id"] for suite in selected],
+            ["kessler-precipitation-trajectory"],
+        )
+
+    def test_routing_code_change_without_catalog_change_selects_every_suite(self) -> None:
+        selected = tracking.select_suites(["tools/tracking.py"])
+        self.assertEqual(len(selected), len(tracking.load_benchmarks()["suites"]))
+
+    def test_top_level_catalog_change_selects_every_current_suite(self) -> None:
+        current = tracking.load_benchmarks()
+        previous = copy.deepcopy(current)
+        previous["ci_runner_class"] = "previous-runner"
+
+        selected = tracking.select_suites(
+            ["tracking/benchmarks.json"],
+            benchmarks=current,
+            previous_benchmarks=previous,
+        )
+
+        self.assertEqual(len(selected), len(current["suites"]))
+
+    def test_catalog_without_revision_context_safely_selects_every_suite(self) -> None:
+        selected = tracking.select_suites(["tracking/benchmarks.json"])
+        self.assertEqual(len(selected), len(tracking.load_benchmarks()["suites"]))
+
+    def test_run_all_still_selects_every_suite(self) -> None:
+        selected = tracking.select_suites(["docs/wiki/Home.md"], run_all=True)
+        self.assertEqual(len(selected), len(tracking.load_benchmarks()["suites"]))
 
 
 class RelativeTextTests(unittest.TestCase):
