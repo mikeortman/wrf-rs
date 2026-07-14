@@ -13,6 +13,8 @@
 mod column_mass_staggering;
 mod held_suarez;
 mod positive_definite;
+#[cfg(test)]
+mod test_support;
 
 pub use column_mass_staggering::{
     ColumnMassStaggeringAxis, ColumnMassStaggeringError, ColumnMassStaggeringField,

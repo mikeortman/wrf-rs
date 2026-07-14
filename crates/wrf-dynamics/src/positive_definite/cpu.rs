@@ -144,6 +144,7 @@ mod tests {
     use wrf_compute::{ComputeBackend, GridShape};
 
     use super::*;
+    use crate::test_support::{CorpusReader, ExpectedOutputReader};
 
     fn create_sheet(
         backend: &CpuBackend,
@@ -265,6 +266,42 @@ mod tests {
     }
 
     #[test]
+    fn sheet_matches_seeded_randomized_fortran_corpus() {
+        let backend = CpuBackend::try_new().unwrap();
+        let mut corpus = CorpusReader::new(include_str!(
+            "../../test-data/randomized-arw/positive_definite_sheet.in"
+        ));
+        let mut expected = ExpectedOutputReader::new(include_str!(
+            "../../test-data/randomized-arw/positive_definite_sheet.out.correct"
+        ));
+        let case_count = corpus.read_usize("sheet case count");
+
+        for _ in 0..case_count {
+            let seed = corpus.read_seed();
+            let west_east_points = corpus.read_usize("sheet west-east point count");
+            let south_north_points = corpus.read_usize("sheet south-north point count");
+            let line_totals = (0..south_north_points)
+                .map(|_| corpus.read_f32("sheet line total"))
+                .collect::<Vec<_>>();
+            let value_count = west_east_points * south_north_points;
+            let values = (0..value_count)
+                .map(|_| corpus.read_f32("sheet field value"))
+                .collect::<Vec<_>>();
+            let mut field = create_sheet(&backend, west_east_points, south_north_points, &values);
+
+            backend
+                .apply_positive_definite_sheet(&mut field, &line_totals)
+                .unwrap_or_else(|error| panic!("seed {seed}: sheet execution failed: {error}"));
+            for (value_index, actual_value) in field.values().iter().copied().enumerate() {
+                expected.assert_next(seed, "sheet", value_index, actual_value);
+            }
+        }
+
+        corpus.finish();
+        expected.finish();
+    }
+
+    #[test]
     fn slab_matches_upstream_fortran_boundaries_and_preserves_halos() {
         let backend = CpuBackend::try_with_worker_count(3).unwrap();
         let shape = GridShape::try_new(6, 4, 4).unwrap();
@@ -306,6 +343,74 @@ mod tests {
         );
     }
 
+    #[test]
+    fn slab_matches_seeded_randomized_fortran_corpus() {
+        let backend = CpuBackend::try_new().unwrap();
+        let mut corpus = CorpusReader::new(include_str!(
+            "../../test-data/randomized-arw/positive_definite_slab.in"
+        ));
+        let mut expected = ExpectedOutputReader::new(include_str!(
+            "../../test-data/randomized-arw/positive_definite_slab.out.correct"
+        ));
+        let case_count = corpus.read_usize("slab case count");
+
+        for _ in 0..case_count {
+            let seed = corpus.read_seed();
+            let domain_west_east_start = corpus.read_i32("slab domain west-east start");
+            let domain_west_east_end = corpus.read_i32("slab domain west-east end");
+            let _domain_south_north_start = corpus.read_i32("slab domain south-north start");
+            let domain_south_north_end = corpus.read_i32("slab domain south-north end");
+            let _domain_bottom_top_start = corpus.read_i32("slab domain bottom-top start");
+            let _domain_bottom_top_end = corpus.read_i32("slab domain bottom-top end");
+            let memory_west_east_start = corpus.read_i32("slab memory west-east start");
+            let memory_west_east_end = corpus.read_i32("slab memory west-east end");
+            let memory_south_north_start = corpus.read_i32("slab memory south-north start");
+            let memory_south_north_end = corpus.read_i32("slab memory south-north end");
+            let memory_bottom_top_start = corpus.read_i32("slab memory bottom-top start");
+            let memory_bottom_top_end = corpus.read_i32("slab memory bottom-top end");
+            let _tile_west_east_start = corpus.read_i32("slab tile west-east start");
+            let _tile_west_east_end = corpus.read_i32("slab tile west-east end");
+            let tile_south_north_start = corpus.read_i32("slab tile south-north start");
+            let tile_south_north_end = corpus.read_i32("slab tile south-north end");
+            let tile_bottom_top_start = corpus.read_i32("slab tile bottom-top start");
+            let tile_bottom_top_end = corpus.read_i32("slab tile bottom-top end");
+            let west_east_points = extent(memory_west_east_start, memory_west_east_end);
+            let south_north_points = extent(memory_south_north_start, memory_south_north_end);
+            let bottom_top_points = extent(memory_bottom_top_start, memory_bottom_top_end);
+            let shape = GridShape::try_new(west_east_points, south_north_points, bottom_top_points)
+                .unwrap();
+            let value_count = shape.point_count();
+            let values = (0..value_count)
+                .map(|_| corpus.read_f32("slab field value"))
+                .collect::<Vec<_>>();
+            let mut field = backend.create_field(shape, 0.0_f32).unwrap();
+            field.values_mut().copy_from_slice(&values);
+            let region = PositiveDefiniteSlabRegion::try_new(
+                shape,
+                offset(domain_west_east_start, memory_west_east_start)
+                    ..offset(domain_west_east_end, memory_west_east_start),
+                offset(tile_bottom_top_start, memory_bottom_top_start)
+                    ..offset(tile_bottom_top_end, memory_bottom_top_start),
+                offset(tile_south_north_start, memory_south_north_start)
+                    ..offset(
+                        tile_south_north_end.min(domain_south_north_end - 1) + 1,
+                        memory_south_north_start,
+                    ),
+            )
+            .unwrap_or_else(|error| panic!("seed {seed}: invalid slab region: {error}"));
+
+            backend
+                .apply_positive_definite_slab(&mut field, &region)
+                .unwrap_or_else(|error| panic!("seed {seed}: slab execution failed: {error}"));
+            for (value_index, actual_value) in field.values().iter().copied().enumerate() {
+                expected.assert_next(seed, "slab", value_index, actual_value);
+            }
+        }
+
+        corpus.finish();
+        expected.finish();
+    }
+
     fn parse_fortran_expected_bits() -> std::collections::HashMap<&'static str, Vec<u32>> {
         include_str!("../../test-data/positive_definite_sheet.out.correct")
             .lines()
@@ -344,5 +449,13 @@ mod tests {
             .skip(1)
             .map(|hexadecimal| u32::from_str_radix(hexadecimal, 16).unwrap())
             .collect()
+    }
+
+    fn extent(start: i32, end: i32) -> usize {
+        (end - start + 1) as usize
+    }
+
+    fn offset(index: i32, memory_start: i32) -> usize {
+        (index - memory_start) as usize
     }
 }

@@ -214,6 +214,7 @@ mod tests {
     use wrf_compute::{ComputeBackend, GridShape};
 
     use super::*;
+    use crate::test_support::{CorpusReader, ExpectedOutputReader};
 
     #[test]
     fn matches_all_upstream_fortran_boundary_paths_and_preserves_halos() {
@@ -335,6 +336,90 @@ mod tests {
         assert!(south_north.values().iter().all(|value| *value == -7.0));
     }
 
+    #[test]
+    fn matches_seeded_randomized_fortran_corpus() {
+        let backend = CpuBackend::try_new().unwrap();
+        let mut corpus = CorpusReader::new(include_str!(
+            "../../test-data/randomized-arw/column_mass_staggering.in"
+        ));
+        let mut expected = ExpectedOutputReader::new(include_str!(
+            "../../test-data/randomized-arw/column_mass_staggering.out.correct"
+        ));
+        let case_count = corpus.read_usize("column-mass case count");
+
+        for _ in 0..case_count {
+            let seed = corpus.read_seed();
+            let domain_west_east_start = corpus.read_i32("domain west-east start");
+            let domain_west_east_end = corpus.read_i32("domain west-east end");
+            let domain_south_north_start = corpus.read_i32("domain south-north start");
+            let domain_south_north_end = corpus.read_i32("domain south-north end");
+            let _domain_bottom_top_start = corpus.read_i32("domain bottom-top start");
+            let _domain_bottom_top_end = corpus.read_i32("domain bottom-top end");
+            let memory_west_east_start = corpus.read_i32("memory west-east start");
+            let memory_west_east_end = corpus.read_i32("memory west-east end");
+            let memory_south_north_start = corpus.read_i32("memory south-north start");
+            let memory_south_north_end = corpus.read_i32("memory south-north end");
+            let _memory_bottom_top_start = corpus.read_i32("memory bottom-top start");
+            let _memory_bottom_top_end = corpus.read_i32("memory bottom-top end");
+            let tile_west_east_start = corpus.read_i32("tile west-east start");
+            let tile_west_east_end = corpus.read_i32("tile west-east end");
+            let tile_south_north_start = corpus.read_i32("tile south-north start");
+            let tile_south_north_end = corpus.read_i32("tile south-north end");
+            let _tile_bottom_top_start = corpus.read_i32("tile bottom-top start");
+            let _tile_bottom_top_end = corpus.read_i32("tile bottom-top end");
+            let shape = GridShape::try_new(
+                extent(memory_west_east_start, memory_west_east_end),
+                extent(memory_south_north_start, memory_south_north_end),
+                1,
+            )
+            .unwrap();
+            let perturbation_mass = read_corpus_field(&backend, shape, &mut corpus);
+            let base_mass = read_corpus_field(&backend, shape, &mut corpus);
+            let mut west_east_momentum_mass = backend.create_field(shape, -999.0_f32).unwrap();
+            let mut south_north_momentum_mass = backend.create_field(shape, -999.0_f32).unwrap();
+            let region = ColumnMassStaggeringRegion::try_new(
+                shape,
+                offset(domain_west_east_start, memory_west_east_start)
+                    ..offset(domain_west_east_end, memory_west_east_start),
+                offset(domain_south_north_start, memory_south_north_start)
+                    ..offset(domain_south_north_end, memory_south_north_start),
+                offset(tile_west_east_start, memory_west_east_start)
+                    ..offset(tile_west_east_end + 1, memory_west_east_start),
+                offset(tile_south_north_start, memory_south_north_start)
+                    ..offset(tile_south_north_end + 1, memory_south_north_start),
+            )
+            .unwrap_or_else(|error| panic!("seed {seed}: invalid column-mass region: {error}"));
+
+            backend
+                .stagger_column_mass(
+                    &perturbation_mass,
+                    &base_mass,
+                    &mut west_east_momentum_mass,
+                    &mut south_north_momentum_mass,
+                    &region,
+                )
+                .unwrap_or_else(|error| {
+                    panic!("seed {seed}: column-mass execution failed: {error}")
+                });
+            for (value_index, actual_value) in
+                west_east_momentum_mass.values().iter().copied().enumerate()
+            {
+                expected.assert_next(seed, "west_east_mass", value_index, actual_value);
+            }
+            for (value_index, actual_value) in south_north_momentum_mass
+                .values()
+                .iter()
+                .copied()
+                .enumerate()
+            {
+                expected.assert_next(seed, "south_north_mass", value_index, actual_value);
+            }
+        }
+
+        corpus.finish();
+        expected.finish();
+    }
+
     fn initialize_mass_fields(
         perturbation_mass: &mut CpuField<f32>,
         base_mass: &mut CpuField<f32>,
@@ -374,5 +459,25 @@ mod tests {
             }
         }
         (west_east, south_north)
+    }
+
+    fn read_corpus_field(
+        backend: &CpuBackend,
+        shape: GridShape,
+        corpus: &mut CorpusReader<'_>,
+    ) -> CpuField<f32> {
+        let mut field = backend.create_field(shape, 0.0_f32).unwrap();
+        for value in field.values_mut() {
+            *value = corpus.read_f32("column-mass field value");
+        }
+        field
+    }
+
+    fn extent(start: i32, end: i32) -> usize {
+        (end - start + 1) as usize
+    }
+
+    fn offset(index: i32, memory_start: i32) -> usize {
+        (index - memory_start) as usize
     }
 }
