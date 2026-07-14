@@ -16,7 +16,8 @@ The repository therefore uses four authoritative layers:
    definitions that must change atomically with code.
 3. GitHub Actions contains measured evidence. Raw logs and normalized JSON are
    artifacts; job summaries and merged-PR comments are durable receipts; Pages
-   presents the latest aggregate.
+   presents the latest aggregate, historical distributions, and rendered
+   project documentation.
 4. Rustdoc, this wiki, and dated performance reports explain algorithms,
    contracts, findings, and decisions.
 
@@ -46,15 +47,17 @@ successful run on `main` triggers `Performance`:
    Fortran and the release-like Criterion case on the same runner, and converts
    both outputs to one JSON schema.
 4. Raw output and normalized results are uploaded as Actions artifacts.
-5. A serialized aggregate job produces Markdown, JSON, and HTML, adds the
-   matrix to the Actions summary, comments on the merged pull request, and
-   publishes the latest Pages dashboard.
+5. A serialized aggregate job produces Markdown and cumulative JSON, calculates
+   p50, p90, and p99 latency from the raw samples, adds the matrix to the Actions
+   summary, and comments on the merged pull request.
+6. The Pages builder renders the current matrix, per-suite historical ratio
+   charts, and canonical repository Markdown into one static project site.
 
-Documentation-only merges select no suites. Shared executor, compiler profile,
-or catalog changes select every suite. Manual dispatch can force a full
-refresh.
+Documentation-only merges select no suites but still rebuild and publish the
+site. Shared executor, compiler profile, catalog, or benchmark normalization
+changes select every suite. Manual dispatch can force a full refresh.
 
-GitHub-hosted runners vary. Same-runner Rust/Fortran ratios are the useful
+Runner state can vary. Same-runner Rust/Fortran ratios are the useful
 signal; small absolute changes between workflow runs are not treated as
 regressions. If absolute trend detection becomes important, the same schema can
 run on a pinned self-hosted benchmark machine.

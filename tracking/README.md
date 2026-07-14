@@ -15,7 +15,7 @@ state dump to recover context.
 | Upstream defects and opportunities | `UPSTREAM_FINDINGS.md` |
 
 - Project: <https://github.com/users/mikeortman/projects/1>
-- Latest performance dashboard: <https://mikeortman.github.io/wrf-rs/>
+- Project documentation and performance history: <https://mikeortman.github.io/wrf-rs/>
 
 ## Updating state
 
@@ -39,10 +39,16 @@ After the required parity workflow succeeds on `main`, the performance
 workflow selects suites affected by the merged diff. Each matrix job runs the
 catalogued Fortran and Rust commands on the same runner, normalizes their raw
 outputs into JSON, and uploads both evidence and logs. A serialized aggregate
-job builds the matrix, posts it to the merged pull request, and publishes the
-latest dashboard. Manual dispatch can refresh every suite.
+job calculates p50, p90, and p99 latency, appends each observation to the
+published per-suite history, posts the current matrix to the merged pull
+request, and publishes the project site. Documentation-only merges rebuild the
+site without running numerical suites. Manual dispatch can refresh every suite.
 
-GitHub-hosted hardware is suitable for relative Rust/Fortran comparisons made
-on the same runner and for coarse trends. It is not a stable laboratory for
-small cross-run deltas. A future pinned self-hosted runner may be marked as the
-authoritative absolute baseline without changing the result schema.
+Same-runner measurements are suitable for relative Rust/Fortran comparisons
+and coarse trends. Runner state can still vary, so small cross-run deltas are
+not regression verdicts. The runner classification remains attached to every
+observation in case the benchmark host changes.
+
+The Pages artifact also renders the repository Markdown under `docs/`, the
+root project records, and this tracking guide into a shared, searchable
+documentation shell. Markdown remains canonical; generated HTML is disposable.
