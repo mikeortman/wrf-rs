@@ -71,6 +71,8 @@ jobs:
         run: ./scripts/run-periodic-column-mass-oracle.sh
       - name: Verify momentum coupling
         run: ./scripts/run-momentum-coupling-oracle.sh
+      - name: Verify portable Fortran NaN comparison
+        run: ./scripts/test-fortran-output-normalization.sh
       - name: Verify dry-air omega diagnosis
         run: ./scripts/run-omega-diagnosis-oracle.sh
       - name: Verify moisture momentum coefficients
