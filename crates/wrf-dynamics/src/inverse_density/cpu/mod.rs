@@ -17,20 +17,11 @@ impl InverseDensityKernels for CpuBackend {
         base_state_inverse_density: &Self::Field,
         region: &InverseDensityRegion,
     ) -> InverseDensityResult<()> {
-        validate_shape(
+        validate_operation(
             full_inverse_density,
-            InverseDensityField::FullOutput,
-            region.shape(),
-        )?;
-        validate_shape(
             perturbation_inverse_density,
-            InverseDensityField::Perturbation,
-            region.shape(),
-        )?;
-        validate_shape(
             base_state_inverse_density,
-            InverseDensityField::BaseState,
-            region.shape(),
+            region,
         )?;
 
         calculate_rows(
@@ -41,6 +32,29 @@ impl InverseDensityKernels for CpuBackend {
             region,
         )
     }
+}
+
+pub(crate) fn validate_operation(
+    full_inverse_density: &CpuField<f32>,
+    perturbation_inverse_density: &CpuField<f32>,
+    base_state_inverse_density: &CpuField<f32>,
+    region: &InverseDensityRegion,
+) -> InverseDensityResult<()> {
+    validate_shape(
+        full_inverse_density,
+        InverseDensityField::FullOutput,
+        region.shape(),
+    )?;
+    validate_shape(
+        perturbation_inverse_density,
+        InverseDensityField::Perturbation,
+        region.shape(),
+    )?;
+    validate_shape(
+        base_state_inverse_density,
+        InverseDensityField::BaseState,
+        region.shape(),
+    )
 }
 
 fn calculate_rows(

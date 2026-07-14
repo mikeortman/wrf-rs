@@ -47,6 +47,11 @@ pub enum ColumnMassStaggeringError {
         /// Axis whose lower periodic halo is absent.
         axis: ColumnMassStaggeringAxis,
     },
+    /// WRF `calculate_full` needs one memory point below the tile start.
+    FullMassLowerHaloMissing {
+        /// Axis whose lower halo is absent.
+        axis: ColumnMassStaggeringAxis,
+    },
     /// A field does not match the shape validated by the region.
     FieldShapeMismatch {
         /// Role of the mismatched field.
@@ -90,6 +95,10 @@ impl fmt::Display for ColumnMassStaggeringError {
             Self::PeriodicLowerHaloMissing { axis } => write!(
                 formatter,
                 "{axis} periodic lower boundary requires one preceding halo mass point"
+            ),
+            Self::FullMassLowerHaloMissing { axis } => write!(
+                formatter,
+                "{axis} full-mass calculation requires one preceding halo point"
             ),
             Self::FieldShapeMismatch { field } => {
                 write!(

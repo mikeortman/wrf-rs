@@ -21,10 +21,7 @@ impl MoistureCoefficientKernels for CpuBackend {
         moisture: MoistureSpecies<'_, Self::Field>,
         region: &MoistureCoefficientRegion,
     ) -> MoistureCoefficientResult<()> {
-        validate_fields(&outputs, moisture, region.shape())?;
-        if !moisture.is_empty() {
-            region.validate_active_species_neighbors()?;
-        }
+        validate_operation(&outputs, moisture, region)?;
 
         let MoistureCoefficientOutputs {
             west_east: west_east_output,
@@ -37,21 +34,54 @@ impl MoistureCoefficientKernels for CpuBackend {
     }
 }
 
-fn validate_fields(
+pub(crate) fn validate_operation(
     outputs: &MoistureCoefficientOutputs<'_, CpuField<f32>>,
+    moisture: MoistureSpecies<'_, CpuField<f32>>,
+    region: &MoistureCoefficientRegion,
+) -> MoistureCoefficientResult<()> {
+    validate_borrowed_operation(
+        outputs.west_east,
+        outputs.south_north,
+        outputs.vertical,
+        moisture,
+        region,
+    )
+}
+
+pub(crate) fn validate_borrowed_operation(
+    west_east_output: &CpuField<f32>,
+    south_north_output: &CpuField<f32>,
+    vertical_output: &CpuField<f32>,
+    moisture: MoistureSpecies<'_, CpuField<f32>>,
+    region: &MoistureCoefficientRegion,
+) -> MoistureCoefficientResult<()> {
+    validate_fields(
+        west_east_output,
+        south_north_output,
+        vertical_output,
+        moisture,
+        region.shape(),
+    )?;
+    if !moisture.is_empty() {
+        region.validate_active_species_neighbors()?;
+    }
+    Ok(())
+}
+
+fn validate_fields(
+    west_east_output: &CpuField<f32>,
+    south_north_output: &CpuField<f32>,
+    vertical_output: &CpuField<f32>,
     moisture: MoistureSpecies<'_, CpuField<f32>>,
     expected: GridShape,
 ) -> MoistureCoefficientResult<()> {
     for (field, role) in [
+        (west_east_output, MoistureCoefficientField::WestEastOutput),
         (
-            &*outputs.west_east,
-            MoistureCoefficientField::WestEastOutput,
-        ),
-        (
-            &*outputs.south_north,
+            south_north_output,
             MoistureCoefficientField::SouthNorthOutput,
         ),
-        (&*outputs.vertical, MoistureCoefficientField::VerticalOutput),
+        (vertical_output, MoistureCoefficientField::VerticalOutput),
     ] {
         validate_output_shape(field, role, expected)?;
     }

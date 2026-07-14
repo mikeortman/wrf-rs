@@ -48,3 +48,7 @@ harness = false
 [[bench]]
 name = "pressure_point_geopotential"
 harness = false
+
+[[bench]]
+name = "runge_kutta_preparation"
+harness = false

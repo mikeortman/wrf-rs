@@ -2,6 +2,8 @@
 //!
 //! Each kernel family exposes a focused backend capability so CPU and future
 //! GPU implementations can use native storage and execution strategies.
+//! [`RungeKuttaPreparationKernels`] composes the seven translated ARW
+//! diagnostics behind one failure-atomic validation boundary.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -23,6 +25,7 @@ mod momentum_coupling;
 mod omega_diagnosis;
 mod positive_definite;
 mod pressure_point_geopotential;
+mod runge_kutta_preparation;
 #[cfg(test)]
 mod test_support;
 
@@ -64,4 +67,13 @@ pub use pressure_point_geopotential::{
     PressurePointGeopotentialAxis, PressurePointGeopotentialError, PressurePointGeopotentialField,
     PressurePointGeopotentialKernels, PressurePointGeopotentialRegion,
     PressurePointGeopotentialResult,
+};
+pub use runge_kutta_preparation::{
+    RungeKuttaPreparationCoefficients, RungeKuttaPreparationDiagnosticOutputs,
+    RungeKuttaPreparationError, RungeKuttaPreparationInputs, RungeKuttaPreparationKernels,
+    RungeKuttaPreparationMapFactors, RungeKuttaPreparationMassInputs,
+    RungeKuttaPreparationMassOutputs, RungeKuttaPreparationMomentumOutputs,
+    RungeKuttaPreparationOutputs, RungeKuttaPreparationRegions, RungeKuttaPreparationResult,
+    RungeKuttaPreparationStage, RungeKuttaPreparationThermodynamicInputs,
+    RungeKuttaPreparationVelocities,
 };

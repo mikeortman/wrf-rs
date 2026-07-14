@@ -26,6 +26,10 @@ a measured regression until a representative benchmark exists.
 | WRF-012 | Confirmed latent bug | Source-confirmed; bounds-check reproducer recommended | Kessler microphysics | Several sedimentation loops index from literal level `1` despite accepting and allocating from `kts` |
 | WRF-013 | Test gap | Repository search | Kessler microphysics | No dedicated numerical regression for the exported Kessler scheme was found in the WRF tree |
 | WRF-014 | Test gap | Source and build-rule inventory | NetCDF I/O | The bundled `testWRFWrite.F90` and `testWRFRead.F90` are not build targets and call obsolete unprefixed external entry points absent from the current I/O library |
+| WRF-030 | Confirmed latent bug | Source-confirmed; Rust validation reproduces boundary | `calculate_full` | The loop unconditionally reads `its-1` and `jts-1` without checking those indices against memory bounds |
+| WRF-031 | Confirmed interface defect | Source-confirmed | `calculate_full` | A partially written array is declared `INTENT(OUT)`, leaving inactive storage undefined by the Fortran standard |
+| WRF-032 | Test gap | Repository search plus coupled differential fixture | `rk_step_prep` | No dedicated numerical regression checks the seven production diagnostics together or observes their intermediate fields |
+| WRF-033 | Performance/API opportunity | Source-confirmed, not independently benchmarked | `rk_step_prep` | The wrapper accepts several arguments that none of its seven diagnostic calls read |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -603,3 +607,66 @@ upper full level, source-order-sensitive overflow, signed zero, opposite
 infinities, untouched storage, and worker-count determinism. A useful upstream
 test should add the same geometry and then exercise all seven diagnostics in an
 integrated `rk_step_prep` trajectory.
+
+## WRF-030: `calculate_full` assumes two lower halo points
+
+Status: source-confirmed latent bounds precondition. Normal decomposed ARW
+patches communicate the required halos, but the routine accepts independent
+memory and tile bounds without checking the relationship.
+
+At lines 3618–3619, `calculate_full` sets `i_start=its-1` and
+`j_start=jts-1`. Its loop then reads and writes those indices. A caller with
+`its <= ims` or `jts <= jms` accesses outside the corresponding declared dummy
+array even though every supplied bound is individually valid.
+
+The Rust full-column-mass stage rejects either missing lower halo before
+mutation. Suggested upstream action: document and assert `its > ims` and
+`jts > jms`, or pass a validated bounds descriptor. Add a `-fcheck=bounds`
+case with the tile beginning at the memory lower bound.
+
+## WRF-031: `calculate_full` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect.
+
+`rfield` is declared `INTENT(OUT)` at line 3601, making its complete dummy
+array undefined on entry. The loop writes only `its-1:MIN(ite,ide-1)`, one
+vertical tile range, and `jts-1:MIN(jte,jde-1)`. Storage outside that rectangle
+is not assigned. GNU Fortran happens to retain previous inactive bytes, but a
+caller may not portably read them after return.
+
+Suggested upstream action: use `INTENT(INOUT)` if halo and off-tile preservation
+is the contract, or define every element. The coupled local oracle verifies all
+active values and observes sentinels in the current GNU build without treating
+that observation as a language guarantee.
+
+## WRF-032: no coupled numerical regression for `rk_step_prep`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The production wrapper calls seven diagnostics whose intermediate fields feed
+later stages, but a repository-wide search finds no dedicated regression that
+runs this sequence and compares `mut`, `muu`, `muv`, `ru`, `rv`, `rw`, `ww`,
+`cqu`, `cqv`, `cqw`, `alt`, and `php` together. Per-routine tests would still
+miss argument wiring and ordering errors at the wrapper boundary.
+
+The local coupled oracle extracts all seven exact routine bodies, executes them
+in production order, and compares every one of 1,728 stored values by raw bits.
+Suggested upstream action: add a small `rk_step_prep` fixture that observes both
+intermediate mass fields and final diagnostics, then extend it into an
+idealized short trajectory.
+
+## WRF-033: `rk_step_prep` carries dead wrapper arguments
+
+Status: source-confirmed API and maintenance opportunity; no independent speed
+claim is made.
+
+Within `rk_step_prep`, `rk_step`, `t`, `pb`, `p`, `fnm`, and `fnp` are not read
+or forwarded to any of the seven calls. The wrapper also forwards map-factor
+arrays already recorded as unused by `calc_ww_cp` in WRF-017. These arguments
+increase an already large positional interface and make call-site wiring harder
+to review.
+
+The Rust integration boundary retains only participating data and groups it by
+scientific role. Suggested upstream action: remove dead arguments in a planned
+interface change, or introduce a derived state/configuration object and enable
+unused-dummy-argument warnings to prevent further drift.

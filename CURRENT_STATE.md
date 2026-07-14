@@ -235,6 +235,15 @@ Implemented:
 - a 2,352-value direct Fortran oracle covering independent and combined upper
   clipping, non-one/negative origins, untouched storage, source-order overflow,
   signed zero, and opposite infinities;
+- a typed `RungeKuttaPreparationKernels` capability that performs one all-stage
+  preflight and then composes `calculate_full`, `calc_mu_uv`, momentum coupling,
+  omega, moisture coefficients, inverse density, and geopotential in WRF order;
+- grouped borrowed inputs and non-aliasing outputs, backend-native storage, no
+  full-field clones, and an explicit lower-halo contract for the previously
+  missing communicated-tile full column mass;
+- a coupled 1,728-value exact Fortran oracle over all twelve intermediate and
+  final fields, final-stage failure atomicity, one/four-worker determinism,
+  matched optimized timing, and warmed allocation evidence;
 - a versioned SplitMix64 corpus generator, shared raw-bit input files, and
   pinned Fortran drivers for 68 seeded cases and 39,588 complete outputs across
   all four translated routines;
@@ -496,6 +505,20 @@ with no reallocations. The result is close enough to stop tuning without
 explicit SIMD. See
 `docs/performance/pressure-point-geopotential-2026-07-14.md`.
 
+## Integrated Runge-Kutta preparation performance baseline
+
+On a matched 256 × 256 × 40 grid with two active moisture species, serial GNU
+Fortran 16.1.0 `-O3 -flto` measured a 6.0671 ms median. Release Rust measured
+10.092 ms with one worker, 3.3025 ms with four, and 4.5476 ms with 16. Four
+workers are 1.84× faster than serial Fortran; the default 16-worker path is
+1.33× faster.
+
+Every settled 100-call phase records 19 scheduler allocations totaling 28,880
+bytes, no reallocations, no numerical scratch, and no field clones. The normal
+parallel path clears the performance gate, so cross-stage fusion and additional
+SIMD wait for a coupled trajectory profile. See
+`docs/performance/runge-kutta-preparation-2026-07-14.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -570,6 +593,7 @@ cargo test --workspace --release
 ./scripts/run-moisture-coefficient-oracle.sh
 ./scripts/run-inverse-density-oracle.sh
 ./scripts/run-pressure-point-geopotential-oracle.sh
+./scripts/run-runge-kutta-preparation-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -587,6 +611,7 @@ cargo test --workspace --release
 ./scripts/benchmark-moisture-coefficients-fortran.sh
 ./scripts/benchmark-inverse-density-fortran.sh
 ./scripts/benchmark-pressure-point-geopotential-fortran.sh
+./scripts/benchmark-runge-kutta-preparation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -595,6 +620,7 @@ cargo bench -p wrf-dynamics --bench omega_diagnosis -- --noplot
 cargo bench -p wrf-dynamics --bench moisture_coefficients -- --noplot
 cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
 cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
+cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -603,12 +629,13 @@ cargo run -p wrf-dynamics --release --example measure_omega_diagnosis_allocation
 cargo run -p wrf-dynamics --release --example measure_moisture_coefficient_allocations
 cargo run -p wrf-dynamics --release --example measure_inverse_density_allocations
 cargo run -p wrf-dynamics --release --example measure_pressure_point_geopotential_allocations
+cargo run -p wrf-dynamics --release --example measure_runge_kutta_preparation_allocations
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 150 unit tests and ten doctests passed in debug and release modes (one
+Result: 155 unit tests and eleven doctests passed in debug and release modes (one
 corpus-generator test, 13 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 65 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 70 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -629,7 +656,10 @@ allocation evidence are recorded. Full inverse density matches all 2,352
 focused values; its three-axis clipping, matched timing, and allocation evidence
 are recorded. Pressure-point geopotential matches all 2,352 focused values; its
 upper-full-level contract, source operation order, matched timing, and
-allocation evidence are recorded. The WRF Registry oracle matches five generated includes
+allocation evidence are recorded. Integrated Runge-Kutta preparation matches
+all 1,728 coupled intermediate, final, and sentinel values; its all-stage
+preflight, matched timing, and allocation evidence are recorded. The WRF
+Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
 tiles match pinned WRF routines, periodic destinations match `period.c`
 exactly, and complete four-rank MPI patch memory matches the local executor.
@@ -685,8 +715,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 2. Add Registry-generated asymmetric halo descriptors and multi-field message
    aggregation to the domain transport.
 3. Extend Registry preprocessing with includes and conditional definitions.
-4. Integrate the seven translated `rk_step_prep` diagnostics behind one typed
-   preparation pipeline, then add a direct coupled oracle and short trajectory.
+4. Add Registry-backed state binding and a short prognostic trajectory through
+   the integrated `rk_step_prep` diagnostics.
 5. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
 6. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

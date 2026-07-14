@@ -10,3 +10,5 @@ pub use error::{PressurePointGeopotentialError, PressurePointGeopotentialResult}
 pub use field::PressurePointGeopotentialField;
 pub use kernels::PressurePointGeopotentialKernels;
 pub use region::PressurePointGeopotentialRegion;
+
+pub(crate) use cpu::validate_operation;

@@ -49,6 +49,9 @@ implemented system; proposed work is explicitly labeled.
 - [Pressure-point geopotential](Pressure-Point-Geopotential.md) — vertical
   full-level averaging, source operation order, upper-neighbor validation,
   parallel rows, and exact-bit evidence.
+- [Runge-Kutta diagnostic preparation](Runge-Kutta-Preparation.md) — the
+  seven-stage dependency chain, failure-atomic ownership boundary, coupled
+  exact-bit oracle, and integrated performance.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -76,6 +79,9 @@ implemented system; proposed work is explicitly labeled.
 - [Pressure-point geopotential performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/pressure-point-geopotential-2026-07-14.md)
   — matched vertical-average workload, CPU scaling, allocation evidence, and
   the source-order SIMD stopping decision.
+- [Runge-Kutta preparation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/runge-kutta-preparation-2026-07-14.md)
+  — matched seven-diagnostic workload, CPU scaling, allocation evidence, and
+  the cross-stage optimization stopping decision.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

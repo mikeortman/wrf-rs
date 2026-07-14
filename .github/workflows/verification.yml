@@ -79,6 +79,8 @@ jobs:
         run: ./scripts/run-inverse-density-oracle.sh
       - name: Verify pressure-point geopotential
         run: ./scripts/run-pressure-point-geopotential-oracle.sh
+      - name: Verify integrated Runge-Kutta preparation
+        run: ./scripts/run-runge-kutta-preparation-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

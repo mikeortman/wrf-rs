@@ -54,6 +54,19 @@ pub trait ColumnMassStaggeringKernels {
     /// Floating-point field owned by this backend.
     type Field: FieldStorage<f32>;
 
+    /// Adds perturbation and base-state column mass over WRF's communicated tile.
+    ///
+    /// This reproduces the `calculate_full` call at the start of
+    /// `rk_step_prep`, including its one-point lower halo on both axes.
+    /// Validation completes before the output changes.
+    fn calculate_full_column_mass(
+        &self,
+        full_mass: &mut Self::Field,
+        perturbation_mass: &Self::Field,
+        base_mass: &Self::Field,
+        region: &ColumnMassStaggeringRegion,
+    ) -> ColumnMassStaggeringResult<()>;
+
     /// Places perturbation plus base mass onto both horizontal staggerings.
     ///
     /// Adjacent full-mass values are averaged at interior points. Physical

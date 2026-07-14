@@ -21,3 +21,5 @@ pub use fields::{
 };
 pub use kernels::MomentumCouplingKernels;
 pub use region::MomentumCouplingRegion;
+
+pub(crate) use cpu::validate_borrowed_operation;

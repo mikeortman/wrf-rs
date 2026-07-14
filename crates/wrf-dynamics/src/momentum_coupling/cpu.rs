@@ -21,8 +21,14 @@ impl MomentumCouplingKernels for CpuBackend {
         coefficients: MomentumCouplingCoefficients<'_>,
         region: &MomentumCouplingRegion,
     ) -> MomentumCouplingResult<()> {
-        validate_fields(&outputs, &velocities, &masses, &map_factors, region)?;
-        validate_coefficients(coefficients, region.shape().bottom_top_points())?;
+        validate_operation(
+            &outputs,
+            &velocities,
+            &masses,
+            &map_factors,
+            coefficients,
+            region,
+        )?;
 
         let MomentumCouplingOutputs {
             west_east: west_east_output,
@@ -59,8 +65,53 @@ impl MomentumCouplingKernels for CpuBackend {
     }
 }
 
-fn validate_fields(
+pub(crate) fn validate_operation(
     outputs: &MomentumCouplingOutputs<'_, CpuField<f32>>,
+    velocities: &MomentumCouplingVelocities<'_, CpuField<f32>>,
+    masses: &MomentumCouplingMasses<'_, CpuField<f32>>,
+    map_factors: &MomentumCouplingMapFactors<'_, CpuField<f32>>,
+    coefficients: MomentumCouplingCoefficients<'_>,
+    region: &MomentumCouplingRegion,
+) -> MomentumCouplingResult<()> {
+    validate_borrowed_operation(
+        outputs.west_east,
+        outputs.south_north,
+        outputs.vertical,
+        velocities,
+        masses,
+        map_factors,
+        coefficients,
+        region,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn validate_borrowed_operation(
+    west_east_output: &CpuField<f32>,
+    south_north_output: &CpuField<f32>,
+    vertical_output: &CpuField<f32>,
+    velocities: &MomentumCouplingVelocities<'_, CpuField<f32>>,
+    masses: &MomentumCouplingMasses<'_, CpuField<f32>>,
+    map_factors: &MomentumCouplingMapFactors<'_, CpuField<f32>>,
+    coefficients: MomentumCouplingCoefficients<'_>,
+    region: &MomentumCouplingRegion,
+) -> MomentumCouplingResult<()> {
+    validate_fields(
+        west_east_output,
+        south_north_output,
+        vertical_output,
+        velocities,
+        masses,
+        map_factors,
+        region,
+    )?;
+    validate_coefficients(coefficients, region.shape().bottom_top_points())
+}
+
+fn validate_fields(
+    west_east_output: &CpuField<f32>,
+    south_north_output: &CpuField<f32>,
+    vertical_output: &CpuField<f32>,
     velocities: &MomentumCouplingVelocities<'_, CpuField<f32>>,
     masses: &MomentumCouplingMasses<'_, CpuField<f32>>,
     map_factors: &MomentumCouplingMapFactors<'_, CpuField<f32>>,
@@ -70,15 +121,15 @@ fn validate_fields(
     let horizontal_shape = volume_shape.horizontal_shape();
     for (field, role) in [
         (
-            &*outputs.west_east,
+            west_east_output,
             MomentumCouplingField::WestEastMomentumOutput,
         ),
         (
-            &*outputs.south_north,
+            south_north_output,
             MomentumCouplingField::SouthNorthMomentumOutput,
         ),
         (
-            &*outputs.vertical,
+            vertical_output,
             MomentumCouplingField::VerticalMomentumOutput,
         ),
         (

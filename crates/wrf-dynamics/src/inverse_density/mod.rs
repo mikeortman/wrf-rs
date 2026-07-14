@@ -10,3 +10,5 @@ pub use error::{InverseDensityError, InverseDensityResult};
 pub use field::InverseDensityField;
 pub use kernels::InverseDensityKernels;
 pub use region::InverseDensityRegion;
+
+pub(crate) use cpu::validate_operation;

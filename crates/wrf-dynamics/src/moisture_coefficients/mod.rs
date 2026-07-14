@@ -14,3 +14,5 @@ pub use kernels::MoistureCoefficientKernels;
 pub use outputs::MoistureCoefficientOutputs;
 pub use region::MoistureCoefficientRegion;
 pub use species::MoistureSpecies;
+
+pub(crate) use cpu::validate_borrowed_operation;

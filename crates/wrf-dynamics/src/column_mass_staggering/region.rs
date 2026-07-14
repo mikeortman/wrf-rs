@@ -116,6 +116,38 @@ impl ColumnMassStaggeringRegion {
         self.tile_south_north_momentum_range.clone()
     }
 
+    pub(crate) fn full_mass_ranges(
+        &self,
+    ) -> ColumnMassStaggeringResult<(Range<usize>, Range<usize>)> {
+        let west_east_start = self
+            .tile_west_east_momentum_range
+            .start
+            .checked_sub(1)
+            .ok_or(ColumnMassStaggeringError::FullMassLowerHaloMissing {
+                axis: ColumnMassStaggeringAxis::WestEast,
+            })?;
+        let south_north_start = self
+            .tile_south_north_momentum_range
+            .start
+            .checked_sub(1)
+            .ok_or(ColumnMassStaggeringError::FullMassLowerHaloMissing {
+                axis: ColumnMassStaggeringAxis::SouthNorth,
+            })?;
+
+        Ok((
+            west_east_start
+                ..self
+                    .tile_west_east_momentum_range
+                    .end
+                    .min(self.mass_domain_west_east_range.end),
+            south_north_start
+                ..self
+                    .tile_south_north_momentum_range
+                    .end
+                    .min(self.mass_domain_south_north_range.end),
+        ))
+    }
+
     pub(crate) const fn west_east_boundary(&self) -> ColumnMassStaggeringAxisBoundary {
         self.west_east_boundary
     }
@@ -237,6 +269,29 @@ mod tests {
         assert_eq!(
             region.south_north_boundary(),
             ColumnMassStaggeringAxisBoundary::Both
+        );
+        assert_eq!(region.full_mass_ranges(), Ok((0..4, 0..3)));
+    }
+
+    #[test]
+    fn full_mass_requires_a_lower_memory_halo_on_both_axes() {
+        let shape = GridShape::try_new(5, 5, 1).unwrap();
+        let west_east_missing =
+            ColumnMassStaggeringRegion::try_new(shape, 0..4, 1..4, 0..4, 1..4).unwrap();
+        assert_eq!(
+            west_east_missing.full_mass_ranges(),
+            Err(ColumnMassStaggeringError::FullMassLowerHaloMissing {
+                axis: ColumnMassStaggeringAxis::WestEast,
+            })
+        );
+
+        let south_north_missing =
+            ColumnMassStaggeringRegion::try_new(shape, 1..4, 0..4, 1..4, 0..4).unwrap();
+        assert_eq!(
+            south_north_missing.full_mass_ranges(),
+            Err(ColumnMassStaggeringError::FullMassLowerHaloMissing {
+                axis: ColumnMassStaggeringAxis::SouthNorth,
+            })
         );
     }
 }

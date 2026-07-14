@@ -27,8 +27,14 @@ impl OmegaDiagnosisKernels for CpuBackend {
         grid_metrics: OmegaDiagnosisGridMetrics,
         region: &OmegaDiagnosisRegion,
     ) -> OmegaDiagnosisResult<()> {
-        validate_fields(omega, &velocities, &masses, &map_factors, region)?;
-        validate_coefficients(coefficients, region.shape().bottom_top_points())?;
+        validate_operation(
+            omega,
+            &velocities,
+            &masses,
+            &map_factors,
+            coefficients,
+            region,
+        )?;
 
         let shape = region.shape();
         let plane_length = shape.point_count() / shape.south_north_points();
@@ -55,6 +61,18 @@ impl OmegaDiagnosisKernels for CpuBackend {
         )
         .map_err(map_parallel_error)
     }
+}
+
+pub(crate) fn validate_operation(
+    omega: &CpuField<f32>,
+    velocities: &OmegaDiagnosisVelocities<'_, CpuField<f32>>,
+    masses: &OmegaDiagnosisMasses<'_, CpuField<f32>>,
+    map_factors: &OmegaDiagnosisMapFactors<'_, CpuField<f32>>,
+    coefficients: OmegaDiagnosisCoefficients<'_>,
+    region: &OmegaDiagnosisRegion,
+) -> OmegaDiagnosisResult<()> {
+    validate_fields(omega, velocities, masses, map_factors, region)?;
+    validate_coefficients(coefficients, region.shape().bottom_top_points())
 }
 
 fn validate_fields(

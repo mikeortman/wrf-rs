@@ -18,20 +18,11 @@ impl PressurePointGeopotentialKernels for CpuBackend {
         base_state_full_level_geopotential: &Self::Field,
         region: &PressurePointGeopotentialRegion,
     ) -> PressurePointGeopotentialResult<()> {
-        validate_shape(
+        validate_operation(
             pressure_point_geopotential,
-            PressurePointGeopotentialField::PressurePointOutput,
-            region.shape(),
-        )?;
-        validate_shape(
             perturbation_full_level_geopotential,
-            PressurePointGeopotentialField::PerturbationFullLevel,
-            region.shape(),
-        )?;
-        validate_shape(
             base_state_full_level_geopotential,
-            PressurePointGeopotentialField::BaseStateFullLevel,
-            region.shape(),
+            region,
         )?;
 
         calculate_rows(
@@ -42,6 +33,29 @@ impl PressurePointGeopotentialKernels for CpuBackend {
             region,
         )
     }
+}
+
+pub(crate) fn validate_operation(
+    pressure_point_geopotential: &CpuField<f32>,
+    perturbation_full_level_geopotential: &CpuField<f32>,
+    base_state_full_level_geopotential: &CpuField<f32>,
+    region: &PressurePointGeopotentialRegion,
+) -> PressurePointGeopotentialResult<()> {
+    validate_shape(
+        pressure_point_geopotential,
+        PressurePointGeopotentialField::PressurePointOutput,
+        region.shape(),
+    )?;
+    validate_shape(
+        perturbation_full_level_geopotential,
+        PressurePointGeopotentialField::PerturbationFullLevel,
+        region.shape(),
+    )?;
+    validate_shape(
+        base_state_full_level_geopotential,
+        PressurePointGeopotentialField::BaseStateFullLevel,
+        region.shape(),
+    )
 }
 
 fn calculate_rows(

@@ -23,3 +23,5 @@ pub use map_factors::OmegaDiagnosisMapFactors;
 pub use masses::OmegaDiagnosisMasses;
 pub use region::OmegaDiagnosisRegion;
 pub use velocities::OmegaDiagnosisVelocities;
+
+pub(crate) use cpu::validate_operation;
