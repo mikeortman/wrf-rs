@@ -53,7 +53,10 @@ upstream tests and differential fixtures pass.
   failure-atomic preflight, including the previously missing communicated-tile
   `calculate_full` stage. Safe dry large-timestep tendency assembly now ports
   `rk_addtend_dry`, including first-substep saved tendencies, later-substep
-  reuse, diabatic heating, and every component-specific C-grid bound.
+  reuse, diabatic heating, and every component-specific C-grid bound. Typed
+  acoustic small-step preparation now ports `small_step_prep`, including
+  first/later time-level handling, coupled perturbation variables, horizontal
+  staggers, and the complete full-level column.
   Deterministic fixtures and seeded randomized corpora check upstream `REAL`
   bit patterns.
 - `wrf-physics` contains the first physical parameterization: parallel Kessler
@@ -95,7 +98,7 @@ WRF initialization and match an upstream integration.
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
 | Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
-| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, integrated failure-atomic `rk_step_prep`, and `rk_addtend_dry` tendency assembly have exact Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Bind Registry state and execute a short coupled RK trajectory through diagnostic preparation and tendency assembly |
+| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, integrated failure-atomic `rk_step_prep`, `rk_addtend_dry`, and acoustic `small_step_prep` have exact Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Port the dependent acoustic coefficient/advance routines and execute a short coupled large/small-step trajectory |
 | Physics drivers and schemes | In progress | Kessler warm-rain microphysics matches all 660 mutable oracle values exactly; one/four-worker determinism, reusable scratch, matched optimized-Fortran benchmark, and allocation evidence | Port microphysics driver/state mapping and add a coupled precipitation trajectory |
 | I/O and NetCDF metadata | In progress | Typed minimum ARW schema; independent NetCDF-C/Rust restart files match ordered metadata and every field bit | Add full Registry-selected state, alarm metadata, NetCDF-4 output policy, and resumed-trajectory parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
@@ -134,6 +137,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-pressure-point-geopotential-oracle.sh
 ./scripts/run-runge-kutta-preparation-oracle.sh
 ./scripts/run-dry-tendency-assembly-oracle.sh
+./scripts/run-acoustic-step-preparation-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -153,6 +157,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/benchmark-pressure-point-geopotential-fortran.sh
 ./scripts/benchmark-runge-kutta-preparation-fortran.sh
 ./scripts/benchmark-dry-tendency-assembly-fortran.sh
+./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -163,6 +168,7 @@ cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
 cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
 cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ```
 

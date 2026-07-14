@@ -73,6 +73,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Pressure-point geopotential | 2,621,440 mass-point outputs | 0.402140 ms median `[0.377740, 0.464480]` | 0.44482 ms `[0.44034, 0.44991]` | 0.14072 ms (4 workers) | Rust serial 10.6% slower; Rust 4-worker 2.86× faster; stop tuning |
 | Integrated RK preparation | seven diagnostics on 2,621,440 mass points | 6.067100 ms median `[5.997000, 6.636100]` | 10.092 ms `[10.023, 10.162]` | 3.3025 ms (4 workers) | Rust serial 66.3% slower; Rust 4-worker 1.84× faster; Rust 16-worker 1.33× faster; stop tuning pending trajectory profile |
 | Dry RK tendency assembly | 26,542,080 mutable values | 8.425600 ms median `[8.281500, 8.913450]` | 18.625 ms `[18.457, 18.845]` | 2.5235 ms (16 workers) | Rust serial 2.21× slower; Rust 4-worker 1.70× faster; Rust 16-worker 3.34× faster; stop tuning pending trajectory profile |
+| Acoustic small-step preparation | 45,543,936 mutable values | 5.877800 ms median `[5.731300, 7.147600]` | 26.123 ms `[25.869, 26.388]` | 6.5595 ms (16 workers) | Rust serial 4.44× slower; Rust 4-worker 26.1% slower; Rust 16-worker 11.6% slower; operationally close, stop tuning pending trajectory profile |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -98,6 +99,7 @@ cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
 cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
 cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -111,6 +113,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-pressure-point-geopotential-fortran.sh
 ./scripts/benchmark-runge-kutta-preparation-fortran.sh
 ./scripts/benchmark-dry-tendency-assembly-fortran.sh
+./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -292,6 +295,21 @@ scientific oracle.
 - FatLTO produced no statistically detectable improvement over ThinLTO in the
   same Criterion run. Parallel Rust already clears the gate, so explicit SIMD,
   target-specific flags, and a more complex fused scheduler stop here.
+
+## Acoustic small-step preparation comparison notes
+
+- Both implementations execute first-substep `small_step_prep` on a 256 × 256
+  × 40 mass grid with upper U/V staggers and the full upper W/geopotential
+  level, writing 45,543,936 values per call.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses portable optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or a native CPU flag.
+- One-worker Rust is 4.44× slower than serial Fortran. Four-worker Rust is
+  26.1% slower and the default 16-worker path is 11.6% slower.
+- Every 100 settled calls records 28 scheduler allocations totaling 42,560
+  bytes, no reallocations, no numerical scratch, and no field clones.
+- Ordinary parallel Rust is operationally close to optimized Fortran. Per the
+  project stopping rule, explicit SIMD and more complex pass fusion wait for a
+  coupled trajectory profile.
 
 ## Kessler microphysics comparison notes
 

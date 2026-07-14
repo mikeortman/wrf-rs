@@ -32,6 +32,9 @@ a measured regression until a representative benchmark exists.
 | WRF-033 | Performance/API opportunity | Source-confirmed, not independently benchmarked | `rk_step_prep` | The wrapper accepts several arguments that none of its seven diagnostic calls read |
 | WRF-034 | Interface defect/API opportunity | Source-confirmed | `rk_addtend_dry` | `mu_tendf` is declared `INTENT(INOUT)` but only read; three map arrays and all patch bounds are unused |
 | WRF-035 | Test gap | Repository search plus direct differential fixture | `rk_addtend_dry` | No dedicated production numerical regression checks first/later substeps, distinct stagger bounds, persistent fields, or inactive storage |
+| WRF-036 | Interface/performance opportunity | Source-confirmed | `small_step_prep` | Ten numerical dummy arguments and three lower domain bounds are not read; production full-column execution also performs boundary stores that are overwritten before return |
+| WRF-037 | Confirmed interface defect | Source-confirmed | `small_step_prep` | Twelve partially written arrays are declared `INTENT(OUT)`, making their inactive storage undefined on entry even though callers and differential tests may expect preserved halos |
+| WRF-038 | Test gap | Repository search plus direct differential fixture | `small_step_prep` | No focused production regression checks first/later time-level behavior, all staggered bounds, exceptional arithmetic, or inactive storage |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -708,3 +711,65 @@ values across first, later, and exceptional cases. Suggested upstream action:
 add a compact fixture covering both RK phases, an interior vertical tile, all
 upper staggers, persistent fields, and untouched halos, then include it in a
 short prognostic trajectory.
+
+## WRF-036: `small_step_prep` carries dead arguments and overwritten stores
+
+Status: source-confirmed interface and performance opportunity; no independent
+whole-model speed claim is made.
+
+The executable body never reads `c3h`, `c4h`, `c3f`, `c4f`, `msfux`, `msfvx`,
+`msfvy`, `msftx`, `rdx`, or `rdy`. The lower domain bounds `ids`, `jds`, and
+`kds` are also unused. Memory bounds remain necessary for the explicit-shape
+dummy arrays, while upper domain bounds participate in clipping.
+
+The routine stores zero into `ww_save(i,kde,j)` and `ww_save(i,1,j)` at lines
+133–134 and again at 225–226. Its production full-column path subsequently
+copies `ww(i,k,j)` for every `k=1:kde` at lines 281–287, so none of those zero
+stores is observable. The Rust routine requires the same full-column contract
+and omits only these overwritten stores; its complete output oracle remains
+exact.
+
+Suggested upstream action: remove dead dummy arguments during a planned
+interface revision, enable unused-dummy warnings, and remove the boundary zero
+stores if full-column execution is an explicit invariant. If partial vertical
+tiles are meant to be supported, document and test that different contract
+before changing the stores.
+
+## WRF-037: `small_step_prep` partially defines `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect.
+
+`u_save`, `v_save`, `w_save`, `t_save`, `ph_save`, `c2a`, `ww_save`, `muus`,
+`muvs`, `muts`, `mudf`, and `mu_save` are declared `INTENT(OUT)` at lines
+52–65 and 86–91. The routine writes only each active tile and its
+component-specific stagger or vertical range. Under the Fortran standard,
+association with an `INTENT(OUT)` dummy makes the complete actual argument
+undefined on entry; inactive halo and off-tile storage therefore cannot
+portably retain its prior value.
+
+GNU Fortran currently leaves those inactive bytes unchanged, which permits the
+local oracle to observe sentinels, but that is not a language guarantee. The
+Rust API models these fields as mutable caller-owned storage and deliberately
+preserves inactive values.
+
+Suggested upstream action: use `INTENT(INOUT)` if halo/off-tile preservation is
+the contract, or explicitly initialize the complete arrays before returning.
+Add a regression that checks both active values and the chosen inactive-storage
+policy.
+
+## WRF-038: no focused numerical regression for `small_step_prep`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds the production calls but no dedicated numerical
+fixture for this routine. The missing coverage includes first-substep time-level
+replacement, later-substep differences, four distinct stagger ranges,
+west/south neighbor averages, the complete W/geopotential column, saved state,
+pressure-coefficient arithmetic, exceptional IEEE behavior, and inactive
+storage.
+
+The local fixture extracts the exact pinned body and compares all 9,936 mutable
+and sentinel values across first, later-interior, and exceptional cases.
+Suggested upstream action: adopt a similarly small routine-level fixture, then
+extend it into an acoustic trajectory that observes state after every small
+step.
