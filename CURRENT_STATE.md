@@ -118,8 +118,8 @@ and the pressure reference level.
 The non-periodic column-mass staggering routine-level paths are complete for the
 current deterministic corpus. Interior subdomain tiles use halo mass points;
 physical lower and upper boundaries copy the nearest full mass exactly as WRF
-does. The next gates are a matched Rust/Fortran benchmark, warmed allocation
-budget, randomized differential inputs, exceptional-float policy, periodic
+does. Its matched benchmark and allocation budget are complete. The next gates
+are randomized differential inputs, exceptional-float policy, periodic
 `calc_mu_uv` variants, and idealized-case integration.
 
 ## Performance decisions
@@ -192,6 +192,21 @@ gains limited to the noisier 16-worker cases. The separated settings also failed
 to improve representative worker counts consistently. Keep the portable
 ThinLTO production/benchmark baseline.
 
+## Column-mass staggering performance baseline
+
+For 2,099,200 momentum-mass outputs on a 1,024 × 1,024 physical domain, scalar
+Rust measured 332.80 µs with one worker, 115.32 µs with four, and 242.03 µs with
+16. Matched GNU Fortran 14.2.0 `-O3 -flto` measured a 286.850 µs median across
+eleven samples. Rust is 16.0% slower serially and 2.49× faster with four workers
+than serial Fortran. These are isolated-routine results.
+
+Each warmed 100-dispatch phase at 1, 4, and 16 workers recorded three 1,520-byte
+scheduler allocations, or 4,560 bytes total, with no reallocations and no
+numerical scratch. A parity-correct `pulp` prototype regressed representative
+one- and four-worker results and was removed. A safe slice-iterator formulation
+also regressed serial performance and was removed. Keep the readable scalar
+implementation. See `docs/performance/column-mass-staggering-2026-07-13.md`.
+
 ## WRF time oracle
 
 The bundled Fortran `external/esmf_time_f90/Test1.F90` is compiled locally
@@ -228,7 +243,10 @@ cargo test --workspace --release
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
+./scripts/benchmark-column-mass-staggering-fortran.sh
+cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
+cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
 ```
 
 Result: 52 unit tests and three doctests passed in debug and release modes (11
@@ -238,7 +256,9 @@ referenced by executing Rust assertions, both Fortran time interfaces match
 `Test1.out.correct`, both positive-definite oracles match raw IEEE-754 bits, the
 16-selection Held-Suarez boundary oracle matches exactly, and all 240
 `calc_mu_staggered` output/sentinel bits match across its eight axis/path
-combinations.
+combinations. The column-mass matched benchmark, one/four/host-worker Criterion
+run, allocation budget, optimized assembly inspection, and rejected SIMD screen
+are recorded in the performance ledger and detailed baseline.
 
 ## Maintained knowledge and quality ledgers
 
@@ -269,10 +289,11 @@ combinations.
   oracle, typed ranges/errors, concurrency coverage, wiki, and findings.
 - `67d9ce3` — all `calc_mu_staggered` physical-boundary paths, domain/tile/memory
   separation, 240-value exact Fortran corpus, and all-boundary determinism.
+- `dd3e903` — matched column-mass Criterion/Fortran benchmark harnesses and
+  warmed allocation instrumentation.
 
 ## Immediate next actions
 
-1. Add matched Rust/Fortran and allocation benchmarks for column-mass
-   staggering; screen SIMD only after the scalar performance baseline exists.
-2. Build a randomized differential corpus for all completed dynamics kernels.
+1. Build a randomized differential corpus for all completed dynamics kernels.
+2. Port the WRF Registry DSL and generated-state fixtures.
 3. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
