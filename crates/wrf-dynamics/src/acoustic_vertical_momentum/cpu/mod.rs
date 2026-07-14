@@ -81,6 +81,16 @@ impl AcousticVerticalKernels for CpuBackend {
     }
 }
 
+pub(crate) fn validate_acoustic_vertical_momentum(
+    state: &AcousticVerticalState<'_, CpuField<f32>>,
+    workspace: &AcousticVerticalWorkspace<'_, CpuField<f32>>,
+    inputs: AcousticVerticalInputs<'_, CpuField<f32>>,
+    boundary_policy: AcousticVerticalBoundaryPolicy,
+    region: &AcousticVerticalRegion,
+) -> AcousticVerticalResult<()> {
+    OperationValidation::validate(state, workspace, inputs, boundary_policy, region).map(|_| ())
+}
+
 pub(super) fn map_parallel_error(
     error: ParallelExecutionError<Infallible>,
 ) -> AcousticVerticalError {

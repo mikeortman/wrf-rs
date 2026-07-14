@@ -37,6 +37,16 @@ impl AcousticHorizontalMomentumKernels for CpuBackend {
     }
 }
 
+pub(crate) fn validate_acoustic_horizontal_momentum(
+    state: &AcousticHorizontalMomentumState<'_, CpuField<f32>>,
+    inputs: AcousticHorizontalMomentumInputs<'_, CpuField<f32>>,
+    parameters: AcousticHorizontalMomentumParameters,
+    boundary_policy: AcousticHorizontalBoundaryPolicy,
+    region: &AcousticHorizontalMomentumRegion,
+) -> AcousticHorizontalMomentumResult<()> {
+    validation::validate_operation(state, inputs, parameters, boundary_policy, region).map(|_| ())
+}
+
 fn map_parallel_error(
     error: ParallelExecutionError<Infallible>,
 ) -> AcousticHorizontalMomentumError {

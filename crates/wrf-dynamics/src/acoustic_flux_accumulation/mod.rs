@@ -13,6 +13,7 @@ mod phase;
 mod region;
 
 pub use coefficient::AcousticFluxCoefficient;
+pub(crate) use cpu::validate_acoustic_flux_accumulation;
 pub use error::{AcousticFluxAccumulationError, AcousticFluxAccumulationResult};
 pub use field::AcousticFluxField;
 pub use fields::{

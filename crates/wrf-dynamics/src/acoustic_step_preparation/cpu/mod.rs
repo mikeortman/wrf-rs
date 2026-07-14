@@ -70,6 +70,33 @@ impl AcousticStepPreparationKernels for CpuBackend {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn validate_acoustic_step_preparation(
+    volume_time_levels: &AcousticStepPreparationVolumeTimeLevels<'_, CpuField<f32>>,
+    column_mass_time_levels: &AcousticStepPreparationColumnMassTimeLevels<'_, CpuField<f32>>,
+    saved_outputs: &AcousticStepPreparationSavedOutputs<'_, CpuField<f32>>,
+    mass_outputs: &AcousticStepPreparationMassOutputs<'_, CpuField<f32>>,
+    mass_inputs: &AcousticStepPreparationMassInputs<'_, CpuField<f32>>,
+    diagnostics: &AcousticStepPreparationDiagnosticInputs<'_, CpuField<f32>>,
+    map_factors: &AcousticStepPreparationMapFactors<'_, CpuField<f32>>,
+    coefficients: AcousticStepPreparationCoefficients<'_>,
+    phase: AcousticStepPreparationPhase,
+    region: &AcousticStepPreparationRegion,
+) -> AcousticStepPreparationResult<()> {
+    validation::validate_operation(
+        volume_time_levels,
+        column_mass_time_levels,
+        saved_outputs,
+        mass_outputs,
+        mass_inputs,
+        diagnostics,
+        map_factors,
+        coefficients,
+        phase,
+        region,
+    )
+}
+
 pub(super) fn map_parallel_error(
     error: ParallelExecutionError<Infallible>,
 ) -> AcousticStepPreparationError {

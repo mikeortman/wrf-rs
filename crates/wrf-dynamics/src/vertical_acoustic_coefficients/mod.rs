@@ -21,6 +21,7 @@ mod top_boundary;
 
 pub use axis::VerticalAcousticCoefficientAxis;
 pub use coefficient::VerticalAcousticCoefficient;
+pub(crate) use cpu::validate_vertical_acoustic_coefficients;
 pub use error::{VerticalAcousticCoefficientError, VerticalAcousticCoefficientResult};
 pub use field::VerticalAcousticCoefficientField;
 pub use inputs::VerticalAcousticCoefficientInputs;

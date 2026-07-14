@@ -28,6 +28,7 @@ mod acoustic_horizontal_momentum;
 mod acoustic_mass_theta;
 mod acoustic_pressure;
 mod acoustic_step_preparation;
+mod acoustic_trajectory;
 mod acoustic_vertical_momentum;
 mod column_mass_staggering;
 mod dry_tendency_assembly;
@@ -86,6 +87,14 @@ pub use acoustic_step_preparation::{
     AcousticStepPreparationMassOutputs, AcousticStepPreparationPhase,
     AcousticStepPreparationRegion, AcousticStepPreparationResult,
     AcousticStepPreparationSavedOutputs, AcousticStepPreparationVolumeTimeLevels,
+};
+pub use acoustic_trajectory::{
+    AcousticTrajectoryCoefficients, AcousticTrajectoryControls, AcousticTrajectoryDiagnostics,
+    AcousticTrajectoryError, AcousticTrajectoryInputs, AcousticTrajectoryKernels,
+    AcousticTrajectoryMapFactors, AcousticTrajectoryMassInputs,
+    AcousticTrajectoryMoistureCoefficients, AcousticTrajectoryPressureInputs,
+    AcousticTrajectoryRegions, AcousticTrajectoryResult, AcousticTrajectorySavedState,
+    AcousticTrajectoryTendencies, AcousticTrajectoryTimeLevels, AcousticTrajectoryWorkspace,
 };
 pub use acoustic_vertical_momentum::{
     AcousticVerticalAdvection, AcousticVerticalAxis, AcousticVerticalBoundaryPolicy,

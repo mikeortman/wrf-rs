@@ -25,6 +25,7 @@ pub use boundary::{
     AcousticVerticalWestEastPeriodicity,
 };
 pub use coefficient::AcousticVerticalCoefficient;
+pub(crate) use cpu::validate_acoustic_vertical_momentum;
 pub use damping::AcousticVerticalDamping;
 pub use error::{AcousticVerticalError, AcousticVerticalResult};
 pub use field::AcousticVerticalField;

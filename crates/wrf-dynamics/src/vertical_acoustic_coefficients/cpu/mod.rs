@@ -47,6 +47,16 @@ impl VerticalAcousticCoefficientKernels for CpuBackend {
     }
 }
 
+pub(crate) fn validate_vertical_acoustic_coefficients(
+    outputs: &VerticalAcousticSolveCoefficients<'_, CpuField<f32>>,
+    inputs: VerticalAcousticCoefficientInputs<'_, CpuField<f32>>,
+    mass_coefficients: VerticalAcousticMassCoefficients<'_>,
+    metrics: VerticalAcousticMetrics<'_>,
+    region: &VerticalAcousticCoefficientRegion,
+) -> VerticalAcousticCoefficientResult<()> {
+    validation::validate_operation(outputs, inputs, mass_coefficients, metrics, region)
+}
+
 pub(super) fn map_parallel_error(
     error: ParallelExecutionError<Infallible>,
 ) -> VerticalAcousticCoefficientError {

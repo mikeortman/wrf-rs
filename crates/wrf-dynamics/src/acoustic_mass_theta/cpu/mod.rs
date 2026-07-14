@@ -121,6 +121,16 @@ impl AcousticMassThetaKernels for CpuBackend {
     }
 }
 
+pub(crate) fn validate_acoustic_mass_and_theta(
+    state: &AcousticMassThetaState<'_, CpuField<f32>>,
+    diagnostics: &AcousticMassThetaDiagnostics<'_, CpuField<f32>>,
+    inputs: AcousticMassThetaInputs<'_, CpuField<f32>>,
+    boundary_policy: AcousticMassThetaBoundaryPolicy,
+    region: &AcousticMassThetaRegion,
+) -> AcousticMassThetaResult<()> {
+    validation::validate_operation(state, diagnostics, inputs, boundary_policy, region).map(|_| ())
+}
+
 fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> AcousticMassThetaError {
     match error {
         ParallelExecutionError::Kernel(never) => match never {},
