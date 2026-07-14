@@ -44,6 +44,31 @@ impl CpuBackend {
         self.worker_count.get()
     }
 
+    /// Executes a fallible CPU-specific parallel operation on this backend's pool.
+    ///
+    /// Numerical crates use this scheduling facility when one kernel must borrow
+    /// several disjoint output fields at once. It is intentionally absent from
+    /// [`ComputeBackend`]; future device backends implement the numerical
+    /// capability itself rather than accepting host closures.
+    pub fn try_execute_parallel<Output, KernelError, Operation>(
+        &self,
+        operation: Operation,
+    ) -> Result<Output, ParallelExecutionError<KernelError>>
+    where
+        Output: Send,
+        KernelError: Send,
+        Operation: FnOnce() -> Result<Output, KernelError> + Send,
+    {
+        let parallel_result =
+            catch_unwind(AssertUnwindSafe(|| self.thread_pool.install(operation)));
+
+        match parallel_result {
+            Ok(Ok(output)) => Ok(output),
+            Ok(Err(error)) => Err(ParallelExecutionError::Kernel(error)),
+            Err(_) => Err(ParallelExecutionError::WorkerPanicked),
+        }
+    }
+
     /// Runs a closure over work-stealing, disjoint mutable output chunks.
     ///
     /// Shared input fields can be captured immutably by `operation`. No worker
@@ -196,6 +221,19 @@ mod tests {
             &backend.thread_pool,
             &cloned_backend.thread_pool
         ));
+    }
+
+    #[test]
+    fn try_execute_parallel_uses_the_backend_pool_and_preserves_errors() {
+        let backend = CpuBackend::try_with_worker_count(3).unwrap();
+
+        let worker_count = backend
+            .try_execute_parallel(|| Ok::<_, &'static str>(rayon::current_num_threads()))
+            .unwrap();
+        let error = backend.try_execute_parallel(|| Err::<(), _>("kernel failed"));
+
+        assert_eq!(worker_count, 3);
+        assert_eq!(error, Err(ParallelExecutionError::Kernel("kernel failed")));
     }
 
     #[test]

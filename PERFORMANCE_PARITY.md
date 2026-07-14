@@ -65,6 +65,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Positive-definite slab | 1,048,576 values | 2.336656 ms median `[2.322000, 2.371812]` | 1.8084 ms `[1.7985, 1.8189]` | 0.34798 ms (16 workers) | Rust serial 1.29× faster; Rust 16-worker 6.71× faster |
 | Held-Suarez damping | 2,097,152 momentum updates | 0.859712 ms median `[0.851224, 0.877004]` | 0.93459 ms `[0.92879, 0.94090]` | 0.29105 ms (4 workers) | Rust serial 8.7% slower; Rust 4-worker 2.95× faster |
 | Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
+| Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 
 Domain topology is setup work and is not benchmarked as a timestep kernel.
 Halo throughput is also not assigned a Rust/Fortran ratio yet: a four-rank
@@ -81,9 +82,11 @@ after multi-field aggregation lands.
 cargo bench -p wrf-dynamics --bench positive_definite -- --noplot
 cargo bench -p wrf-dynamics --bench held_suarez -- --noplot
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
+cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
+./scripts/benchmark-kessler-fortran.sh
 ```
 
 The Rust detailed results live under `docs/performance/`. Fortran drivers live
@@ -129,3 +132,18 @@ scientific oracle.
   needed or timed. The four allocated fields are reused.
 - Safe explicit-SIMD and iterator/autovectorization prototypes preserved parity
   but failed the representative performance gate and were removed.
+
+## Kessler microphysics comparison notes
+
+- Date, machine, and toolchains match the other 2026-07-13 comparisons.
+- Both implementations process 128 × 128 × 40 points with the same mixed
+  vapor/cloud/rain initialization and 60-second physics time step.
+- Mutable state restoration occurs before every individually timed call and is
+  excluded from both measurements.
+- Fortran uses eleven samples of five calls after three warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark.
+- One-worker Rust and serial Fortran are within normal operational proximity.
+  No SIMD screen is justified without a model-level profile.
+- The reusable Rust workspace holds about 2.62 MB for this domain. Settled
+  execution records three 1,520-byte scheduler allocations per 100 calls and
+  no numerical scratch allocation or reallocation.

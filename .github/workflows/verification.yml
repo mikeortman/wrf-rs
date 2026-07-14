@@ -79,6 +79,8 @@ jobs:
         run: ./scripts/run-mpi-halo-parity.sh
       - name: Verify WRF periodic halo behavior
         run: ./scripts/run-periodic-halo-oracle.sh
+      - name: Verify Kessler warm-rain microphysics
+        run: ./scripts/run-kessler-oracle.sh
 
   publish-wiki:
     name: Publish Wiki
