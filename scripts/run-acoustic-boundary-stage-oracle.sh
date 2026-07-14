@@ -7,6 +7,7 @@ boundary_module="$repository_root/upstream/WRF/share/module_bc.F"
 em_boundary_module="$repository_root/upstream/WRF/dyn_em/module_bc_em.F"
 parity_directory="$repository_root/parity/acoustic-boundary-stage"
 expected="$repository_root/crates/wrf-dynamics/test-data/acoustic_boundary_stage.out.correct"
+normalizer="$repository_root/scripts/normalize-fortran-single-nans.awk"
 
 command -v gfortran >/dev/null || {
   echo "missing command required by acoustic-boundary-stage oracle: gfortran" >&2
@@ -39,11 +40,15 @@ gfortran -O0 -ffp-contract=off -fno-range-check -fallow-argument-mismatch \
   -cpp -ffree-form -ffree-line-length-none \
   "$parity_directory/module_configure_stub.F90" "$build_directory/extracted.F90" \
   "$parity_directory/acoustic_boundary_stage_driver.F90" -o "$build_directory/oracle"
-"$build_directory/oracle" > "$build_directory/actual.out"
+"$build_directory/oracle" > "$build_directory/actual.raw"
+LC_ALL=C awk -f "$normalizer" "$build_directory/actual.raw" \
+  > "$build_directory/actual.out"
 
 if [[ "${1:-}" == "--accept" ]]; then
   cp "$build_directory/actual.out" "$expected"
 else
-  diff -u "$expected" "$build_directory/actual.out"
+  LC_ALL=C awk -f "$normalizer" "$expected" \
+    > "$build_directory/expected.out"
+  diff -u "$build_directory/expected.out" "$build_directory/actual.out"
 fi
 echo "PASS WRF complete acoustic boundary-stage oracle"

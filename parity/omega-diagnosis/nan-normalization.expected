@@ -7,3 +7,4 @@ negative_infinity 0 0 0 FF800000
 positive_zero 0 0 0 00000000
 negative_zero 0 0 0 80000000
 finite 0 0 0 3F800000
+multiple_nan_tokens 7FC00000 7FC00000 3F800000 7F800000 80000000
