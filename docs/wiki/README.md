@@ -97,6 +97,9 @@ implemented system; proposed work is explicitly labeled.
 - [Complete dry boundary relaxation](Dry-Boundary-Relaxation.md) — WRF's
   mass-weighted U/V/PH/T/MU/optional-W orchestration, reusable workspace,
   failure-atomic validation, and exact pinned-source evidence.
+- [Complete dry large-step boundary stage](Dry-Large-Step-Boundary-Stage.md)
+  — source-order relaxation, assembly, and assignment, typed substep/domain
+  modes, once-owned saved tendencies, and cross-routine atomicity.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
