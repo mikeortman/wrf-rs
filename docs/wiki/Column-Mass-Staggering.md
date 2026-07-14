@@ -87,6 +87,32 @@ The two output passes remain separate behind `ColumnMassStaggeringKernels` so a
 future GPU backend can implement native device kernels and storage rather than
 receiving CPU closures.
 
+## CPU performance
+
+The matched benchmark uses a 1,024 × 1,024 physical mass domain and writes
+2,099,200 momentum-mass outputs per call. On the Apple M3 Max baseline machine,
+portable release Rust measured 332.80 µs with one worker, 115.32 µs with four,
+and 242.03 µs with all 16 host workers. Four workers are best because this
+streaming kernel reaches memory and heterogeneous-core limits before it can use
+every core efficiently.
+
+The exact extracted WRF routine, compiled with GNU Fortran 14.2.0 using
+`-O3 -flto`, measured a 286.850 µs median. Rust is 16.0% slower serially and
+2.49× faster with four workers than serial Fortran. This is an isolated routine
+comparison, not a whole-model speedup claim.
+
+After pool and field warm-up, every 100-call phase uses three small scheduler
+allocations totaling 4,560 bytes and no reallocations. There is no field-sized
+or per-row numerical scratch.
+
+Fortran's averaging loops are vectorized. Rust's retained loops are scalar, so
+a safe `pulp` prototype was tested. It preserved every tested scalar and
+Fortran bit but regressed one- and four-worker performance. A slice-iterator
+autovectorization formulation also regressed serial performance. Both were
+removed. The full workload, raw samples, confidence intervals, allocation
+evidence, and rejected-prototype measurements are in the
+[performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/column-mass-staggering-2026-07-13.md).
+
 ## Parity evidence
 
 `scripts/run-column-mass-staggering-oracle.sh` extracts the exact

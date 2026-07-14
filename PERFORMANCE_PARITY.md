@@ -60,14 +60,17 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Positive-definite sheet | 1,048,576 values | 1.709219 ms median `[1.676438, 1.775156]` | 1.1569 ms `[1.1517, 1.1632]` | 0.27485 ms (16 workers) | Rust serial 1.48× faster; Rust 16-worker 6.22× faster |
 | Positive-definite slab | 1,048,576 values | 2.336656 ms median `[2.322000, 2.371812]` | 1.8084 ms `[1.7985, 1.8189]` | 0.34798 ms (16 workers) | Rust serial 1.29× faster; Rust 16-worker 6.71× faster |
 | Held-Suarez damping | 2,097,152 momentum updates | 0.859712 ms median `[0.851224, 0.877004]` | 0.93459 ms `[0.92879, 0.94090]` | 0.29105 ms (4 workers) | Rust serial 8.7% slower; Rust 4-worker 2.95× faster |
+| Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
 
 ## Reproduction
 
 ```sh
 cargo bench -p wrf-dynamics --bench positive_definite -- --noplot
 cargo bench -p wrf-dynamics --bench held_suarez -- --noplot
+cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-held-suarez-fortran.sh
+./scripts/benchmark-column-mass-staggering-fortran.sh
 ```
 
 The Rust detailed results live under `docs/performance/`. Fortran drivers live
@@ -100,3 +103,16 @@ scientific oracle.
   staggered momentum components, or 2,097,152 updates per call.
 - Rust uses accepted runtime-dispatched SIMD after exact scalar/SIMD tests over
   lengths 1–257; its pre-SIMD scalar baseline was 0.97808 ms with one worker.
+
+## Column-mass staggering comparison notes
+
+- Date, machine, and toolchains match the other 2026-07-13 comparisons.
+- Both implementations use a 1,024 × 1,024 physical mass domain with storage
+  for halos and upper stagger points. Both lower and upper physical boundaries
+  execute on both axes.
+- Fortran uses eleven samples of 500 calls after 100 warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark.
+- All active outputs are overwritten on every call, so no output restoration is
+  needed or timed. The four allocated fields are reused.
+- Safe explicit-SIMD and iterator/autovectorization prototypes preserved parity
+  but failed the representative performance gate and were removed.

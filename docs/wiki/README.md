@@ -30,6 +30,9 @@ implemented system; proposed work is explicitly labeled.
   — release throughput, scaling, generated-code findings, and caveats.
 - [Held-Suarez performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/held-suarez-2026-07-13.md)
   — CPU scaling and the matched optimized-Fortran comparison.
+- [Column-mass staggering performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/column-mass-staggering-2026-07-13.md)
+  — matched geometry, CPU scaling, allocation evidence, and the rejected SIMD
+  screen.
 - [Rust/Fortran performance ledger](https://github.com/mikeortman/wrf-rs/blob/main/PERFORMANCE_PARITY.md) — matched
   workload policy and cumulative comparison table.
 - [Rust module structure](https://github.com/mikeortman/wrf-rs/blob/main/docs/architecture/module_structure.md) — family-owned

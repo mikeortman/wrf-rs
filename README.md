@@ -72,7 +72,7 @@ WRF initialization and match an upstream integration.
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | Not started | — | Parse Registry DSL and port generated-state fixtures |
 | Domain decomposition / halo exchange | Not started | — | Serial topology first, then MPI differential tests |
-| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and every `calc_mu_staggered` physical-boundary path have exact-bit Fortran oracles; CPU scaling baselines for the first two families | Add a matched column-mass benchmark and allocation budget |
+| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and every `calc_mu_staggered` physical-boundary path have exact-bit Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Add randomized differential corpora, then begin dependency-closed ARW integration |
 | Physics drivers and schemes | Not started | — | Inventory schemes and translate one dependency-closed column |
 | I/O and NetCDF metadata | Not started | — | Round-trip WRF files with exact schema parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
@@ -105,6 +105,8 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
+./scripts/benchmark-column-mass-staggering-fortran.sh
+cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 ```
 
 The upstream source is intentionally ignored by the root repository. Its tag,

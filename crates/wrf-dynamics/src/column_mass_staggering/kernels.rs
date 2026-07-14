@@ -10,6 +10,10 @@ use crate::{ColumnMassStaggeringRegion, ColumnMassStaggeringResult};
 /// copies the nearest full mass, while values outside the active output
 /// rectangles remain untouched.
 ///
+/// The [`CpuBackend`](wrf_compute::CpuBackend) implementation schedules
+/// disjoint output rows on its persistent worker pool, borrows both inputs, and
+/// allocates no numerical scratch. It preserves WRF's `f32` expression order.
+///
 /// # Example
 ///
 /// ```
