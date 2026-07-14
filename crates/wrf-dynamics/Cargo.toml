@@ -88,3 +88,7 @@ harness = false
 [[bench]]
 name = "specified_boundary_update"
 harness = false
+
+[[bench]]
+name = "specified_boundary_geopotential"
+harness = false

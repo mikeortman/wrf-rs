@@ -7,6 +7,8 @@
 mod cpu;
 mod error;
 mod field_location;
+pub(crate) mod geometry;
+mod geopotential;
 mod kernels;
 mod parameters;
 mod periodicity;
@@ -14,6 +16,10 @@ mod region;
 
 pub use error::{SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateResult};
 pub use field_location::SpecifiedBoundaryFieldLocation;
+pub use geopotential::{
+    SpecifiedBoundaryGeopotentialError, SpecifiedBoundaryGeopotentialInputs,
+    SpecifiedBoundaryGeopotentialKernels, SpecifiedBoundaryGeopotentialResult,
+};
 pub use kernels::SpecifiedBoundaryUpdateKernels;
 pub use parameters::SpecifiedBoundaryUpdateParameters;
 pub use periodicity::SpecifiedBoundaryWestEastPeriodicity;

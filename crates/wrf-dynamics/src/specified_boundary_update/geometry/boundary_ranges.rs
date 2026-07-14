@@ -1,23 +1,18 @@
 use std::ops::Range;
 
+use super::SpecifiedBoundaryRowRanges;
 use crate::SpecifiedBoundaryWestEastPeriodicity;
 use crate::specified_boundary_update::region::SpecifiedBoundaryActiveRanges;
 
-pub(super) struct SpecifiedBoundaryPointMembership {
+/// Direct WRF trapezoid and side ranges shared by specified-boundary kernels.
+pub(crate) struct SpecifiedBoundaryRanges {
     ranges: SpecifiedBoundaryActiveRanges,
     specified_zone_width: usize,
     periodic_west_east: bool,
 }
 
-pub(super) struct SpecifiedBoundaryRowRanges {
-    pub(super) south: Option<Range<usize>>,
-    pub(super) north: Option<Range<usize>>,
-    pub(super) west: Option<Range<usize>>,
-    pub(super) east: Option<Range<usize>>,
-}
-
-impl SpecifiedBoundaryPointMembership {
-    pub(super) fn new(
+impl SpecifiedBoundaryRanges {
+    pub(crate) fn new(
         ranges: SpecifiedBoundaryActiveRanges,
         specified_zone_width: usize,
         west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
@@ -29,11 +24,11 @@ impl SpecifiedBoundaryPointMembership {
         }
     }
 
-    pub(super) fn bottom_top_range(&self) -> Range<usize> {
+    pub(crate) fn bottom_top_range(&self) -> Range<usize> {
         self.ranges.bottom_top.clone()
     }
 
-    pub(super) fn ranges_for_row(&self, south_north: usize) -> SpecifiedBoundaryRowRanges {
+    pub(crate) fn ranges_for_row(&self, south_north: usize) -> SpecifiedBoundaryRowRanges {
         if !self.ranges.south_north.contains(&south_north) {
             return SpecifiedBoundaryRowRanges::empty();
         }
@@ -171,17 +166,6 @@ impl SpecifiedBoundaryPointMembership {
     }
 }
 
-impl SpecifiedBoundaryRowRanges {
-    fn empty() -> Self {
-        Self {
-            south: None,
-            north: None,
-            west: None,
-            east: None,
-        }
-    }
-}
-
 fn nonempty(range: Range<usize>) -> Option<Range<usize>> {
     (!range.is_empty()).then_some(range)
 }
@@ -201,7 +185,7 @@ mod tests {
                         SpecifiedBoundaryWestEastPeriodicity::Nonperiodic,
                         SpecifiedBoundaryWestEastPeriodicity::Periodic,
                     ] {
-                        let membership = SpecifiedBoundaryPointMembership::new(
+                        let boundary_ranges = SpecifiedBoundaryRanges::new(
                             SpecifiedBoundaryActiveRanges {
                                 west_east: west_east.clone(),
                                 south_north: south_north.clone(),
@@ -213,7 +197,7 @@ mod tests {
                             periodicity,
                         );
                         for row in 0..7 {
-                            let ranges = membership.ranges_for_row(row);
+                            let ranges = boundary_ranges.ranges_for_row(row);
                             for column in 0..7 {
                                 let actual = [
                                     ranges.south.as_ref(),

@@ -93,6 +93,8 @@ jobs:
         run: ./scripts/run-vertical-acoustic-coefficients-oracle.sh
       - name: Verify specified-boundary tendency updates
         run: ./scripts/run-specified-boundary-update-oracle.sh
+      - name: Verify specified-boundary geopotential updates
+        run: ./scripts/run-specified-boundary-geopotential-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

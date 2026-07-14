@@ -898,6 +898,13 @@ clipping; all 1,728 stored values match exactly. Direct boundary ranges avoid
 whole-plane scans. On the matched workload, serial Rust is 1.49× faster and
 four-worker Rust is 3.88× faster than optimized serial Fortran, with no
 numerical scratch or field clones, so SIMD tuning stops.
+Mass-normalized geopotential boundary updates implement `spec_bdyupdate_ph`
+behind a separate typed capability while reusing the exhaustively checked
+specified-zone geometry. Nine direct cases cover every source field location,
+periodic X, partial/inactive tiles, and exceptional arithmetic; all 1,944
+stored values match by raw bits or NaN class. On the matched full-level
+workload, serial Rust is 2.01× faster and four-worker Rust is 5.63× faster than
+optimized serial Fortran, with no numerical scratch or field clones.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped

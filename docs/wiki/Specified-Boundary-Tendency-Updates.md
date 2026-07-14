@@ -1,4 +1,4 @@
-# Specified-boundary tendency updates
+# Specified-boundary updates
 
 ## Role in ARW
 
@@ -64,3 +64,39 @@ one/four-worker complete-output determinism.
 
 The next integration gate ports the remaining boundary-finalization routines
 and inserts boundary and halo operations around the local acoustic trajectory.
+
+## Mass-normalized geopotential
+
+Nested nonhydrostatic domains use `spec_bdyupdate_ph` after each acoustic flux
+accumulation. It applies the same boundary geometry but accounts for the
+changing dry column mass. For level `k`, define
+
+```text
+mu_old = muts - dt * mu_tend
+old_mass = c1(k) * mu_old + c2(k)
+new_mass = c1(k) * muts + c2(k)
+```
+
+WRF then evaluates, in single-precision source order,
+
+```text
+ph = ph * old_mass / new_mass
+   + dt * ph_tend / new_mass
+   + ph_save * (old_mass / new_mass - 1)
+```
+
+`SpecifiedBoundaryGeopotentialInputs` separates the three-dimensional saved
+geopotential and tendency from the two-dimensional column-mass fields and
+one-dimensional vertical coefficients. The capability validates every shape
+and coefficient length before mutation. It computes `mu_old` as a scalar at
+the consuming point instead of materializing WRF's tile-sized automatic array.
+
+Nine direct cases compare all 1,944 stored values across every supported field
+location, periodic X, partial and inactive tiles, and zero-denominator IEEE
+behavior. Finite values, signed zeros, and infinities match by raw bits; NaNs
+match by class because their sign and payload are compiler-dependent.
+
+On the matched 256 × 256 × 41 workload, serial Rust is 2.01× faster than
+optimized serial Fortran, four-worker Rust is 5.63× faster, and the default
+16-worker path is 3.25× faster. The kernel uses no numerical scratch or field
+clones, so explicit SIMD is not justified for this slice.
