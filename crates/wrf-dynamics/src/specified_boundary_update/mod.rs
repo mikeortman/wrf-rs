@@ -23,6 +23,7 @@ mod relaxation;
 mod tendency_assignment;
 mod zero_gradient;
 
+pub(crate) use cpu::validate_specified_boundary_update;
 pub(crate) use dry_relaxation::validate_cpu_dry_boundary_relaxation;
 pub use dry_relaxation::{
     DryBoundaryRelaxationBoundaryData, DryBoundaryRelaxationBoundaryFields,
@@ -50,6 +51,7 @@ pub use flow_dependent::{
     SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters, SpecifiedBoundaryFlowRegion,
     SpecifiedBoundaryFlowResult, SpecifiedBoundaryInflowPolicy,
 };
+pub(crate) use geopotential::validate_specified_boundary_geopotential;
 pub use geopotential::{
     SpecifiedBoundaryGeopotentialError, SpecifiedBoundaryGeopotentialInputs,
     SpecifiedBoundaryGeopotentialKernels, SpecifiedBoundaryGeopotentialResult,
@@ -68,6 +70,7 @@ pub use tendency_assignment::{
     SpecifiedBoundaryTendencies, SpecifiedBoundaryTendencyError, SpecifiedBoundaryTendencyKernels,
     SpecifiedBoundaryTendencyParameters, SpecifiedBoundaryTendencyResult,
 };
+pub(crate) use zero_gradient::validate_zero_gradient_specified_boundary;
 pub use zero_gradient::{
     SpecifiedBoundaryZeroGradientError, SpecifiedBoundaryZeroGradientKernels,
     SpecifiedBoundaryZeroGradientParameters, SpecifiedBoundaryZeroGradientResult,

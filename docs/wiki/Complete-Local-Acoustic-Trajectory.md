@@ -52,9 +52,11 @@ injects that late failure and compares every mutable field before and after the
 call.
 
 Numerical runtime failures are limited to the existing typed kernel errors and
-worker failures. Communication, physical boundary updates, polar filtering,
-and nested forcing remain explicit caller responsibilities; the local
-capability does not pretend they are computation-local operations.
+worker failures. The trajectory remains a reusable numerical primitive. The
+[complete acoustic boundary stage](Complete-Acoustic-Boundary-Stage.md) now
+inserts specified, nested, and physical boundary operations around it behind a
+larger preflight; communication and polar filtering remain outside both local
+capabilities.
 
 ## Interpolation coefficients
 
@@ -80,7 +82,7 @@ branch, boundary, exceptional-value, and inactive-storage corpus.
 
 ## Current boundary
 
-This capability covers one local, nonpolar, nonperiodic, nonnested,
-nonhydrostatic tile. The next integration layer must insert WRF's halo exchange,
-physical-boundary, polar-filter, and specified/nested update points between the
-local numerical stages, then bind the fields to Registry-generated model state.
+This capability covers the numerical part of one local nonhydrostatic tile.
+Periodic, specified, and nested insertion points are owned by the composed
+boundary stage. The next integration layer must insert halo exchange and polar
+filtering, then bind the borrowed fields to Registry-generated model state.

@@ -132,3 +132,11 @@ harness = false
 [[bench]]
 name = "dry_large_step_boundary_stage"
 harness = false
+
+[[bench]]
+name = "physical_boundary"
+harness = false
+
+[[bench]]
+name = "acoustic_boundary_stage"
+harness = false

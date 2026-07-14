@@ -6,8 +6,8 @@ use crate::{
     AcousticTrajectoryTendencies,
 };
 
-/// Complete immutable input set for a local acoustic trajectory.
-#[derive(Clone, Copy, Debug)]
+/// Complete borrowed input set for a local acoustic trajectory.
+#[derive(Debug)]
 pub struct AcousticTrajectoryInputs<'a, Field: FieldStorage<f32>> {
     pub(crate) masses: AcousticTrajectoryMassInputs<'a, Field>,
     pub(crate) pressure: AcousticTrajectoryPressureInputs<'a, Field>,

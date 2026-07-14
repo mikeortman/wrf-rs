@@ -18,6 +18,7 @@ mod workspace;
 
 pub use coefficients::AcousticTrajectoryCoefficients;
 pub use controls::AcousticTrajectoryControls;
+pub(crate) use cpu::{AcousticTrajectoryExecution, validate_acoustic_trajectory};
 pub use diagnostics::AcousticTrajectoryDiagnostics;
 pub use error::{AcousticTrajectoryError, AcousticTrajectoryResult};
 pub use inputs::{

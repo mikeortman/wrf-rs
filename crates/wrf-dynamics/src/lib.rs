@@ -10,6 +10,10 @@
 //! momentum, geopotential, and normalized time-averaged thermodynamics.
 //! [`AcousticFluxAccumulationKernels`] then accumulates and finalizes the
 //! staggered mass fluxes consumed by conservative scalar transport.
+//! [`PhysicalBoundaryKernels`] reproduces WRF's fixed physical-boundary zone
+//! assignment for volume and horizontal fields.
+//! [`AcousticBoundaryStageKernels`] composes the complete local acoustic
+//! trajectory with specified, nested, and physical boundary insertion points.
 //! [`SpecifiedBoundaryZeroGradientKernels`] applies WRF's nearest-interior
 //! copy rule to specified nonhydrostatic vertical-momentum boundaries.
 //! [`SpecifiedBoundaryFlowKernels`] classifies scalar boundaries from coupled
@@ -39,6 +43,7 @@
 
 #![forbid(unsafe_code)]
 
+mod acoustic_boundary_stage;
 mod acoustic_flux_accumulation;
 mod acoustic_horizontal_momentum;
 mod acoustic_mass_theta;
@@ -55,6 +60,7 @@ mod inverse_density;
 mod moisture_coefficients;
 mod momentum_coupling;
 mod omega_diagnosis;
+mod physical_boundary;
 mod positive_definite;
 mod pressure_point_geopotential;
 mod runge_kutta_preparation;
@@ -63,6 +69,10 @@ mod specified_boundary_update;
 mod test_support;
 mod vertical_acoustic_coefficients;
 
+pub use acoustic_boundary_stage::{
+    AcousticBoundaryRegionRole, AcousticBoundaryStageControls, AcousticBoundaryStageError,
+    AcousticBoundaryStageKernels, AcousticBoundaryStageRegions, AcousticBoundaryStageResult,
+};
 pub use acoustic_flux_accumulation::{
     AcousticFluxAccumulationError, AcousticFluxAccumulationKernels, AcousticFluxAccumulationRegion,
     AcousticFluxAccumulationResult, AcousticFluxCoefficient, AcousticFluxCurrentFields,
@@ -175,6 +185,11 @@ pub use omega_diagnosis::{
     OmegaDiagnosisField, OmegaDiagnosisGridMetrics, OmegaDiagnosisKernels,
     OmegaDiagnosisMapFactors, OmegaDiagnosisMasses, OmegaDiagnosisRegion, OmegaDiagnosisResult,
     OmegaDiagnosisVelocities,
+};
+pub use physical_boundary::{
+    PHYSICAL_BOUNDARY_ZONE, PhysicalBoundaryAxis, PhysicalBoundaryConditions,
+    PhysicalBoundaryError, PhysicalBoundaryKernels, PhysicalBoundaryRegion, PhysicalBoundaryResult,
+    PhysicalBoundaryVariable,
 };
 pub use positive_definite::{
     PositiveDefiniteError, PositiveDefiniteKernels, PositiveDefiniteResult,

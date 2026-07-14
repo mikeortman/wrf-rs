@@ -63,10 +63,11 @@ vertical tiles; and an inactive interior tile. Added tests cover zero-width
 zones, shape failure atomicity, and one/four-worker complete-output
 determinism.
 
-The five-point relaxation stage is now documented separately in
-[Specified-boundary relaxation](Specified-Boundary-Relaxation.md). The next
-integration gate inserts both tendency stages plus boundary and halo operations
-around the local acoustic trajectory.
+The five-point relaxation stage is documented separately in
+[Specified-boundary relaxation](Specified-Boundary-Relaxation.md). The
+[complete acoustic boundary stage](Complete-Acoustic-Boundary-Stage.md) now
+inserts acoustic-time tendency and geopotential updates; halo exchange and
+boundary-file interpolation remain later driver concerns.
 
 ## Boundary-file tendency assignment
 

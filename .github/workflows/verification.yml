@@ -102,12 +102,16 @@ jobs:
         run: ./scripts/run-acoustic-pressure-oracle.sh
       - name: Verify vertical acoustic coefficients
         run: ./scripts/run-vertical-acoustic-coefficients-oracle.sh
+      - name: Verify physical boundary-zone assignment
+        run: ./scripts/run-physical-boundary-oracle.sh
       - name: Verify specified-boundary tendency updates
         run: ./scripts/run-specified-boundary-update-oracle.sh
       - name: Verify specified-boundary geopotential updates
         run: ./scripts/run-specified-boundary-geopotential-oracle.sh
       - name: Verify zero-gradient specified boundaries
         run: ./scripts/run-zero-gradient-boundary-oracle.sh
+      - name: Verify complete acoustic boundary stage
+        run: ./scripts/run-acoustic-boundary-stage-oracle.sh
       - name: Verify flow-dependent specified boundaries
         run: ./scripts/run-flow-dependent-boundary-oracle.sh
       - name: Verify flow-dependent inflow policies

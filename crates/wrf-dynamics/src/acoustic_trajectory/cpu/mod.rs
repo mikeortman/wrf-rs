@@ -11,7 +11,13 @@ mod arguments;
 mod execution;
 mod preflight;
 
-use execution::AcousticTrajectoryExecution;
+pub(crate) use execution::AcousticTrajectoryExecution;
+
+pub(crate) fn validate_acoustic_trajectory(
+    execution: &mut AcousticTrajectoryExecution<'_, '_, '_, '_>,
+) -> AcousticTrajectoryResult<()> {
+    preflight::validate(execution)
+}
 
 impl AcousticTrajectoryKernels for CpuBackend {
     type Field = CpuField<f32>;
@@ -38,7 +44,7 @@ impl AcousticTrajectoryKernels for CpuBackend {
             controls,
             regions,
         );
-        preflight::validate(&mut execution)?;
+        validate_acoustic_trajectory(&mut execution)?;
         execution.run()
     }
 }
@@ -277,7 +283,7 @@ mod tests {
                 west_east_moisture,
                 south_north_moisture,
                 vertical_moisture,
-            ] = &self.volume_inputs;
+            ] = &mut self.volume_inputs;
             let [
                 base_column_mass,
                 west_east_column_mass,

@@ -9,6 +9,23 @@ use crate::{
     SpecifiedBoundaryUpdateRegion, SpecifiedBoundaryWestEastPeriodicity,
 };
 
+pub(crate) fn validate_specified_boundary_geopotential<'a>(
+    geopotential: &'a mut CpuField<f32>,
+    inputs: SpecifiedBoundaryGeopotentialInputs<'a, CpuField<f32>>,
+    parameters: SpecifiedBoundaryUpdateParameters,
+    west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
+    region: &SpecifiedBoundaryUpdateRegion,
+) -> SpecifiedBoundaryGeopotentialResult<()> {
+    let _kernel = SpecifiedBoundaryGeopotentialCpuKernel::try_new(
+        geopotential,
+        inputs,
+        parameters,
+        west_east_periodicity,
+        region,
+    )?;
+    Ok(())
+}
+
 impl SpecifiedBoundaryGeopotentialKernels for CpuBackend {
     type Field = CpuField<f32>;
 

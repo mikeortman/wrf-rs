@@ -82,6 +82,12 @@ implemented system; proposed work is explicitly labeled.
 - [Complete local acoustic trajectory](Complete-Local-Acoustic-Trajectory.md) —
   the seven-kernel execution order, failure-atomic ownership boundary,
   interpolation roles, and exact coupled three-substep evidence.
+- [Physical boundary-zone assignment](Physical-Boundary-Zone-Assignment.md) —
+  WRF's fixed four-point halo geometry, stagger-specific periodic, symmetric,
+  open, specified, and nested copies, and exact complete-storage evidence.
+- [Complete acoustic boundary stage](Complete-Acoustic-Boundary-Stage.md) —
+  source-order numerical and lateral-boundary composition, whole-call
+  preflight, borrowed ownership, and stage-boundary oracle evidence.
 - [Specified-boundary updates](Specified-Boundary-Tendency-Updates.md) — C-grid
   field locations, trapezoidal corners, periodic-X behavior, mass-normalized
   geopotential, direct parallel ranges, and exact pinned-source evidence.
@@ -153,6 +159,12 @@ implemented system; proposed work is explicitly labeled.
 - [Complete local acoustic-trajectory performance estimate](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-trajectory-2026-07-14.md)
   — exact stage counts, equivalent optimization levels, aggregate timing, and
   the direct-integrated-benchmark boundary.
+- [Physical boundary-zone performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/physical-boundary-2026-07-14.md)
+  — matched perimeter geometry, serial-order decision, allocation evidence,
+  and the measured validation cost.
+- [Complete acoustic boundary-stage performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-boundary-stage-2026-07-14.md)
+  — direct integrated timing, 1/4/16-worker scaling, allocation evidence, and
+  the remaining optimized-Fortran gap.
 - [Specified-boundary update performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-update-2026-07-14.md)
   — matched boundary geometry, direct-range correction, CPU scaling,
   allocation evidence, and the SIMD stopping decision.
