@@ -46,7 +46,7 @@ The implemented slice corresponds to an interior WRF tile, where every output
 uses the two-point average. `calc_mu_staggered` also contains four physical
 boundary cases that copy the nearest full mass instead of averaging through a
 halo. Those branches are explicitly not yet implemented and remain the next
-parity gate; `PORT_STATUS.md` does not count this routine as complete.
+parity gate; the root `README.md` does not count this routine as complete.
 
 ## Parity evidence
 

@@ -1,0 +1,40 @@
+name: Port slice
+description: Track one dependency-closed WRF compatibility slice
+title: "Port: "
+labels:
+  - "type: port"
+body:
+  - type: input
+    id: upstream
+    attributes:
+      label: Upstream source
+      description: Pinned WRF routine, module, or test being translated.
+      placeholder: dyn_em/module_name.F:subroutine_name
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Dependency-closed scope
+      description: Define what is included and explicitly excluded.
+    validations:
+      required: true
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: Completion gates
+      options:
+        - label: Pinned Fortran oracle or upstream regression test exists
+        - label: Rust scalar implementation matches the parity policy
+        - label: Missing edge and malformed-input tests were added
+        - label: One-worker and multithreaded results are deterministic
+        - label: Rust and matched optimized-Fortran benchmarks are recorded
+        - label: Allocation behavior is measured
+        - label: SIMD was accepted or rejected with parity and benchmark evidence
+        - label: Rustdoc, wiki, coverage, findings, and README status are updated
+        - label: Full formatting, test, Clippy, rustdoc, and diff gates pass
+  - type: textarea
+    id: notes
+    attributes:
+      label: Scientific and implementation notes
+      description: Record equations, ordering constraints, upstream findings, and design decisions.

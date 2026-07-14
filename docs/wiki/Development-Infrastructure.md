@@ -29,7 +29,7 @@ links; CI-style verification promotes warnings to failures.
 
 The wiki explains cross-crate concepts and algorithms. Rustdoc explains how to
 use a crate safely. `CURRENT_STATE.md` is a compact operational handoff, while
-`PORT_STATUS.md`, `TEST_COVERAGE.md`, and `UPSTREAM_FINDINGS.md` are durable
+The root `README.md`, `TEST_COVERAGE.md`, and `UPSTREAM_FINDINGS.md` are durable
 ledgers with distinct purposes.
 
 ## Trusted dependencies

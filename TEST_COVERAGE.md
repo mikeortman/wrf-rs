@@ -1,7 +1,7 @@
 # Test coverage and gap inventory
 
-This is the test-planning ledger. `PORT_STATUS.md` tracks implementation scope;
-this file tracks confidence within that scope.
+This is the test-planning ledger. The root `README.md` tracks implementation
+scope; this file tracks confidence within that scope.
 
 ## Required layers
 

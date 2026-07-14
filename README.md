@@ -27,10 +27,9 @@ upstream tests and differential fixtures pass.
   `docs/architecture/module_structure.md`.
 - Rust tests cite the corresponding cases in
   `upstream/WRF/external/esmf_time_f90/Test1.F90`.
-- [`PORT_STATUS.md`](PORT_STATUS.md) is the source of truth for coverage and
-  known gaps.
-- [`docs/wiki/README.md`](docs/wiki/README.md) is the technical encyclopedia and
-  onboarding map.
+- The port-status table below is the source of truth for implementation scope.
+- The [GitHub Wiki](https://github.com/mikeortman/wrf-rs/wiki) publishes the
+  technical encyclopedia maintained under [`docs/wiki`](docs/wiki/README.md).
 - [`UPSTREAM_FINDINGS.md`](UPSTREAM_FINDINGS.md) records reproducible WRF bugs,
   test gaps, and performance opportunities suitable for upstream reporting.
 - [`TEST_COVERAGE.md`](TEST_COVERAGE.md) tracks what is tested and what still
@@ -38,6 +37,35 @@ upstream tests and differential fixtures pass.
 - [`PERFORMANCE_PARITY.md`](PERFORMANCE_PARITY.md) tracks matched Rust and
   optimized-Fortran kernel performance without extrapolating to whole-model
   speedup.
+
+## Port status
+
+Target: WRF v4.7.1 at commit
+`f52c197ed39d12e087d02c50f412d90d418f6186`.
+
+The states below describe translated interfaces and tests, not scientific
+accuracy. Whole-model parity remains 0% until a Rust executable can consume a
+WRF initialization and match an upstream integration.
+
+| Area | State | Evidence | Next gate |
+|---|---|---|---|
+| Source pin and license | Complete | `UPSTREAM.toml`, `scripts/fetch-wrf.sh` | Monitor upstream only by explicit retargeting |
+| ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
+| Registry/configuration | Not started | — | Parse Registry DSL and port generated-state fixtures |
+| Domain decomposition / halo exchange | Not started | — | Serial topology first, then MPI differential tests |
+| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and interior column-mass staggering exact-bit Fortran oracles; CPU scaling baselines for the first two families | Complete column-mass boundary branches and matched benchmark |
+| Physics drivers and schemes | Not started | — | Inventory schemes and translate one dependency-closed column |
+| I/O and NetCDF metadata | Not started | — | Round-trip WRF files with exact schema parity |
+| WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
+| End-to-end idealized/regression suite | Not started | — | `em_b_wave`/`em_squall2d_x` differential runs |
+
+Parity means exact discrete behavior; per-routine numerical fixtures with an
+explicit exact or ULP policy; per-timestep trajectory comparisons including
+restart equivalence; and ultimately serial/distributed operational parity.
+Passing a looser end-state tolerance does not excuse an unexplained divergent
+trajectory.
+
+Work remaining is tracked in [GitHub Issues](https://github.com/mikeortman/wrf-rs/issues).
 
 ## Reproduce
 

@@ -37,6 +37,6 @@ implemented system; proposed work is explicitly labeled.
 ## Maintenance rule
 
 Each completed port slice updates its algorithm page, parity evidence,
-performance notes, crate-level Rust documentation, `PORT_STATUS.md`,
+performance notes, crate-level Rust documentation, the root `README.md`,
 `TEST_COVERAGE.md`, and `CURRENT_STATE.md`. Findings in the Fortran source also
 go into `UPSTREAM_FINDINGS.md` with a confidence label and reproduction.
