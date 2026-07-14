@@ -20,6 +20,7 @@ a measured regression until a representative benchmark exists.
 | WRF-006 | Performance opportunity | Source-confirmed, not benchmarked | Held-Suarez damping | The surface-pressure denominator is recomputed for every vertical level although it is invariant in `k` |
 | WRF-007 | Test gap | Repository search | Column-mass staggering | No dedicated numerical regression for `calc_mu_staggered` was found in the WRF tree |
 | WRF-008 | Numerical robustness | Reproduced against pinned Fortran | Positive-definite correction | Finite extreme inputs can overflow the intermediate scale multiplication and produce infinity even when the normalized result is representable |
+| WRF-009 | Confirmed bug | Compiler-diagnosed and source-reproduced | Registry allocation generator | Empty output-directory branches pass a string to `%d` and an unused integer to `sprintf`, invoking undefined behavior |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -195,3 +196,31 @@ consider a scale-safe normalization such as computing the ratio before applying
 it. Any change must evaluate underflow and rounding, because reassociation will
 alter ordinary single-precision results. At minimum, a focused regression could
 document the accepted behavior for extreme finite inputs.
+
+## WRF-009: invalid `sprintf` arguments in empty-directory generator paths
+
+Status: confirmed latent C bug; the normal Registry executable passes `inc`
+and does not take the faulty branches.
+
+Clang diagnoses `tools/gen_allocs.c:62` and `:843` while building the pinned
+Registry tool. Both locations contain the same empty-directory branch:
+
+```c
+sprintf(fname,"%s%d.F",dirname,filename_prefix,idx ) ;
+```
+
+The format has two conversions, `%s` and `%d`, but receives three data
+arguments. `filename_prefix` is a `char *` supplied to `%d`, and `idx` is then
+unused. Variadic format mismatch is undefined behavior and can produce an
+invalid filename or crash when `dirname` is empty. The non-empty branch uses
+the intended format:
+
+```c
+sprintf(fname,"%s/%s%d.F",dirname,filename_prefix,idx) ;
+```
+
+Suggested upstream fix: change both empty-directory branches to
+`sprintf(fname, "%s%d.F", filename_prefix, idx)`, preferably replacing all
+unbounded filename formatting in these functions with checked `snprintf`.
+Add a generator test that calls allocation and deallocation generation with
+both empty and non-empty output directories.

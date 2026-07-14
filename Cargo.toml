@@ -2,6 +2,7 @@
 members = [
     "crates/wrf-compute",
     "crates/wrf-dynamics",
+    "crates/wrf-registry",
     "crates/wrf-time",
     "tools/arw-corpus-generator",
 ]

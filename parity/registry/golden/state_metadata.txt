@@ -1,0 +1,8 @@
+VarName=t_1|DataName=THM_1|Description=either 1) pert moist pot temp=(1+Rv/Rd Qv)*(theta)-T0, or 2) pert dry pot temp=theta-T0; based on use_theta_m setting|Units=K|MemoryOrder=XZY|Ntl=201|Ndim=3
+VarName=t_2|DataName=THM_2|Description=either 1) pert moist pot temp=(1+Rv/Rd Qv)*(theta)-T0, or 2) pert dry pot temp=theta-T0; based on use_theta_m setting|Units=K|MemoryOrder=XZY|Ntl=202|Ndim=3
+VarName=t_b|DataName=T_B|Description=bdy either 1) pert moist pot temp=(1+Rv/Rd Qv)*(theta)-T0, or 2) pert dry pot temp=theta-T0; based on use_theta_m setting|Units=K|MemoryOrder=C|Ntl=0|Ndim=3
+VarName=t_bt|DataName=T_BT|Description=bdy tend either 1) pert moist pot temp=(1+Rv/Rd Qv)*(theta)-T0, or 2) pert dry pot temp=theta-T0; based on use_theta_m setting|Units=(K)/dt|MemoryOrder=C|Ntl=0|Ndim=3
+VarName=mu_1|DataName=MU_1|Description=perturbation dry air mass in column|Units=Pa|MemoryOrder=XY|Ntl=201|Ndim=2
+VarName=mu_2|DataName=MU_2|Description=perturbation dry air mass in column|Units=Pa|MemoryOrder=XY|Ntl=202|Ndim=2
+VarName=mu_b|DataName=MU_B|Description=bdy perturbation dry air mass in column|Units=Pa|MemoryOrder=C|Ntl=0|Ndim=2
+VarName=mu_bt|DataName=MU_BT|Description=bdy tend perturbation dry air mass in column|Units=(Pa)/dt|MemoryOrder=C|Ntl=0|Ndim=2

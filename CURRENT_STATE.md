@@ -22,6 +22,9 @@ compaction or a new session. Update it only with verified current-state facts.
   stable public facades rather than flat implementation indexes.
 - Benchmark the exact pinned Fortran routine on a matched workload for every
   numerical kernel and track honest Rust/Fortran ratios.
+- Stop performance tuning when matched Rust and Fortran implementations are
+  operationally close unless a measured model-level bottleneck justifies more
+  complexity.
 
 ## Upstream reference
 
@@ -74,6 +77,37 @@ Implemented:
 Future numerical crates must define narrow kernel capability traits. Do not put
 unrelated kernels into `ComputeBackend` and do not expose arbitrary CPU closures
 as the GPU API.
+
+### `wrf-registry`
+
+Implemented:
+
+- a safe typed parser for dependency-closed `dimspec`, `state`, and `rconfig`
+  entries;
+- WRF-compatible backslash continuation, case folding, quoted-token, comment,
+  and quoted-`#` behavior;
+- physical source locations and typed diagnostics for malformed input;
+- typed standard, namelist, and constant dimension bounds, coordinate axes,
+  value types, state dimensions/modifiers, staggering flags, time levels, and
+  scalar/expression-sized namelist entries;
+- source-order resolution of state dimension references;
+- a separate selected-artifact generator, with no runtime domain ownership in
+  the parser crate;
+- byte-identical `state_struct.inc`, `namelist_defines.inc`,
+  `namelist_defaults.inc`, `namelist_statements.inc`, and
+  `model_data_order.inc` output against WRF v4.7.1;
+- exact normalized state metadata for regular time levels and generated
+  boundary/boundary-tendency arrays, derived from WRF `allocs_*.F` artifacts;
+- committed upstream goldens and a reproducible `scripts/run-registry-oracle.sh`
+  differential gate.
+
+The first fixture is deliberately small but uses real ARW `t` and `mu` entry
+forms, including continuations, complex I/O specifications, two time levels,
+boundary modifiers, every dimension-length mode, and scalar/vector runtime
+configuration storage. Includes, conditionals, `typedef`, `i1`, packages,
+communication entries, four-dimensional scalar-array generation, and the
+remaining generated files are explicitly not yet supported. See
+`docs/wiki/WRF-Registry.md`.
 
 ### `wrf-dynamics`
 
@@ -271,6 +305,7 @@ cargo test --workspace --release
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
+./scripts/run-registry-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
@@ -279,16 +314,18 @@ cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
 ```
 
-Result: 57 unit tests and three doctests passed in debug and release modes (one
-corpus-generator test, 11 `wrf-compute`, 25 `wrf-dynamics`, and 20 `wrf-time`),
-including all-target benchmark smoke execution. Clippy and rustdoc are clean.
+Result: 72 unit tests and four doctests passed in debug and release modes (one
+corpus-generator test, 11 `wrf-compute`, 25 `wrf-dynamics`, 15 `wrf-registry`,
+and 20 `wrf-time`), including all-target benchmark smoke execution. Clippy and
+rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
 Fortran time interfaces match `Test1.out.correct`, the focused numerical
 oracles remain exact, and all four randomized Fortran corpora pass their 39,588
 complete-output comparisons. The column-mass matched benchmark,
 one/four/host-worker Criterion run, allocation budget, optimized assembly
 inspection, and rejected SIMD screen remain recorded in the performance ledger
-and detailed baseline.
+and detailed baseline. The WRF Registry oracle matches five generated includes
+and eight state-metadata records exactly.
 
 ## Maintained knowledge and quality ledgers
 
@@ -324,9 +361,15 @@ and detailed baseline.
 - `f6dd8e6` — versioned seeded ARW input generator, four pinned Fortran corpus
   drivers, 39,588 complete-output comparisons, CI gate, and exceptional-value
   policy in rustdoc.
+- `dcb30e3` — typed Registry parser, selected exact artifact generator, upstream
+  fixture/goldens, malformed-input coverage, and CI oracle.
+- `076caa1` — Registry architecture, language inventory, wiki, state ledgers,
+  and confirmed upstream allocation-generator finding.
 
 ## Immediate next actions
 
-1. Port the first WRF Registry DSL and generated-state slice under issue #4.
+1. Extend Registry preprocessing with includes and conditional definitions.
 2. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
-3. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
+3. Add Registry packages, typedefs, communication entries, and remaining
+   generated artifacts in dependency-closed slices.
+4. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

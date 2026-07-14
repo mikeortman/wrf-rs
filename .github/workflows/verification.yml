@@ -67,6 +67,8 @@ jobs:
         run: ./scripts/run-column-mass-staggering-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
+      - name: Verify WRF Registry generation
+        run: ./scripts/run-registry-oracle.sh
 
   publish-wiki:
     name: Publish Wiki
