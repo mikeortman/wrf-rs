@@ -10,14 +10,17 @@
 mod dataset;
 mod error;
 mod netcdf;
+mod registry_schema;
 mod restart;
 mod schema;
 
 pub use dataset::{WrfDatasetView, WrfVariableValues, WrfVariableView};
 pub use error::{WrfIoError, WrfIoResult};
 pub use netcdf::{WrfNetcdfReader, WrfNetcdfWriter};
+pub use registry_schema::WrfRegistryRestartSchemaBuilder;
 pub use restart::WrfRestartComparer;
 pub use schema::{
     WrfAttribute, WrfAttributeValue, WrfDataType, WrfDimension, WrfDimensionName, WrfFileKind,
-    WrfFileSchema, WrfGridDimensions, WrfTimestamp, WrfVariableName, WrfVariableSchema,
+    WrfFileSchema, WrfGridDimensions, WrfRegistryDimensionName, WrfTimestamp, WrfVariableName,
+    WrfVariableSchema,
 };

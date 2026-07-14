@@ -21,7 +21,7 @@ pub struct WrfNetcdfReader {
 }
 
 impl WrfNetcdfReader {
-    /// Opens a NetCDF-3 or NetCDF-4 file and validates the minimum ARW schema.
+    /// Opens a NetCDF-3 or NetCDF-4 file and inventories its supported WRF schema.
     pub fn open(path: impl AsRef<Path>) -> WrfIoResult<Self> {
         let path = path.as_ref().to_path_buf();
         let file = netcdf::open(&path).map_err(|source| WrfIoError::NetcdfRead {
@@ -148,9 +148,7 @@ impl WrfNetcdfReader {
         let dimensions = file
             .dimensions()
             .map(|dimension| {
-                let name = dimension.name();
-                let name = WrfDimensionName::try_from_name(&name)
-                    .ok_or(WrfIoError::UnsupportedDimension { name })?;
+                let name = WrfDimensionName::try_from_name(&dimension.name())?;
                 Ok(if dimension.is_unlimited() {
                     WrfDimension::unlimited(name, dimension.len())
                 } else {
@@ -180,14 +178,7 @@ impl WrfNetcdfReader {
                 let dimension_names = variable
                     .dimensions()
                     .iter()
-                    .map(|dimension| {
-                        let dimension_name = dimension.name();
-                        WrfDimensionName::try_from_name(&dimension_name).ok_or(
-                            WrfIoError::UnsupportedDimension {
-                                name: dimension_name,
-                            },
-                        )
-                    })
+                    .map(|dimension| WrfDimensionName::try_from_name(&dimension.name()))
                     .collect::<WrfIoResult<Vec<_>>>()?;
                 let variable_attributes = variable
                     .attributes()
@@ -214,7 +205,11 @@ impl WrfNetcdfReader {
             AttributeValue::Floats(values) => WrfAttributeValue::Float32(values),
             AttributeValue::Double(value) => WrfAttributeValue::Float64(vec![value]),
             AttributeValue::Doubles(values) => WrfAttributeValue::Float64(values),
-            AttributeValue::Str(value) => WrfAttributeValue::Text(value),
+            AttributeValue::Str(value) => {
+                // Normalize WRF's one-NUL representation back to the logical
+                // empty fixed-length character value used by the schema model.
+                WrfAttributeValue::Text(if value == "\0" { String::new() } else { value })
+            }
             actual => {
                 return Err(WrfIoError::UnsupportedAttributeType {
                     attribute: name,
