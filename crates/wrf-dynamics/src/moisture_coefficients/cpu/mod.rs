@@ -119,7 +119,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> MoistureCoef
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => MoistureCoefficientError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("validated field shapes produce complete non-empty moisture rows")
         }
     }

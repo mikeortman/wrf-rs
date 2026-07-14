@@ -30,6 +30,8 @@ a measured regression until a representative benchmark exists.
 | WRF-031 | Confirmed interface defect | Source-confirmed | `calculate_full` | A partially written array is declared `INTENT(OUT)`, leaving inactive storage undefined by the Fortran standard |
 | WRF-032 | Test gap | Repository search plus coupled differential fixture | `rk_step_prep` | No dedicated numerical regression checks the seven production diagnostics together or observes their intermediate fields |
 | WRF-033 | Performance/API opportunity | Source-confirmed, not independently benchmarked | `rk_step_prep` | The wrapper accepts several arguments that none of its seven diagnostic calls read |
+| WRF-034 | Interface defect/API opportunity | Source-confirmed | `rk_addtend_dry` | `mu_tendf` is declared `INTENT(INOUT)` but only read; three map arrays and all patch bounds are unused |
+| WRF-035 | Test gap | Repository search plus direct differential fixture | `rk_addtend_dry` | No dedicated production numerical regression checks first/later substeps, distinct stagger bounds, persistent fields, or inactive storage |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -670,3 +672,39 @@ The Rust integration boundary retains only participating data and groups it by
 scientific role. Suggested upstream action: remove dead arguments in a planned
 interface change, or introduce a derived state/configuration object and enable
 unused-dummy-argument warnings to prevent further drift.
+
+## WRF-034: `rk_addtend_dry` has misleading and dead dummy arguments
+
+Status: source-confirmed interface defect and API maintenance opportunity.
+
+`mu_tendf` is declared `INTENT(INOUT)` but is only read by
+`mu_tend = mu_tend + mu_tendf`. The routine also accepts `msftx`, `msfux`, and
+`msfvy` without reading them. All six patch bounds are unused, as are the lower
+domain bounds and vertical domain bounds in the executable body. Memory bounds
+remain necessary for the explicit-shape dummy arrays.
+
+The mutable declaration overstates the routine's write set and prevents a
+compiler or caller from expressing the actual read-only contract. The Rust API
+borrows forward column-mass tendency immutably and omits unused map factors and
+patch bounds. Suggested upstream action: change `mu_tendf` to `INTENT(IN)` and
+remove dead arguments in a planned interface revision, or enable unused-dummy
+warnings to keep the positional interface from drifting further.
+
+## WRF-035: no focused numerical regression for `rk_addtend_dry`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production, tangent-linear, and adjoint variants but
+no dedicated numerical regression for the production routine. This leaves the
+first-substep mutation of persistent tendencies, later-substep reuse, diabatic
+heating, all twelve observable mutable fields, and inactive storage unchecked.
+The stagger bounds are particularly easy to mis-port: U and V have different
+horizontal upper points, while W/geopotential use `kts:kte` and temperature and
+horizontal momentum use `kts:kte-1`. Full-domain clipping can hide the latter
+difference; an interior-tile oracle exposed it during this port.
+
+The local fixture extracts the exact pinned body and compares 5,616 complete
+values across first, later, and exceptional cases. Suggested upstream action:
+add a compact fixture covering both RK phases, an interior vertical tile, all
+upper staggers, persistent fields, and untouched halos, then include it in a
+short prognostic trajectory.

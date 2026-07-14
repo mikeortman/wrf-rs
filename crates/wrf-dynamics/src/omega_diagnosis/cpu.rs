@@ -343,7 +343,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> OmegaDiagnos
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => OmegaDiagnosisError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("validated field shapes produce complete non-empty omega planes")
         }
     }

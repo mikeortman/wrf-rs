@@ -72,6 +72,7 @@ Implemented:
 - typed kernel and worker failures;
 - cheap backend clones sharing one `Arc<ThreadPool>`.
 - exact contiguous-block scheduling for indivisible grid lines and profiles;
+- safe paired-output block scheduling for one-pass updates to two owned fields;
 - typed validation of block shapes and worker-panic containment.
 
 Future numerical crates must define narrow kernel capability traits. Do not put
@@ -304,6 +305,16 @@ before mutation. All 2,352 focused output and sentinel values match pinned
 Fortran, including a reassociation-sensitive overflow case, and one/four-worker
 results are identical.
 
+Dry large-timestep tendency assembly now ports `rk_addtend_dry` immediately
+after diagnostic preparation. Typed borrowed groups separate mutable RK
+tendencies, persistent forward/physics tendencies, saved boundary tendencies,
+thermodynamics, and the four map factors the source actually reads. The phase
+enum distinguishes first-substep accumulation from later reuse. Component
+ranges preserve the distinct U, V, W/geopotential, temperature, and mass
+stagger rules, including interior `kte-1` versus full-stagger `kte` behavior.
+All 5,616 focused values match the extracted pinned Fortran routine; validation
+is failure-atomic and one/four-worker results are bit-identical.
+
 ### `wrf-io`
 
 Implemented:
@@ -519,6 +530,19 @@ parallel path clears the performance gate, so cross-stage fusion and additional
 SIMD wait for a coupled trajectory profile. See
 `docs/performance/runge-kutta-preparation-2026-07-14.md`.
 
+## Dry tendency assembly performance baseline
+
+On a matched 256 × 256 × 40 first-substep workload, serial GNU Fortran 16.1.0
+`-O3 -flto` measured an 8.425600 ms median. Portable release Rust measured
+18.625 ms with one worker, 4.9522 ms with four, and 2.5235 ms with 16. Four and
+16 workers are 1.70× and 3.34× faster than serial Fortran.
+
+Every settled 100-call phase records nine scheduler allocations totaling
+13,680 bytes, no reallocations, no numerical scratch, and no field clones. A
+FatLTO screen was statistically flat. Parallel execution clears the gate, so
+explicit SIMD and further fusion wait for a trajectory profile. See
+`docs/performance/dry-tendency-assembly-2026-07-14.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -594,6 +618,7 @@ cargo test --workspace --release
 ./scripts/run-inverse-density-oracle.sh
 ./scripts/run-pressure-point-geopotential-oracle.sh
 ./scripts/run-runge-kutta-preparation-oracle.sh
+./scripts/run-dry-tendency-assembly-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -612,6 +637,7 @@ cargo test --workspace --release
 ./scripts/benchmark-inverse-density-fortran.sh
 ./scripts/benchmark-pressure-point-geopotential-fortran.sh
 ./scripts/benchmark-runge-kutta-preparation-fortran.sh
+./scripts/benchmark-dry-tendency-assembly-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -621,6 +647,7 @@ cargo bench -p wrf-dynamics --bench moisture_coefficients -- --noplot
 cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
 cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
 cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
+cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -630,12 +657,13 @@ cargo run -p wrf-dynamics --release --example measure_moisture_coefficient_alloc
 cargo run -p wrf-dynamics --release --example measure_inverse_density_allocations
 cargo run -p wrf-dynamics --release --example measure_pressure_point_geopotential_allocations
 cargo run -p wrf-dynamics --release --example measure_runge_kutta_preparation_allocations
+cargo run -p wrf-dynamics --release --example measure_dry_tendency_assembly_allocations
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 155 unit tests and eleven doctests passed in debug and release modes (one
-corpus-generator test, 13 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 70 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+Result: 162 unit tests and twelve doctests passed in debug and release modes (one
+corpus-generator test, 15 `wrf-compute`, 15 `wrf-domain`, two
+`wrf-domain-mpi`, 75 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -659,6 +687,9 @@ upper-full-level contract, source operation order, matched timing, and
 allocation evidence are recorded. Integrated Runge-Kutta preparation matches
 all 1,728 coupled intermediate, final, and sentinel values; its all-stage
 preflight, matched timing, and allocation evidence are recorded. The WRF
+dry-tendency oracle matches all 5,616 first/later-substep, stagger, persistent,
+and sentinel values; its matched timing and allocation evidence are recorded.
+The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
 tiles match pinned WRF routines, periodic destinations match `period.c`
@@ -716,7 +747,7 @@ also pass typed schema, metadata, and raw-bit comparison.
    aggregation to the domain transport.
 3. Extend Registry preprocessing with includes and conditional definitions.
 4. Add Registry-backed state binding and a short prognostic trajectory through
-   the integrated `rk_step_prep` diagnostics.
+   integrated `rk_step_prep` and `rk_addtend_dry` tendency assembly.
 5. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
 6. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

@@ -122,7 +122,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> InverseDensi
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => InverseDensityError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("validated field shapes produce complete non-empty inverse-density rows")
         }
     }

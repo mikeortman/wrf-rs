@@ -52,3 +52,7 @@ harness = false
 [[bench]]
 name = "runge_kutta_preparation"
 harness = false
+
+[[bench]]
+name = "dry_tendency_assembly"
+harness = false

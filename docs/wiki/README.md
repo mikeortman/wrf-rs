@@ -52,6 +52,9 @@ implemented system; proposed work is explicitly labeled.
 - [Runge-Kutta diagnostic preparation](Runge-Kutta-Preparation.md) — the
   seven-stage dependency chain, failure-atomic ownership boundary, coupled
   exact-bit oracle, and integrated performance.
+- [Dry Runge-Kutta tendency assembly](Dry-Tendency-Assembly.md) — persistent
+  physics/boundary tendencies, map-factor coupling, staggered ranges, safe
+  paired-output scheduling, and exact-bit evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -82,6 +85,9 @@ implemented system; proposed work is explicitly labeled.
 - [Runge-Kutta preparation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/runge-kutta-preparation-2026-07-14.md)
   — matched seven-diagnostic workload, CPU scaling, allocation evidence, and
   the cross-stage optimization stopping decision.
+- [Dry-tendency assembly performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/dry-tendency-assembly-2026-07-14.md)
+  — matched first-substep workload, CPU scaling, paired-output allocation
+  evidence, and the SIMD stopping decision.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

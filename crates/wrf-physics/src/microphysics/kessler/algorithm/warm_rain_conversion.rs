@@ -86,7 +86,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> KesslerMicro
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => KesslerMicrophysicsError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("Kessler uses only the generic CPU parallel scheduler")
         }
     }

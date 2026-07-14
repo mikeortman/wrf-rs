@@ -528,7 +528,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> ColumnMassSt
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => ColumnMassStaggeringError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("validated field shapes produce complete non-empty rows")
         }
     }

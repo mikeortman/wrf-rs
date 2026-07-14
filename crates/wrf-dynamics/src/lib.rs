@@ -18,6 +18,7 @@
 #![forbid(unsafe_code)]
 
 mod column_mass_staggering;
+mod dry_tendency_assembly;
 mod held_suarez;
 mod inverse_density;
 mod moisture_coefficients;
@@ -33,6 +34,13 @@ pub use column_mass_staggering::{
     ColumnMassStaggeringAxis, ColumnMassStaggeringError, ColumnMassStaggeringField,
     ColumnMassStaggeringKernels, ColumnMassStaggeringPeriodicity, ColumnMassStaggeringRegion,
     ColumnMassStaggeringResult,
+};
+pub use dry_tendency_assembly::{
+    DryTendencyAssemblyAxis, DryTendencyAssemblyCoefficient, DryTendencyAssemblyCoefficients,
+    DryTendencyAssemblyError, DryTendencyAssemblyField, DryTendencyAssemblyForwardTendencies,
+    DryTendencyAssemblyKernels, DryTendencyAssemblyMapFactors, DryTendencyAssemblyPhase,
+    DryTendencyAssemblyRegion, DryTendencyAssemblyResult, DryTendencyAssemblyRungeKuttaTendencies,
+    DryTendencyAssemblySavedTendencies, DryTendencyAssemblyThermodynamics,
 };
 pub use held_suarez::{
     HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,

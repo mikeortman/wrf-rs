@@ -133,7 +133,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> PositiveDefi
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => PositiveDefiniteError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("validated field shapes always produce complete non-empty lines")
         }
     }

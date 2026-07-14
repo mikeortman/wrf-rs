@@ -128,7 +128,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> PressurePoin
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => PressurePointGeopotentialError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("validated shapes produce complete non-empty geopotential rows")
         }
     }
