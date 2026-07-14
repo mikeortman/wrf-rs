@@ -25,13 +25,13 @@ implemented system; proposed work is explicitly labeled.
   halo contracts, operation order, and the current interior-tile boundary.
 - [Development infrastructure](Development-Infrastructure.md) — source pinning,
   scripts, verification gates, and documentation policy.
-- [Positive-definite performance baseline](../performance/positive-definite-2026-07-13.md)
+- [Positive-definite performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/positive-definite-2026-07-13.md)
   — release throughput, scaling, generated-code findings, and caveats.
-- [Held-Suarez performance baseline](../performance/held-suarez-2026-07-13.md)
+- [Held-Suarez performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/held-suarez-2026-07-13.md)
   — CPU scaling and the matched optimized-Fortran comparison.
-- [Rust/Fortran performance ledger](../../PERFORMANCE_PARITY.md) — matched
+- [Rust/Fortran performance ledger](https://github.com/mikeortman/wrf-rs/blob/main/PERFORMANCE_PARITY.md) — matched
   workload policy and cumulative comparison table.
-- [Rust module structure](../architecture/module_structure.md) — family-owned
+- [Rust module structure](https://github.com/mikeortman/wrf-rs/blob/main/docs/architecture/module_structure.md) — family-owned
   source hierarchy and stable crate facades.
 
 ## Maintenance rule

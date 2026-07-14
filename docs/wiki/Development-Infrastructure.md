@@ -29,8 +29,19 @@ links; CI-style verification promotes warnings to failures.
 
 The wiki explains cross-crate concepts and algorithms. Rustdoc explains how to
 use a crate safely. `CURRENT_STATE.md` is a compact operational handoff, while
-The root `README.md`, `TEST_COVERAGE.md`, and `UPSTREAM_FINDINGS.md` are durable
+the root `README.md`, `TEST_COVERAGE.md`, and `UPSTREAM_FINDINGS.md` are durable
 ledgers with distinct purposes.
+
+## GitHub receipts
+
+Every implementation issue owns one branch and one pull request. The PR closes
+the issue, required Rust and Fortran checks gate merge, and GitHub auto-merge
+records the successful evidence before deleting the branch.
+
+The canonical wiki Markdown remains under `docs/wiki`. Run
+`scripts/publish-github-wiki.sh` after documentation changes merge to
+synchronize those pages into the private GitHub Wiki with a separate wiki
+commit history.
 
 ## Trusted dependencies
 

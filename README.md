@@ -3,6 +3,25 @@
 An incremental, test-driven Rust reimplementation of the Weather Research and
 Forecasting (WRF) model.
 
+## Port provenance
+
+At this stage, this repository's WRF port—including the Rust implementation,
+Fortran parity harnesses, tests, benchmarks, findings, and technical
+documentation—is being produced by **OpenAI 5.6 Sol in High mode** under
+explicit project instructions to prioritize:
+
+1. correct WRF-compatible output and explainable numerical parity;
+2. release-mode computational performance and conservative memory use;
+3. safe, idiomatic Rust with no local unsafe code;
+4. readable ownership boundaries, descriptive names, and logical modules;
+5. upstream-derived and adversarial tests, matched Fortran benchmarks, and
+   evidence-gated SIMD; and
+6. durable rustdoc, wiki documentation, project state, and upstream findings.
+
+AI authorship is provenance, not proof of correctness. A port slice is accepted
+only through its pinned Fortran or upstream-test evidence, added gap coverage,
+release verification, and issue-linked pull request history.
+
 This is not yet a weather model. WRF v4.7.1 contains roughly 1,750 Fortran
 translation units, generated registry code, external libraries, distributed
 memory infrastructure, physics suites, dynamics, data assimilation, chemistry,
