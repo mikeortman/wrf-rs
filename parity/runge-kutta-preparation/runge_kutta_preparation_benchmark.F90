@@ -13,7 +13,7 @@ program runge_kutta_preparation_benchmark
   integer, parameter :: kds = 1, kde = active_z + 1
   integer, parameter :: its = ids, ite = ide, jts = jds, jte = jde
   integer, parameter :: kts = kds, kte = kde, n_moist = 3
-  integer, parameter :: sample_count = 11, calls_per_sample = 20
+  integer, parameter :: sample_count = 31, calls_per_sample = 20
   integer, parameter :: warmup_call_count = 10
   type(grid_config_rec_type) :: config_flags
   real, allocatable :: u(:,:,:), v(:,:,:), w(:,:,:), ph(:,:,:), phb(:,:,:)

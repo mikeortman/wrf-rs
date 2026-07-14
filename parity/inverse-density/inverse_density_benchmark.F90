@@ -14,7 +14,7 @@ program inverse_density_benchmark
   integer, parameter :: its = ids, ite = ide
   integer, parameter :: jts = jds, jte = jde
   integer, parameter :: kts = kds, kte = kde
-  integer, parameter :: sample_count = 11
+  integer, parameter :: sample_count = 31
   integer, parameter :: calls_per_sample = 50
   integer, parameter :: warmup_call_count = 20
   real, allocatable :: alt(:, :, :), al(:, :, :), alb(:, :, :)

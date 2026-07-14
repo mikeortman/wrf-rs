@@ -6,7 +6,7 @@ program dry_tendency_boundary_stage_benchmark
   integer,parameter::nx=256,ny=256,nz=40
   integer,parameter::ims=0,ime=nx+1,jms=0,jme=ny+1,kms=0,kme=nz+1
   integer,parameter::ids=1,ide=nx+1,jds=1,jde=ny+1,kds=1,kde=nz+1
-  integer,parameter::boundary_width=3,samples=11,calls_per_sample=20,warmup_calls=10
+  integer,parameter::boundary_width=3,samples=31,calls_per_sample=20,warmup_calls=10
   real,allocatable::rk(:,:,:,:),forward(:,:,:,:),saved(:,:,:,:),heat(:,:,:)
   real,allocatable::mu(:,:),muf(:,:),mut(:,:),msfty(:,:),msfuy(:,:),msfvx(:,:),msfvxi(:,:)
   real,allocatable::dummy_map(:,:),c1(:),c2(:)
