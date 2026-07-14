@@ -58,6 +58,10 @@ name = "dry_tendency_assembly"
 harness = false
 
 [[bench]]
+name = "dry_tendency_boundary_stage"
+harness = false
+
+[[bench]]
 name = "acoustic_step_preparation"
 harness = false
 

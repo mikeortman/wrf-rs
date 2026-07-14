@@ -85,6 +85,9 @@ implemented system; proposed work is explicitly labeled.
 - [Complete dry boundary-tendency assignment](Dry-Boundary-Tendency-Assignment.md)
   — WRF's U/V/PH/T/MU/optional-W orchestration, typed preflight, multithreaded
   execution, and exact pinned-source evidence.
+- [Coupled dry tendency and boundary stage](Coupled-Dry-Tendency-Boundary-Stage.md)
+  — source-order assembly followed by boundary assignment, cross-routine
+  atomicity, ownership, direct coupled evidence, and performance.
 - [Specified-boundary relaxation](Specified-Boundary-Relaxation.md) — external
   state mismatch, five-point smoothing, fixed/relaxed zones, halo-extended tile
   views, and exact pinned-source evidence.
@@ -124,6 +127,8 @@ implemented system; proposed work is explicitly labeled.
 - [Dry-tendency assembly performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/dry-tendency-assembly-2026-07-14.md)
   — matched first-substep workload, CPU scaling, paired-output allocation
   evidence, and the SIMD stopping decision.
+- [Coupled dry-stage performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/dry-tendency-boundary-stage-2026-07-14.md)
+  — matched source-order execution, CPU scaling, and the no-extra-tuning decision.
 - [Acoustic-step preparation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-step-preparation-2026-07-14.md)
   — matched first-substep workload, CPU scaling, allocation evidence, and the
   complexity stopping decision.

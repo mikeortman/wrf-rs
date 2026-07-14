@@ -1,6 +1,8 @@
 mod execution;
 mod validation;
 
+pub(crate) use validation::validate_cpu_dry_boundary_tendency_assignment;
+
 use wrf_compute::{CpuBackend, CpuField};
 
 use super::{

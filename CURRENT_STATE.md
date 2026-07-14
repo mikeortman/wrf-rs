@@ -998,6 +998,16 @@ optimized Fortran's 0.485370 ms median; four-worker Rust is 2.64× faster and
 default sixteen-worker Rust is within 3.3%, so SIMD and loop fusion stop.
 Across 100 warmed calls, scheduling uses nine allocations totaling 13,680
 bytes with no reallocation, field clone, or numerical scratch.
+The coupled dry tendency/boundary stage now executes `rk_addtend_dry` followed
+by `spec_bdy_dry` in pinned `solve_em.F` order. One typed owner holds the six RK
+outputs, borrowed forward inputs, boundary slabs, vertical policy, controls,
+and regions. CPU validation for both existing kernels completes before either
+routine mutates data. Five direct coupled cases match all 9,360 emitted values
+exactly or by NaN class, a deliberately late nested-W boundary-shape failure is
+atomic across both routines, and one/four-worker results are bitwise identical.
+On a matched 256 × 256 × 40 first/nested workload, optimized serial Fortran is
+9.029150 ms median, while Rust is 5.8323 ms with four workers and 3.9960 ms with
+the default sixteen. No extra SIMD or fusion is justified.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -1050,9 +1060,9 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Compose boundary-file tendency assignment, complete dry relaxation,
-   specified updates, and boundary/halo operations around the verified
-   acoustic trajectory.
+1. Prepend first-substep `relax_bdy_dry` to the coupled dry stage, then add
+   specified updates and boundary/halo operations around the verified acoustic
+   trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

@@ -8,7 +8,7 @@ use super::super::{
 use crate::SpecifiedBoundaryTendencyParameters;
 use crate::specified_boundary_update::tendency_assignment::validate_cpu_tendency_assignment;
 
-pub(super) fn validate_operation(
+pub(crate) fn validate_cpu_dry_boundary_tendency_assignment(
     tendencies: &DryBoundaryTendencies<'_, CpuField<f32>>,
     boundaries: DryBoundaryTendencyBoundaryFields<'_, CpuField<f32>>,
     vertical: &DryBoundaryVerticalTendency<'_, CpuField<f32>>,

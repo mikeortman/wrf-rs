@@ -5,7 +5,7 @@ use super::super::{
     DryBoundaryTendencyRegion, DryBoundaryTendencyResult, DryBoundaryTendencyTarget,
     DryBoundaryVerticalTendency,
 };
-use super::validation::validate_operation;
+use super::validation::validate_cpu_dry_boundary_tendency_assignment;
 use crate::{
     SpecifiedBoundaryTendencies, SpecifiedBoundaryTendencyKernels,
     SpecifiedBoundaryTendencyParameters, SpecifiedBoundaryUpdateRegion,
@@ -44,7 +44,7 @@ impl<'a, 'region> DryBoundaryTendencyCpuExecution<'a, 'region> {
     }
 
     pub(super) fn run(self) -> DryBoundaryTendencyResult<()> {
-        validate_operation(
+        validate_cpu_dry_boundary_tendency_assignment(
             &self.tendencies,
             self.boundaries,
             &self.vertical,

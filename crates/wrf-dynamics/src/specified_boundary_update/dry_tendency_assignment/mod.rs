@@ -9,6 +9,8 @@ mod target;
 mod tendencies;
 mod vertical;
 
+pub(crate) use cpu::validate_cpu_dry_boundary_tendency_assignment;
+
 pub use boundary_fields::DryBoundaryTendencyBoundaryFields;
 pub use error::{DryBoundaryTendencyError, DryBoundaryTendencyResult};
 pub use kernels::DryBoundaryTendencyKernels;

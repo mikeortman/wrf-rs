@@ -1476,3 +1476,20 @@ including a shortened vertical tile and exceptional IEEE payload copies.
 Suggested upstream action: adopt the focused fixture, correct the output intent
 contract, and include this stage before dry relaxation in a multi-tile
 specified-domain acoustic trajectory.
+
+## WRF-087: no coupled regression covers `rk_addtend_dry` followed by `spec_bdy_dry`
+
+Status: confirmed repository-level integration-test gap for the pinned source
+tree.
+
+The routines have no compact test that executes their adjacent `solve_em.F`
+ordering and checks all RK and persistent tendency fields afterward. Separate
+routine tests would not detect reversed ordering, incorrect U/V/W/PH/T/MU
+mapping, or a late boundary-contract failure after assembly has already
+modified state.
+
+The Rust-port oracle extracts both exact wrappers plus `spec_bdytend` and
+compares all 9,360 emitted values across first/later substeps, global/nested,
+periodic, partial-tile, and exceptional cases. Suggested upstream action: add
+this coupled fixture, then prepend first-step dry relaxation and add multi-tile
+halo exchange.
