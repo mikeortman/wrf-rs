@@ -11,7 +11,8 @@ use crate::specified_boundary_update::geometry::{
 use crate::{
     SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField, SpecifiedBoundaryFlowInputs,
     SpecifiedBoundaryFlowParameters, SpecifiedBoundaryFlowRegion, SpecifiedBoundaryFlowResult,
-    SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryWestEastPeriodicity,
+    SpecifiedBoundaryInflowPolicy, SpecifiedBoundaryUpdateAxis,
+    SpecifiedBoundaryWestEastPeriodicity,
 };
 
 pub(super) struct SpecifiedBoundaryFlowCpuKernel<'a> {
@@ -19,6 +20,7 @@ pub(super) struct SpecifiedBoundaryFlowCpuKernel<'a> {
     west_east_velocity: &'a CpuField<f32>,
     south_north_velocity: &'a CpuField<f32>,
     specified_zone_width: usize,
+    inflow_policy: SpecifiedBoundaryInflowPolicy,
     periodic_west_east: bool,
     bottom_top_range: Range<usize>,
     boundary_ranges: SpecifiedBoundaryRanges,
@@ -62,6 +64,7 @@ impl<'a> SpecifiedBoundaryFlowCpuKernel<'a> {
             west_east_velocity: inputs.west_east_velocity,
             south_north_velocity: inputs.south_north_velocity,
             specified_zone_width: parameters.specified_zone_width(),
+            inflow_policy: parameters.inflow_policy(),
             periodic_west_east: west_east_periodicity.is_periodic(),
             bottom_top_range: active_bottom_top_start..bottom_top_end,
             boundary_ranges,
@@ -105,6 +108,7 @@ impl<'a> SpecifiedBoundaryFlowCpuKernel<'a> {
             SouthNorthSide::South,
             self.periodic_west_east,
             self.specified_zone_width,
+            self.inflow_policy,
             self.bottom_top_range.clone(),
         )
     }
@@ -132,6 +136,7 @@ impl<'a> SpecifiedBoundaryFlowCpuKernel<'a> {
             SouthNorthSide::North,
             self.periodic_west_east,
             self.specified_zone_width,
+            self.inflow_policy,
             self.bottom_top_range.clone(),
         )
     }
@@ -150,6 +155,7 @@ impl<'a> SpecifiedBoundaryFlowCpuKernel<'a> {
         side: SouthNorthSide,
         periodic_west_east: bool,
         specified_zone_width: usize,
+        inflow_policy: SpecifiedBoundaryInflowPolicy,
         bottom_top_range: Range<usize>,
     ) -> SpecifiedBoundaryFlowResult<()> {
         let west_east_domain = boundary_ranges.west_east_domain();
@@ -186,7 +192,7 @@ impl<'a> SpecifiedBoundaryFlowCpuKernel<'a> {
                                 SouthNorthSide::North => south_north_velocity[velocity_index] > 0.0,
                             };
                             if !outflow {
-                                output_plane[row_start + west_east] = 0.0;
+                                inflow_policy.apply(&mut output_plane[row_start + west_east]);
                                 continue;
                             }
                             let source_west_east = if periodic_west_east {
@@ -262,7 +268,11 @@ impl<'a> SpecifiedBoundaryFlowCpuKernel<'a> {
                             west_east_points,
                             bottom_top_points,
                         );
-                        values[destination_index] = if outflow { source_value } else { 0.0 };
+                        if outflow {
+                            values[destination_index] = source_value;
+                        } else {
+                            self.inflow_policy.apply(&mut values[destination_index]);
+                        }
                     }
                 }
             }

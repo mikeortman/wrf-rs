@@ -40,7 +40,8 @@ mod tests {
 
     use super::*;
     use crate::{
-        SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField, SpecifiedBoundaryUpdateAxis,
+        SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField, SpecifiedBoundaryInflowPolicy,
+        SpecifiedBoundaryUpdateAxis,
     };
 
     #[derive(Clone)]
@@ -52,6 +53,7 @@ mod tests {
         tile_bottom_top: Range<usize>,
         specified_zone_width: usize,
         exceptional_velocities: bool,
+        inflow_policy: SpecifiedBoundaryInflowPolicy,
     }
 
     struct Fixture {
@@ -79,6 +81,34 @@ mod tests {
         let one_worker = CpuBackend::try_with_worker_count(1).unwrap();
         let four_workers = CpuBackend::try_with_worker_count(4).unwrap();
         for case in oracle_cases() {
+            assert_eq!(
+                run_case(&one_worker, &case),
+                run_case(&four_workers, &case),
+                "case {}",
+                case.name
+            );
+        }
+    }
+
+    #[test]
+    fn qnn_and_fixed_inflow_policies_match_their_direct_fortran_oracles() {
+        let backend = CpuBackend::try_with_worker_count(3).unwrap();
+        let expected = parse_policy_oracle();
+        for case in policy_oracle_cases() {
+            let actual = run_case(&backend, &case);
+            let expected_case: Vec<_> = expected
+                .iter()
+                .filter_map(|(name, bits)| (*name == case.name).then_some(*bits))
+                .collect();
+            assert_field_bits_eq(&actual, &expected_case, case.name);
+        }
+    }
+
+    #[test]
+    fn added_inflow_policies_are_bitwise_deterministic_across_worker_counts() {
+        let one_worker = CpuBackend::try_with_worker_count(1).unwrap();
+        let four_workers = CpuBackend::try_with_worker_count(4).unwrap();
+        for case in policy_oracle_cases() {
             assert_eq!(
                 run_case(&one_worker, &case),
                 run_case(&four_workers, &case),
@@ -266,7 +296,10 @@ mod tests {
                     &fixture.west_east_velocity,
                     &fixture.south_north_velocity,
                 ),
-                SpecifiedBoundaryFlowParameters::new(case.specified_zone_width),
+                SpecifiedBoundaryFlowParameters::with_inflow_policy(
+                    case.specified_zone_width,
+                    case.inflow_policy,
+                ),
                 case.periodicity,
                 &region(case, shape()),
             )
@@ -379,6 +412,19 @@ mod tests {
             .collect()
     }
 
+    fn parse_policy_oracle() -> Vec<(&'static str, u32)> {
+        include_str!("../../../../test-data/flow_dependent_inflow_policies.out.correct")
+            .lines()
+            .map(|line| {
+                let mut parts = line.split_whitespace();
+                let name = parts.next().unwrap();
+                let _coordinates = [parts.next(), parts.next(), parts.next()];
+                let bits = u32::from_str_radix(parts.next().unwrap(), 16).unwrap();
+                (name, bits)
+            })
+            .collect()
+    }
+
     fn oracle_cases() -> [OracleCase; 6] {
         [
             full_case("mixed_full"),
@@ -395,6 +441,7 @@ mod tests {
                 tile_bottom_top: 2..5,
                 specified_zone_width: 2,
                 exceptional_velocities: false,
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Zero,
             },
             OracleCase {
                 name: "partial_north_east",
@@ -404,6 +451,7 @@ mod tests {
                 tile_bottom_top: 2..5,
                 specified_zone_width: 2,
                 exceptional_velocities: false,
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Zero,
             },
             OracleCase {
                 name: "interior",
@@ -413,11 +461,55 @@ mod tests {
                 tile_bottom_top: 2..5,
                 specified_zone_width: 1,
                 exceptional_velocities: false,
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Zero,
             },
             OracleCase {
                 name: "exceptional_signs",
                 exceptional_velocities: true,
                 ..full_case("exceptional_signs")
+            },
+        ]
+    }
+
+    fn policy_oracle_cases() -> [OracleCase; 6] {
+        [
+            OracleCase {
+                name: "qnn_full",
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Constant(73.5),
+                ..full_case("qnn_full")
+            },
+            OracleCase {
+                name: "qnn_periodic",
+                periodicity: SpecifiedBoundaryWestEastPeriodicity::Periodic,
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Constant(-0.0),
+                ..full_case("qnn_periodic")
+            },
+            OracleCase {
+                name: "qnn_partial",
+                tile_west_east: 1..5,
+                tile_south_north: 1..5,
+                tile_bottom_top: 2..5,
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Constant(f32::INFINITY),
+                ..full_case("qnn_partial")
+            },
+            OracleCase {
+                name: "fixed_full",
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Preserve,
+                ..full_case("fixed_full")
+            },
+            OracleCase {
+                name: "fixed_periodic",
+                periodicity: SpecifiedBoundaryWestEastPeriodicity::Periodic,
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Preserve,
+                ..full_case("fixed_periodic")
+            },
+            OracleCase {
+                name: "fixed_partial",
+                tile_west_east: 4..8,
+                tile_south_north: 4..8,
+                tile_bottom_top: 2..5,
+                inflow_policy: SpecifiedBoundaryInflowPolicy::Preserve,
+                ..full_case("fixed_partial")
             },
         ]
     }
@@ -431,6 +523,7 @@ mod tests {
             tile_bottom_top: 1..7,
             specified_zone_width: 2,
             exceptional_velocities: false,
+            inflow_policy: SpecifiedBoundaryInflowPolicy::Zero,
         }
     }
 }

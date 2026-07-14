@@ -145,6 +145,9 @@ implemented system; proposed work is explicitly labeled.
 - [Flow-dependent specified-boundary performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/flow-dependent-boundary-2026-07-14.md)
   — matched inflow/outflow classification, CPU scaling, allocation evidence,
   and the integrated-profile tuning boundary.
+- [Flow-dependent inflow-policy performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/flow-dependent-inflow-policies-2026-07-14.md)
+  — matched constant and preserve policies, CPU scaling, allocation evidence,
+  and the readability-first tuning stop.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

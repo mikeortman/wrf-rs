@@ -921,6 +921,13 @@ ignored upper vertical tile bound; all 3,072 stored values match exactly.
 Serial Rust is 1.5% faster and four-worker Rust is 1.24× faster than optimized
 Fortran. The host-default 16-worker path is overhead-bound on this thin
 perimeter, so SIMD and per-kernel scheduling complexity stop here.
+Constant-CCN and preserve-current inflow policies also reproduce
+`flow_dep_bdy_qnn` and `flow_dep_bdy_fixed_inflow` through the same traversal.
+Six direct cases add 3,072 exact complete-storage values across periodic and
+opposite partial tiles, finite/negative-zero/infinite constants, and retained
+inflow. Four-worker Rust is 1.09× faster for constant inflow and 2.6% faster
+for preserve inflow than optimized serial Fortran; both policies use the same
+bounded scheduler allocation and no numerical scratch.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -973,7 +980,7 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port flow-dependent boundary variants and remaining relaxation stages, then insert them and
+1. Port remaining relaxation stages, then insert them and boundary/halo operations around the verified acoustic trajectory.
    halo/polar operations around the verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.

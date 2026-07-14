@@ -7,6 +7,11 @@ use crate::{
 
 /// Backend capability for WRF flow-dependent scalar boundaries.
 ///
+/// [`SpecifiedBoundaryFlowParameters::new`] selects zero inflow for the base
+/// routine. [`SpecifiedBoundaryFlowParameters::with_inflow_policy`] also
+/// reproduces WRF's constant-CCN and preserve-current variants without
+/// duplicating traversal code.
+///
 /// ```
 /// use wrf_compute::{ComputeBackend, CpuBackend, GridShape};
 /// use wrf_dynamics::{

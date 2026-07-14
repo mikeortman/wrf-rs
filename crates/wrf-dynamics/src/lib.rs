@@ -171,12 +171,12 @@ pub use specified_boundary_update::{
     SpecifiedBoundaryFlowInputs, SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters,
     SpecifiedBoundaryFlowRegion, SpecifiedBoundaryFlowResult, SpecifiedBoundaryGeopotentialError,
     SpecifiedBoundaryGeopotentialInputs, SpecifiedBoundaryGeopotentialKernels,
-    SpecifiedBoundaryGeopotentialResult, SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateError,
-    SpecifiedBoundaryUpdateKernels, SpecifiedBoundaryUpdateParameters,
-    SpecifiedBoundaryUpdateRegion, SpecifiedBoundaryUpdateResult,
-    SpecifiedBoundaryWestEastPeriodicity, SpecifiedBoundaryZeroGradientError,
-    SpecifiedBoundaryZeroGradientKernels, SpecifiedBoundaryZeroGradientParameters,
-    SpecifiedBoundaryZeroGradientResult,
+    SpecifiedBoundaryGeopotentialResult, SpecifiedBoundaryInflowPolicy,
+    SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateKernels,
+    SpecifiedBoundaryUpdateParameters, SpecifiedBoundaryUpdateRegion,
+    SpecifiedBoundaryUpdateResult, SpecifiedBoundaryWestEastPeriodicity,
+    SpecifiedBoundaryZeroGradientError, SpecifiedBoundaryZeroGradientKernels,
+    SpecifiedBoundaryZeroGradientParameters, SpecifiedBoundaryZeroGradientResult,
 };
 pub use vertical_acoustic_coefficients::{
     VerticalAcousticCoefficient, VerticalAcousticCoefficientAxis, VerticalAcousticCoefficientError,

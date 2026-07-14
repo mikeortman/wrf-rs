@@ -1231,3 +1231,31 @@ Suggested upstream action: share one internal traversal with an explicit
 inflow policy after establishing complete-storage regression coverage for all
 three public entry points. This reduces the chance that fixes to corner or
 neighbor behavior land in only one copy.
+
+## WRF-071: the flow-dependent variants carry the same eight dead arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+`flow_dep_bdy_qnn` and `flow_dep_bdy_fixed_inflow` never read `kds`, `kte`, or
+any of `ips`, `ipe`, `jps`, `jpe`, `kps`, and `kpe`. Like `flow_dep_bdy`, their
+vertical loops begin at `kts` and derive the upper bound from `kde`; the upper
+tile bound does not constrain writes.
+
+Suggested upstream action: remove the dead plumbing during a planned interface
+revision, or explicitly document the ignored `kte` and upper U/V neighbor
+contracts. Focused unused-dummy diagnostics would prevent drift among the
+three interfaces.
+
+## WRF-072: no focused regression covers the alternate inflow policies
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production calls but no compact complete-storage
+fixture that distinguishes constant `ccn_conc` inflow from fixed/preserved
+inflow while also exercising outflow copies, periodic X, partial tiles,
+ignored `kte`, signed zero, and non-finite policy values.
+
+The local oracle extracts both exact pinned routines and compares all 3,072
+stored values across six cases by raw IEEE bits. Suggested upstream action:
+adopt this fixture beside a shared traversal refactor so every public policy
+entry point remains independently covered.

@@ -159,3 +159,27 @@ optimized serial Fortran and four-worker Rust is 1.24× faster. No numerical
 scratch or field clones are used. The default 16-worker pool is overhead-bound
 for this thin operation; special scheduling and SIMD wait for an integrated
 scalar-advancement profile.
+
+### Inflow policies
+
+WRF provides three copies of the flow-dependent traversal whose only material
+difference is the action taken at an inflow point. Rust represents that choice
+with `SpecifiedBoundaryInflowPolicy` and shares the geometry and velocity-sign
+logic:
+
+| Rust policy | WRF routine | Inflow action |
+|---|---|---|
+| `Zero` | `flow_dep_bdy` | write positive zero |
+| `Constant(value)` | `flow_dep_bdy_qnn` | write `ccn_conc` exactly |
+| `Preserve` | `flow_dep_bdy_fixed_inflow` | retain the destination |
+
+The constant-policy oracle includes finite values, negative zero, and positive
+infinity. Six direct cases compare all 3,072 stored values by raw bits across
+constant and preserve policies, periodic X, partial tiles, and the ignored
+upper tile bound. One- and four-worker tests also compare complete output.
+
+On the matched 256 × 256 × 40 workload, four-worker Rust is 1.09× faster than
+optimized serial Fortran for constant inflow and 2.6% faster for preserve.
+Serial Rust is 15.0% and 22.4% slower, respectively. Since the normal
+four-worker path is already competitive, specialization and explicit SIMD are
+deferred in favor of one readable traversal.
