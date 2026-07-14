@@ -31,9 +31,14 @@ examples. Crates warn on missing public documentation and deny broken rustdoc
 links; CI-style verification promotes warnings to failures.
 
 The wiki explains cross-crate concepts and algorithms. Rustdoc explains how to
-use a crate safely. `CURRENT_STATE.md` is a compact operational handoff, while
-the root `README.md`, `TEST_COVERAGE.md`, and `UPSTREAM_FINDINGS.md` are durable
-ledgers with distinct purposes.
+use a crate safely. `CURRENT_STATE.md`, `TEST_COVERAGE.md`, and
+`PERFORMANCE_PARITY.md` are retained historical records; mutable work and
+measurements live in their queryable sources of truth.
+
+After verified changes reach `main`, GitHub Pages renders the canonical
+Markdown into the same searchable project site as the performance matrix. The
+site includes responsive documentation navigation and per-suite benchmark
+history, while the Markdown and cumulative benchmark JSON remain authoritative.
 
 ## GitHub receipts
 

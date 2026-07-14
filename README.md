@@ -128,8 +128,9 @@ upstream tests and differential fixtures pass.
   post-merge Actions receipts track matched Rust and optimized-Fortran kernel
   performance without extrapolating to whole-model speedup.
 - The public [WRF Rust Port Project](https://github.com/users/mikeortman/projects/1)
-  is the queryable roadmap; the latest post-merge performance matrix publishes
-  to [GitHub Pages](https://mikeortman.github.io/wrf-rs/).
+  is the queryable roadmap; benchmark distributions, historical performance,
+  and rendered project documentation publish together on
+  [GitHub Pages](https://mikeortman.github.io/wrf-rs/).
 
 ## Port status
 

@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
+import re
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "tracking.py"
@@ -63,6 +68,86 @@ class RelativeTextTests(unittest.TestCase):
         self.assertEqual(tracking.relative_text(2.0, 1.0), "Rust 2.00x slower")
 
 
+class PercentileTests(unittest.TestCase):
+    def test_interpolates_p50_p90_and_p99(self) -> None:
+        self.assertEqual(
+            tracking.sample_percentiles([1.0, 2.0, 3.0, 4.0]),
+            {"p50": 2.5, "p90": 3.7, "p99": 3.9699999999999998},
+        )
+
+    def test_rejects_an_empty_sample(self) -> None:
+        with self.assertRaisesRegex(tracking.TrackingError, "empty sample"):
+            tracking.percentile([], 0.5)
+
+    def test_reads_criterion_latency_samples_per_iteration(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            target = Path(temporary_directory)
+            result_directory = target / "criterion/group/case/4/new"
+            result_directory.mkdir(parents=True)
+            (result_directory / "estimates.json").write_text(
+                json.dumps(
+                    {
+                        "median": {
+                            "point_estimate": 2_500_000.0,
+                            "confidence_interval": {
+                                "lower_bound": 2_400_000.0,
+                                "upper_bound": 2_600_000.0,
+                            },
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (result_directory / "sample.json").write_text(
+                json.dumps(
+                    {
+                        "iters": [1.0, 2.0, 4.0, 8.0],
+                        "times": [1_000_000.0, 4_000_000.0, 12_000_000.0, 32_000_000.0],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with mock.patch.dict(os.environ, {"CARGO_TARGET_DIR": str(target)}):
+                estimate = tracking.criterion_estimates(
+                    {"criterion_group": "group", "rust_case": "case"}
+                )[0]
+        self.assertEqual(estimate["workers"], 4)
+        self.assertEqual(estimate["percentiles_nanoseconds"]["p50"], 2_500_000.0)
+        self.assertEqual(estimate["percentiles_nanoseconds"]["p90"], 3_700_000.0)
+
+
+class ResultRowTests(unittest.TestCase):
+    def test_exposes_distribution_and_green_performance_status(self) -> None:
+        result = {
+            "suite": {"id": "suite", "label": "Suite"},
+            "source_sha": "12345678",
+            "collected_at": "2026-07-14T12:00:00+00:00",
+            "runner": {"classification": "test"},
+            "fortran": {
+                "median_milliseconds": 2.0,
+                "samples_milliseconds": [1.9, 2.0, 2.2],
+                "percentiles_milliseconds": {"p50": 2.0, "p90": 2.16, "p99": 2.196},
+            },
+            "rust": {
+                "estimates": [
+                    {
+                        "workers": 1,
+                        "median_nanoseconds": 1_500_000.0,
+                        "percentiles_nanoseconds": {
+                            "p50": 1_500_000.0,
+                            "p90": 1_700_000.0,
+                            "p99": 1_900_000.0,
+                        },
+                    }
+                ]
+            },
+        }
+        row = tracking.result_rows([result])[0]
+        self.assertEqual(row["performance_status"], "passing")
+        self.assertEqual(row["rust_best_percentiles_milliseconds"]["p99"], 1.9)
+        self.assertEqual(row["best_ratio"], 0.75)
+
+
 class CumulativeMatrixTests(unittest.TestCase):
     def test_current_results_replace_only_their_suite(self) -> None:
         previous = [
@@ -77,6 +162,76 @@ class CumulativeMatrixTests(unittest.TestCase):
                 {"id": "b", "label": "B", "source_sha": "new-b"},
             ],
         )
+
+    def test_history_appends_new_runs_without_duplicates(self) -> None:
+        old = {"a": [{"id": "a", "source_sha": "old", "collected_at": "first"}]}
+        current = {"id": "a", "source_sha": "new", "collected_at": "second"}
+        merged = tracking.merge_result_history(old, [current, current])
+        self.assertEqual([row["source_sha"] for row in merged["a"]], ["old", "new"])
+
+    def test_schema_two_summary_becomes_one_point_history(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "summary.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 2,
+                        "results": [{"id": "suite", "source_sha": "old"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            loaded = tracking.load_previous_summary(path)
+        self.assertEqual(loaded["history"]["suite"][0]["source_sha"], "old")
+
+
+class PagesTests(unittest.TestCase):
+    @staticmethod
+    def sample_row() -> dict[str, object]:
+        return {
+            "id": "sample-suite",
+            "label": "Sample suite",
+            "fortran_milliseconds": 2.0,
+            "rust_serial_milliseconds": 2.5,
+            "rust_best_milliseconds": 1.5,
+            "rust_best_workers": 4,
+            "fortran_percentiles_milliseconds": {"p50": 2.0, "p90": 2.2, "p99": 2.4},
+            "rust_serial_percentiles_milliseconds": {"p50": 2.5, "p90": 2.7, "p99": 3.0},
+            "rust_best_percentiles_milliseconds": {"p50": 1.5, "p90": 1.7, "p99": 1.9},
+            "best_relative": "Rust 1.33x faster",
+            "source_sha": "1234567890abcdef",
+            "collected_at": "2026-07-14T12:00:00+00:00",
+            "runner": {"classification": "test-runner"},
+        }
+
+    def test_builds_dashboard_suite_history_and_documentation(self) -> None:
+        row = self.sample_row()
+        summary = {
+            "schema_version": 3,
+            "results": [row],
+            "history": {"sample-suite": [row]},
+        }
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory)
+            tracking.build_pages_site(output, summary, row["source_sha"], None)
+            dashboard = (output / "index.html").read_text(encoding="utf-8")
+            suite = (output / "benchmarks/sample-suite.html").read_text(encoding="utf-8")
+            docs = (output / "docs/index.html").read_text(encoding="utf-8")
+            self.assertTrue((output / "assets/site.css").is_file())
+            missing_targets = []
+            for page in output.rglob("*.html"):
+                page_html = page.read_text(encoding="utf-8")
+                for target in re.findall(r'(?:href|src)="([^"#?]+)', page_html):
+                    if "://" not in target and not target.startswith(("mailto:", "/")):
+                        if not (page.parent / target).resolve().exists():
+                            missing_targets.append((page, target))
+        self.assertIn("At parity", dashboard)
+        self.assertIn("p50", dashboard)
+        self.assertIn("data-performance-chart", suite)
+        self.assertIn("wrf-rs", docs)
+        self.assertIn("wiki/System-Overview.html", docs)
+        self.assertNotIn("\x00", docs)
+        self.assertEqual(missing_targets, [])
 
 
 if __name__ == "__main__":

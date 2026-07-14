@@ -126,13 +126,13 @@ jobs:
           retention-days: 90
 
   aggregate:
-    name: Aggregate performance matrix
+    name: Build performance and documentation site
     needs:
       - select
       - benchmark
     if: >-
       always() && needs.select.result == 'success' &&
-      needs.select.outputs.count != '0' && needs.benchmark.result == 'success'
+      (needs.select.outputs.count == '0' || needs.benchmark.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: Check out verified source
@@ -140,20 +140,26 @@ jobs:
         with:
           ref: ${{ needs.select.outputs.source_sha }}
       - name: Download matched benchmark evidence
+        if: needs.select.outputs.count != '0'
         uses: actions/download-artifact@v8
         with:
           pattern: benchmark-*
           path: raw-results
       - name: Download the previously published cumulative matrix
-        run: |
-          if curl --fail --silent --show-error --output previous-summary.download "https://mikeortman.github.io/wrf-rs/benchmark-summary.json?run=${GITHUB_RUN_ID}"; then
-            mv previous-summary.download previous-summary.json
-          fi
-      - name: Build Markdown, JSON, and Pages views
+        run: curl --fail --silent --show-error --retry 3 --output previous-summary.json "https://mikeortman.github.io/wrf-rs/benchmark-summary.json?run=${GITHUB_RUN_ID}"
+      - name: Aggregate new measurements and build Pages
+        if: needs.select.outputs.count != '0'
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: python3 tools/tracking.py aggregate --results-directory raw-results --output-directory dashboard --run-url "$RUN_URL" --previous-summary previous-summary.json
+      - name: Rebuild Pages without new measurements
+        if: needs.select.outputs.count == '0'
+        env:
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SOURCE_SHA: ${{ needs.select.outputs.source_sha }}
+        run: python3 tools/tracking.py build-site --output-directory dashboard --source-sha "$SOURCE_SHA" --run-url "$RUN_URL" --previous-summary previous-summary.json
       - name: Publish matrix in the workflow summary
+        if: needs.select.outputs.count != '0'
         run: cat dashboard/benchmark-summary.md >> "$GITHUB_STEP_SUMMARY"
       - name: Find the merged pull request
         id: pull-request
@@ -164,7 +170,7 @@ jobs:
           number=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/pulls" --jq '.[0].number // empty')
           echo "number=$number" >> "$GITHUB_OUTPUT"
       - name: Attach the performance receipt to the merged pull request
-        if: steps.pull-request.outputs.number != ''
+        if: needs.select.outputs.count != '0' && steps.pull-request.outputs.number != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh pr comment "${{ steps.pull-request.outputs.number }}" --body-file dashboard/benchmark-receipt.md
@@ -176,13 +182,13 @@ jobs:
           retention-days: 90
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
-      - name: Package the latest dashboard for Pages
+      - name: Package the project site for Pages
         uses: actions/upload-pages-artifact@v5
         with:
           path: dashboard/
 
   deploy:
-    name: Publish latest performance dashboard
+    name: Publish wrf-rs project site
     needs:
       - select
       - aggregate
