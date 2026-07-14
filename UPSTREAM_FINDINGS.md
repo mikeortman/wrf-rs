@@ -38,6 +38,8 @@ a measured regression until a representative benchmark exists.
 | WRF-039 | Interface/API opportunity | Source-confirmed | `calc_p_rho` | Six coefficient/coordinate arrays and three lower domain bounds are accepted but never read |
 | WRF-040 | Confirmed interface defect | Source-confirmed | `calc_p_rho` | Partially written `al` and `p` arrays are declared `INTENT(OUT)`, making inactive tile and halo storage undefined on entry |
 | WRF-041 | Test gap | Repository search plus direct differential fixture | `calc_p_rho` | No focused production regression jointly checks both governing modes, damping phases, hydrostatic recurrence, partial tiles, or exceptional arithmetic |
+| WRF-061 | Interface/API opportunity | Source-confirmed | `spec_bdyupdate` | The lower vertical domain bound and all six patch bounds are accepted but never read |
+| WRF-062 | Test gap | Repository search plus direct differential fixture | `spec_bdyupdate` | No focused numerical regression checks every field stagger, trapezoidal corners, periodic X, partial tiles, or inactive storage |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -1081,3 +1083,31 @@ initial pressure and coefficient diagnosis, then three complete substeps, and
 compares 2,196 selected final values by raw IEEE bits. Suggested upstream
 action: add a small serial fixture with intermediate checkpoints, then reuse it
 around halo and physical-boundary insertion in a multi-patch regression.
+
+## WRF-061: `spec_bdyupdate` carries seven dead dimension arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The routine reads the upper vertical domain bound and the memory and tile
+bounds, but never reads `kds` or any of `ips`, `ipe`, `jps`, `jpe`, `kps`, and
+`kpe`. The Rust region exposes only the physical domains, storage shape, and
+active tile that determine output.
+
+Suggested upstream action: remove the dead plumbing during a planned interface
+revision, or document why patch bounds remain part of the compatibility
+surface. Enabling unused-dummy diagnostics for this focused file would keep the
+list from growing.
+
+## WRF-062: no focused numerical regression covers `spec_bdyupdate`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production call sites but no compact regression that
+compares complete storage across the default mass location, U and V horizontal
+staggers, the one-level mass path, the full vertical level, periodic X,
+trapezoidal corner clipping, partial tiles, and inactive interiors.
+
+The local oracle extracts the exact pinned routine and compares all 1,728
+stored values across eight such cases by raw IEEE bits. Suggested upstream
+action: adopt a compact complete-storage fixture and include it in a nested
+acoustic trajectory with boundary communication and finalization.

@@ -40,6 +40,7 @@ mod omega_diagnosis;
 mod positive_definite;
 mod pressure_point_geopotential;
 mod runge_kutta_preparation;
+mod specified_boundary_update;
 #[cfg(test)]
 mod test_support;
 mod vertical_acoustic_coefficients;
@@ -160,6 +161,12 @@ pub use runge_kutta_preparation::{
     RungeKuttaPreparationOutputs, RungeKuttaPreparationRegions, RungeKuttaPreparationResult,
     RungeKuttaPreparationStage, RungeKuttaPreparationThermodynamicInputs,
     RungeKuttaPreparationVelocities,
+};
+pub use specified_boundary_update::{
+    SpecifiedBoundaryFieldLocation, SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateError,
+    SpecifiedBoundaryUpdateKernels, SpecifiedBoundaryUpdateParameters,
+    SpecifiedBoundaryUpdateRegion, SpecifiedBoundaryUpdateResult,
+    SpecifiedBoundaryWestEastPeriodicity,
 };
 pub use vertical_acoustic_coefficients::{
     VerticalAcousticCoefficient, VerticalAcousticCoefficientAxis, VerticalAcousticCoefficientError,
