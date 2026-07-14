@@ -105,7 +105,7 @@ impl WrfNetcdfWriter {
     fn add_global_attribute(definition: &mut DataSet, attribute: &WrfAttribute) -> WrfIoResult<()> {
         let result = match attribute.value() {
             WrfAttributeValue::Text(value) => {
-                definition.add_global_attr_string(attribute.name(), value)
+                definition.add_global_attr_string(attribute.name(), Self::wrf_text(value))
             }
             WrfAttributeValue::Int32(values) => {
                 definition.add_global_attr_i32(attribute.name(), values.clone())
@@ -128,9 +128,11 @@ impl WrfNetcdfWriter {
         attribute: &WrfAttribute,
     ) -> WrfIoResult<()> {
         let result = match attribute.value() {
-            WrfAttributeValue::Text(value) => {
-                definition.add_var_attr_string(variable_name, attribute.name(), value)
-            }
+            WrfAttributeValue::Text(value) => definition.add_var_attr_string(
+                variable_name,
+                attribute.name(),
+                Self::wrf_text(value),
+            ),
             WrfAttributeValue::Int32(values) => {
                 definition.add_var_attr_i32(variable_name, attribute.name(), values.clone())
             }
@@ -144,6 +146,12 @@ impl WrfNetcdfWriter {
         result
             .map(|_| ())
             .map_err(|source| WrfIoError::Netcdf3Schema { source })
+    }
+
+    fn wrf_text(value: &str) -> &str {
+        // WRF writes one NUL byte for a fixed-length character attribute whose
+        // Fortran LEN_TRIM is zero, rather than an NC_CHAR attribute of length zero.
+        if value.is_empty() { "\0" } else { value }
     }
 
     fn write_variable(
@@ -174,11 +182,14 @@ impl WrfNetcdfWriter {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use tempfile::tempdir;
 
     use crate::{
-        WrfFileKind, WrfFileSchema, WrfGridDimensions, WrfNetcdfReader, WrfRestartComparer,
-        WrfTimestamp, WrfVariableName, WrfVariableValues, WrfVariableView,
+        WrfAttribute, WrfAttributeValue, WrfDataType, WrfDimension, WrfDimensionName, WrfFileKind,
+        WrfFileSchema, WrfGridDimensions, WrfNetcdfReader, WrfRestartComparer, WrfTimestamp,
+        WrfVariableName, WrfVariableSchema, WrfVariableValues, WrfVariableView,
     };
 
     use super::*;
@@ -289,6 +300,47 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    #[test]
+    fn writer_preflights_the_complete_schema_before_mutating_the_path() {
+        let directory = tempdir().unwrap();
+        let path = directory.path().join("must_remain_unchanged.nc");
+        let sentinel = b"existing restart bytes";
+        fs::write(&path, sentinel).unwrap();
+        let schema = WrfFileSchema::try_from_parts(
+            WrfFileKind::Restart,
+            vec![WrfDimension::unlimited(WrfDimensionName::Time, 1)],
+            vec![WrfAttribute::new(
+                "FLAG_RESTART",
+                WrfAttributeValue::Int32(vec![1]),
+            )],
+            vec![
+                WrfVariableSchema::try_new(
+                    "BROKEN",
+                    WrfDataType::Float32,
+                    vec![WrfDimensionName::Time],
+                    vec![WrfAttribute::new(
+                        "invalid/attribute",
+                        WrfAttributeValue::Text("rejected before open".to_owned()),
+                    )],
+                )
+                .unwrap(),
+            ],
+        )
+        .unwrap();
+        let values = [1.0_f32];
+        let dataset = WrfDatasetView::try_new(
+            &schema,
+            vec![view("BROKEN", WrfVariableValues::Float32(&values))],
+        )
+        .unwrap();
+
+        assert!(matches!(
+            WrfNetcdfWriter::write(&path, &dataset),
+            Err(WrfIoError::Netcdf3Schema { .. })
+        ));
+        assert_eq!(fs::read(&path).unwrap(), sentinel);
     }
 
     fn fixture_schema(file_kind: WrfFileKind) -> WrfFileSchema {

@@ -1,0 +1,4 @@
+MODULE wrf_data
+  IMPLICIT NONE
+  INTEGER, PARAMETER :: NVarDims = 4
+END MODULE wrf_data

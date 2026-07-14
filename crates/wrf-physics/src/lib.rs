@@ -13,5 +13,8 @@ pub use microphysics::{
     CpuKesslerMicrophysicsWorkspace, KesslerMicrophysicsAxis, KesslerMicrophysicsError,
     KesslerMicrophysicsField, KesslerMicrophysicsFields, KesslerMicrophysicsKernels,
     KesslerMicrophysicsParameter, KesslerMicrophysicsParameters, KesslerMicrophysicsRegion,
-    KesslerMicrophysicsResult,
+    KesslerMicrophysicsResult, MicrophysicsBoundaryPolicy, MicrophysicsDriver,
+    MicrophysicsDriverDomain, MicrophysicsDriverError, MicrophysicsDriverFields,
+    MicrophysicsDriverResult, MicrophysicsDriverWorkspace, MicrophysicsScheme, MicrophysicsTile,
+    MoistureSpecies, MoistureSpeciesIndex, MoistureSpeciesPackage,
 };

@@ -36,10 +36,121 @@ pub enum WrfIoError {
         /// The rejected variable name.
         value: String,
     },
-    /// The file uses a dimension outside this minimum ARW schema slice.
+    /// A dimension name is not valid NetCDF syntax.
+    InvalidDimensionName {
+        /// The rejected dimension name.
+        value: String,
+    },
+    /// A variable references a dimension the schema does not define.
     UnsupportedDimension {
-        /// The unsupported dimension name.
+        /// The undefined dimension name.
         name: String,
+    },
+    /// A state references a dimension symbol with no `dimspec` entry.
+    UnknownRegistryDimension {
+        /// The state whose dimensions could not be resolved.
+        state: String,
+        /// The unresolved Registry dimension symbol.
+        dimension: String,
+    },
+    /// A namelist-bounded dimension has no caller-supplied value.
+    MissingNamelistDimensionLength {
+        /// The Registry dimension symbol.
+        dimension: String,
+        /// The namelist entry that must be supplied to the builder.
+        namelist: String,
+    },
+    /// A Registry dimension resolves to a non-positive length.
+    EmptyRegistryDimension {
+        /// The Registry dimension symbol.
+        dimension: String,
+        /// The resolved inclusive start.
+        start: i64,
+        /// The resolved inclusive end.
+        end: i64,
+    },
+    /// A Registry dimension's inclusive bounds cannot fit in a file length.
+    RegistryDimensionLengthOverflow {
+        /// The Registry dimension symbol.
+        dimension: String,
+        /// The resolved inclusive start.
+        start: i64,
+        /// The resolved inclusive end.
+        end: i64,
+    },
+    /// A `standard_domain` dimension uses the constant coordinate axis.
+    UnsupportedStandardDomainAxis {
+        /// The Registry dimension symbol.
+        dimension: String,
+    },
+    /// A state's dimension axes have no supported WRF external order.
+    UnsupportedMemoryOrder {
+        /// The state whose axes cannot be reordered.
+        state: String,
+        /// The Registry memory order that has no external reordering.
+        memory_order: String,
+    },
+    /// A state's Registry value type has no restart NetCDF mapping.
+    UnsupportedRegistryValueType {
+        /// The state with the unsupported value type.
+        state: String,
+        /// The Registry value type spelling.
+        value_type: String,
+    },
+    /// A state uses subgrid dimensions, which this slice does not port.
+    UnsupportedSubgridDimensions {
+        /// The state with subgrid-marked dimensions.
+        state: String,
+    },
+    /// A selected state is a boundary array whose companions are not ported.
+    UnsupportedBoundaryArray {
+        /// The unsupported boundary-array state name.
+        state: String,
+    },
+    /// WRF does not register logical arrays with three or more dimensions.
+    UnsupportedLogicalFieldDimensions {
+        /// The unsupported logical state name.
+        state: String,
+        /// The number of Registry dimensions.
+        dimensions: usize,
+    },
+    /// WRF excludes processor-transposed state from external I/O.
+    UnsupportedProcessorOrientation {
+        /// The unsupported state name.
+        state: String,
+        /// The selected processor orientation.
+        orientation: &'static str,
+    },
+    /// A selected state belongs to an out-of-scope four-dimensional bundle.
+    UnsupportedScalarArrayMember {
+        /// The unsupported state name.
+        state: String,
+    },
+    /// A Registry dimension collides with WRF's record dimension.
+    ReservedRegistryDimensionName {
+        /// The reserved file dimension name.
+        dimension: String,
+    },
+    /// A state's Registry I/O specification cannot be parsed.
+    InvalidIoSpecification {
+        /// The state with the malformed I/O specification.
+        state: String,
+        /// The rejected I/O specification.
+        value: String,
+    },
+    /// Two states require the same named dimension with different lengths.
+    DimensionLengthConflict {
+        /// The conflicting file dimension name.
+        dimension: String,
+        /// The previously registered length.
+        existing: usize,
+        /// The newly requested length.
+        requested: usize,
+    },
+    /// WRF's fixed NetCDF dimension table has no unused slot.
+    RegistryDimensionTableFull {
+        /// The pinned maximum number of fixed-dimension slots.
+        maximum: usize,
     },
     /// The file uses a primitive outside this minimum WRF schema slice.
     UnsupportedDataType {
@@ -159,12 +270,97 @@ impl fmt::Display for WrfIoError {
             Self::InvalidVariableName { value } => {
                 write!(formatter, "{value:?} is not a valid NetCDF variable name")
             }
+            Self::InvalidDimensionName { value } => {
+                write!(formatter, "{value:?} is not a valid NetCDF dimension name")
+            }
             Self::UnsupportedDimension { name } => {
                 write!(
                     formatter,
-                    "WRF dimension {name:?} is outside the minimum ARW schema"
+                    "WRF dimension {name:?} is not defined by the file schema"
                 )
             }
+            Self::UnknownRegistryDimension { state, dimension } => write!(
+                formatter,
+                "Registry state {state} references dimension {dimension:?} with no dimspec entry"
+            ),
+            Self::MissingNamelistDimensionLength {
+                dimension,
+                namelist,
+            } => write!(
+                formatter,
+                "Registry dimension {dimension:?} needs a length for namelist entry {namelist}"
+            ),
+            Self::EmptyRegistryDimension {
+                dimension,
+                start,
+                end,
+            } => write!(
+                formatter,
+                "Registry dimension {dimension:?} bounds {start}:{end} are not a positive length"
+            ),
+            Self::RegistryDimensionLengthOverflow {
+                dimension,
+                start,
+                end,
+            } => write!(
+                formatter,
+                "Registry dimension {dimension:?} bounds {start}:{end} cannot fit in a file dimension"
+            ),
+            Self::UnsupportedStandardDomainAxis { dimension } => write!(
+                formatter,
+                "Registry dimension {dimension:?} is standard_domain on the constant axis"
+            ),
+            Self::UnsupportedMemoryOrder {
+                state,
+                memory_order,
+            } => write!(
+                formatter,
+                "Registry state {state} memory order {memory_order:?} has no WRF external order"
+            ),
+            Self::UnsupportedRegistryValueType { state, value_type } => write!(
+                formatter,
+                "Registry state {state} value type {value_type} has no restart NetCDF mapping"
+            ),
+            Self::UnsupportedSubgridDimensions { state } => write!(
+                formatter,
+                "Registry state {state} uses subgrid dimensions outside this slice"
+            ),
+            Self::UnsupportedBoundaryArray { state } => write!(
+                formatter,
+                "Registry state {state} is a boundary array outside this slice"
+            ),
+            Self::UnsupportedLogicalFieldDimensions { state, dimensions } => write!(
+                formatter,
+                "Registry logical state {state} has {dimensions} dimensions and is not registered for WRF I/O"
+            ),
+            Self::UnsupportedProcessorOrientation { state, orientation } => write!(
+                formatter,
+                "Registry state {state} has processor orientation {orientation}, which WRF excludes from I/O"
+            ),
+            Self::UnsupportedScalarArrayMember { state } => write!(
+                formatter,
+                "Registry state {state} belongs to a four-dimensional scalar bundle outside this slice"
+            ),
+            Self::ReservedRegistryDimensionName { dimension } => write!(
+                formatter,
+                "Registry dimension name {dimension:?} is reserved by WRF's NetCDF writer"
+            ),
+            Self::InvalidIoSpecification { state, value } => write!(
+                formatter,
+                "Registry state {state} has malformed I/O specification {value:?}"
+            ),
+            Self::DimensionLengthConflict {
+                dimension,
+                existing,
+                requested,
+            } => write!(
+                formatter,
+                "WRF dimension {dimension:?} is defined with length {existing} but requested with {requested}"
+            ),
+            Self::RegistryDimensionTableFull { maximum } => write!(
+                formatter,
+                "WRF NetCDF dimension table is limited to {maximum} fixed-dimension slots"
+            ),
             Self::UnsupportedDataType { variable, actual } => write!(
                 formatter,
                 "WRF variable {variable} uses unsupported NetCDF type {actual}"

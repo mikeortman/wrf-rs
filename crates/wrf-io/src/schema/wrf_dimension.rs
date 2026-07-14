@@ -26,8 +26,8 @@ impl WrfDimension {
     }
 
     /// Returns the exact WRF dimension name.
-    pub const fn name(&self) -> WrfDimensionName {
-        self.name
+    pub const fn name(&self) -> &WrfDimensionName {
+        &self.name
     }
 
     /// Returns the current dimension length.

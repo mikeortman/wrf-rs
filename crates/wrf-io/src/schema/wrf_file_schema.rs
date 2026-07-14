@@ -5,7 +5,7 @@ use crate::{
     WrfGridDimensions, WrfIoError, WrfIoResult, WrfTimestamp, WrfVariableName, WrfVariableSchema,
 };
 
-/// Complete typed schema for the minimum ARW initialization/restart slice.
+/// Complete typed schema for one WRF initialization or restart file.
 #[derive(Clone, Debug, PartialEq)]
 pub struct WrfFileSchema {
     file_kind: WrfFileKind,
@@ -25,9 +25,6 @@ impl WrfFileSchema {
         west_east_spacing_meters: f32,
         south_north_spacing_meters: f32,
     ) -> WrfIoResult<Self> {
-        Self::validate_spacing("west-east", west_east_spacing_meters)?;
-        Self::validate_spacing("south-north", south_north_spacing_meters)?;
-
         let dimensions = vec![
             WrfDimension::unlimited(WrfDimensionName::Time, 1),
             WrfDimension::fixed(WrfDimensionName::DateStringLength, 19),
@@ -47,6 +44,30 @@ impl WrfFileSchema {
                 grid.bottom_top_staggered(),
             ),
         ];
+
+        let attributes = Self::arw_global_attributes(
+            file_kind,
+            grid,
+            &start_date,
+            &simulation_start_date,
+            west_east_spacing_meters,
+            south_north_spacing_meters,
+        )?;
+        let variables = Self::minimal_arw_variables()?;
+        Self::try_from_parts(file_kind, dimensions, attributes, variables)
+    }
+
+    /// Assembles the pinned ARW global attributes shared by every schema slice.
+    pub(crate) fn arw_global_attributes(
+        file_kind: WrfFileKind,
+        grid: WrfGridDimensions,
+        start_date: &WrfTimestamp,
+        simulation_start_date: &WrfTimestamp,
+        west_east_spacing_meters: f32,
+        south_north_spacing_meters: f32,
+    ) -> WrfIoResult<Vec<WrfAttribute>> {
+        Self::validate_spacing("west-east", west_east_spacing_meters)?;
+        Self::validate_spacing("south-north", south_north_spacing_meters)?;
 
         let mut attributes = vec![
             WrfAttribute::new(
@@ -98,9 +119,7 @@ impl WrfFileSchema {
                 WrfAttributeValue::Int32(vec![1]),
             ));
         }
-
-        let variables = Self::minimal_arw_variables()?;
-        Self::try_from_parts(file_kind, dimensions, attributes, variables)
+        Ok(attributes)
     }
 
     pub(crate) fn try_from_parts(
@@ -162,7 +181,7 @@ impl WrfFileSchema {
                 let length = self
                     .dimensions
                     .iter()
-                    .find(|dimension| dimension.name() == *name)
+                    .find(|dimension| dimension.name() == name)
                     .map(WrfDimension::length)
                     .ok_or_else(|| WrfIoError::UnsupportedDimension {
                         name: name.as_str().to_owned(),
