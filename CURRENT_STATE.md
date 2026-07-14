@@ -245,6 +245,8 @@ Held-Suarez boundary oracle matches exactly.
   matched optimized-Fortran benchmark, wiki, and coverage/findings updates.
 - `58bcb67` — accepted safe Held-Suarez SIMD, allocation evidence, scalar/SIMD
   parity corpus, and docs.rs example.
+- `d0ec31d` — matched positive-definite Fortran benchmark, optimization-level
+  audit, and rejected bench-only native/fat-LTO profiles.
 
 ## Immediate next actions
 
