@@ -63,7 +63,9 @@ upstream tests and differential fixtures pass.
   the complete-column tridiagonal factorization and rigid/nonrigid top
   boundaries. Horizontal acoustic momentum now ports `advance_uv`, including
   split pressure gradients, divergence damping, governing modes, relaxation,
-  periodic, physical-edge, and polar paths.
+  periodic, physical-edge, and polar paths. Acoustic column mass, vertical mass
+  flux, and perturbation potential temperature now port `advance_mu_t`, with
+  complete-column continuity integration and horizontal/vertical theta transport.
   Deterministic fixtures and seeded randomized corpora check upstream `REAL`
   bit patterns.
 - `wrf-physics` contains the first physical parameterization: parallel Kessler
@@ -105,7 +107,7 @@ WRF initialization and match an upstream integration.
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
 | Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
-| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, integrated failure-atomic `rk_step_prep`, `rk_addtend_dry`, acoustic `small_step_prep`, both-mode `calc_p_rho`, complete-column `calc_coef_w`, and horizontal `advance_uv` have direct Fortran evidence and release benchmarks | Port `advance_mu_t` and `advance_w`, then execute a short coupled large/small-step trajectory |
+| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, integrated failure-atomic `rk_step_prep`, `rk_addtend_dry`, acoustic `small_step_prep`, both-mode `calc_p_rho`, complete-column `calc_coef_w`, horizontal `advance_uv`, and mass/theta `advance_mu_t` have direct Fortran evidence and release benchmarks | Port `advance_w`, then execute a short coupled large/small-step trajectory |
 | Physics drivers and schemes | In progress | Kessler warm-rain microphysics matches all 660 mutable oracle values exactly; one/four-worker determinism, reusable scratch, matched optimized-Fortran benchmark, and allocation evidence | Port microphysics driver/state mapping and add a coupled precipitation trajectory |
 | I/O and NetCDF metadata | In progress | Typed minimum ARW schema; independent NetCDF-C/Rust restart files match ordered metadata and every field bit | Add full Registry-selected state, alarm metadata, NetCDF-4 output policy, and resumed-trajectory parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
@@ -148,6 +150,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-acoustic-pressure-oracle.sh
 ./scripts/run-vertical-acoustic-coefficients-oracle.sh
 ./scripts/run-acoustic-horizontal-momentum-oracle.sh
+./scripts/run-acoustic-mass-theta-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -171,6 +174,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/benchmark-acoustic-pressure-fortran.sh
 ./scripts/benchmark-vertical-acoustic-coefficients-fortran.sh
 ./scripts/benchmark-acoustic-horizontal-momentum-fortran.sh
+./scripts/benchmark-acoustic-mass-theta-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -184,6 +188,8 @@ cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
 cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_horizontal_momentum -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ```
 

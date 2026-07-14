@@ -381,3 +381,17 @@ scientific oracle.
   here until a coupled profile identifies a material bottleneck.
 - Rust removes the tile-sized `dpn`, `dpxy`, and `mudf_xy` numerical scratch by
   evaluating interpolation, pressure-gradient, and damping terms directly.
+
+## Acoustic mass, omega, and theta comparison notes
+
+- Both implementations run `advance_mu_t` over a 256 × 256 × 40 mass grid with
+  upper U/V/full-level storage and the same constant-valued numerical fixture.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or native-CPU flags.
+- Serial Fortran measured 5.368 ms median. Rust measured 29.960 ms with one
+  worker, 8.070 ms with four, and 4.241 ms with 16 workers.
+- The standard host-parallel path is 1.27× faster than optimized serial
+  Fortran. SIMD and more elaborate multi-output scheduling stop here.
+- Rust reuses required diagnostic outputs as short-lived divergence and prior-
+  mass scratch, then writes their specified final values. It allocates no
+  numerical scratch and clones no fields.

@@ -20,6 +20,7 @@
 #![forbid(unsafe_code)]
 
 mod acoustic_horizontal_momentum;
+mod acoustic_mass_theta;
 mod acoustic_pressure;
 mod acoustic_step_preparation;
 mod column_mass_staggering;
@@ -47,6 +48,15 @@ pub use acoustic_horizontal_momentum::{
     AcousticHorizontalPressureFields, AcousticHorizontalVerticalCoefficients,
     AcousticRelaxationZone, AcousticSouthNorthBoundary, AcousticWestEastBoundary,
     AcousticWestEastPeriodicity,
+};
+pub use acoustic_mass_theta::{
+    AcousticMassThetaAxis, AcousticMassThetaBoundaryPolicy, AcousticMassThetaCoefficient,
+    AcousticMassThetaDiagnostics, AcousticMassThetaError, AcousticMassThetaField,
+    AcousticMassThetaInputs, AcousticMassThetaKernels, AcousticMassThetaLateralDomain,
+    AcousticMassThetaMapFactors, AcousticMassThetaMassInputs, AcousticMassThetaMomentumInputs,
+    AcousticMassThetaParameters, AcousticMassThetaRegion, AcousticMassThetaResult,
+    AcousticMassThetaState, AcousticMassThetaThermodynamicInputs,
+    AcousticMassThetaVerticalCoefficients, AcousticMassThetaWestEastPeriodicity,
 };
 pub use acoustic_pressure::{
     AcousticPressureAxis, AcousticPressureCoefficient, AcousticPressureCoefficients,

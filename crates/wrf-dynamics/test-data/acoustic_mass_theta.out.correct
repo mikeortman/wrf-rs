@@ -1,0 +1,3168 @@
+global ww 0 0 0 3F4CCCCD
+global ww 1 0 0 3F51EB85
+global ww 2 0 0 3F570A3E
+global ww 3 0 0 3F5C28F6
+global ww 4 0 0 3F6147AE
+global ww 5 0 0 3F666666
+global ww 0 1 0 3F547AE1
+global ww 1 1 0 3F599999
+global ww 2 1 0 3F5EB852
+global ww 3 1 0 3F63D70A
+global ww 4 1 0 3F68F5C2
+global ww 5 1 0 3F6E147A
+global ww 0 2 0 3F5C28F6
+global ww 1 2 0 3F6147AE
+global ww 2 2 0 3F666667
+global ww 3 2 0 3F6B851F
+global ww 4 2 0 3F70A3D7
+global ww 5 2 0 3F75C28F
+global ww 0 3 0 3F63D70A
+global ww 1 3 0 3F68F5C2
+global ww 2 3 0 3F6E147B
+global ww 3 3 0 3F733333
+global ww 4 3 0 3F7851EB
+global ww 5 3 0 3F7D70A3
+global ww 0 4 0 3F6B851F
+global ww 1 4 0 3F70A3D7
+global ww 2 4 0 3F75C290
+global ww 3 4 0 3F7AE148
+global ww 4 4 0 3F800000
+global ww 5 4 0 3F828F5C
+global ww 0 5 0 3F733333
+global ww 1 5 0 3F7851EB
+global ww 2 5 0 3F7D70A4
+global ww 3 5 0 3F8147AE
+global ww 4 5 0 3F83D70A
+global ww 5 5 0 3F866666
+global ww 0 0 1 3F4A3D71
+global ww 1 0 1 3F4F5C29
+global ww 2 0 1 3F547AE2
+global ww 3 0 1 3F59999A
+global ww 4 0 1 3F5EB852
+global ww 5 0 1 3F63D70A
+global ww 0 1 1 3F51EB85
+global ww 1 1 1 3EF851EB
+global ww 2 1 1 3F024DD3
+global ww 3 1 1 3F0872B0
+global ww 4 1 1 3F0E978D
+global ww 5 1 1 3F6B851E
+global ww 0 2 1 3F59999A
+global ww 1 2 1 3EF3D2D5
+global ww 2 2 1 3F00024A
+global ww 3 2 1 3F061B1D
+global ww 4 2 1 3F0C33E3
+global ww 5 2 1 3F733333
+global ww 0 3 1 3F6147AE
+global ww 1 3 1 3EEF3DEA
+global ww 2 3 1 3EFB563F
+global ww 3 3 1 3F03B72E
+global ww 4 3 1 3F09C324
+global ww 5 3 1 3F7AE147
+global ww 0 4 1 3F68F5C3
+global ww 1 4 1 3EEA9296
+global ww 2 4 1 3EF69005
+global ww 3 4 1 3F014690
+global ww 4 4 1 3F0744F8
+global ww 5 4 1 3F8147AE
+global ww 0 5 1 3F70A3D7
+global ww 1 5 1 3F75C28F
+global ww 2 5 1 3F7AE148
+global ww 3 5 1 3F800000
+global ww 4 5 1 3F828F5C
+global ww 5 5 1 3F851EB8
+global ww 0 0 2 3F47AE15
+global ww 1 0 2 3F4CCCCD
+global ww 2 0 2 3F51EB86
+global ww 3 0 2 3F570A3E
+global ww 4 0 2 3F5C28F6
+global ww 5 0 2 3F6147AE
+global ww 0 1 2 3F4F5C29
+global ww 1 1 2 3EF1A9FB
+global ww 2 1 2 3EFDF3B6
+global ww 3 1 2 3F051EB8
+global ww 4 1 2 3F0B4395
+global ww 5 1 2 3F68F5C2
+global ww 0 2 2 3F570A3E
+global ww 1 2 2 3EED37D9
+global ww 2 2 2 3EF969BA
+global ww 3 2 2 3F02CDBF
+global ww 4 2 2 3F08E695
+global ww 5 2 2 3F70A3D7
+global ww 0 3 2 3F5EB852
+global ww 1 3 2 3EE8B0AA
+global ww 2 3 2 3EF4C941
+global ww 3 3 2 3F0070D0
+global ww 4 3 2 3F067CE8
+global ww 5 3 2 3F7851EB
+global ww 0 4 2 3F666667
+global ww 1 4 2 3EE413DE
+global ww 2 4 2 3EF011B5
+global ww 3 4 2 3EFC0F37
+global ww 4 4 2 3F040634
+global ww 5 4 2 3F800000
+global ww 0 5 2 3F6E147B
+global ww 1 5 2 3F733333
+global ww 2 5 2 3F7851EC
+global ww 3 5 2 3F7D70A4
+global ww 4 5 2 3F8147AE
+global ww 5 5 2 3F83D70A
+global ww 0 0 3 3F451EB9
+global ww 1 0 3 3F4A3D71
+global ww 2 0 3 3F4F5C2A
+global ww 3 0 3 3F547AE2
+global ww 4 0 3 3F59999A
+global ww 5 0 3 3F5EB852
+global ww 0 1 3 3F4CCCCD
+global ww 1 1 3 3EEB020C
+global ww 2 1 3 3EF74BC7
+global ww 3 1 3 3F01CAC0
+global ww 4 1 3 3F07EF9E
+global ww 5 1 3 3F666666
+global ww 0 2 3 3F547AE2
+global ww 1 2 3 3EE69CC4
+global ww 2 2 3 3EF2CEC3
+global ww 3 2 3 3EFF00A9
+global ww 4 2 3 3F05993A
+global ww 5 2 3 3F6E147B
+global ww 0 3 3 3F5C28F6
+global ww 1 3 3 3EE22335
+global ww 2 3 3 3EEE3C0C
+global ww 3 3 3 3EFA54B0
+global ww 4 3 3 3F03368F
+global ww 5 3 3 3F75C28F
+global ww 0 4 3 3F63D70B
+global ww 1 4 3 3EDD94D3
+global ww 2 4 3 3EE9930C
+global ww 3 4 3 3EF590F6
+global ww 4 4 3 3F00C747
+global ww 5 4 3 3F7D70A4
+global ww 0 5 3 3F6B851F
+global ww 1 5 3 3F70A3D7
+global ww 2 5 3 3F75C290
+global ww 3 5 3 3F7AE148
+global ww 4 5 3 3F800000
+global ww 5 5 3 3F828F5C
+global ww 0 0 4 3F428F5C
+global ww 1 0 4 3F47AE14
+global ww 2 0 4 3F4CCCCD
+global ww 3 0 4 3F51EB85
+global ww 4 0 4 3F570A3D
+global ww 5 0 4 3F5C28F5
+global ww 0 1 4 3F4A3D70
+global ww 1 1 4 3EE45A1B
+global ww 2 1 4 3EF0A3D6
+global ww 3 1 4 3EFCED90
+global ww 4 1 4 3F049BA5
+global ww 5 1 4 3F63D709
+global ww 0 2 4 3F51EB85
+global ww 1 2 4 3EE00193
+global ww 2 2 4 3EEC33B0
+global ww 3 2 4 3EF865B6
+global ww 4 2 4 3F024BD1
+global ww 5 2 4 3F6B851E
+global ww 0 3 4 3F599999
+global ww 1 3 4 3EDB9586
+global ww 2 3 4 3EE7AE9D
+global ww 3 3 4 3EF3C781
+global ww 4 3 4 3EFFE033
+global ww 5 3 4 3F733332
+global ww 0 4 4 3F6147AE
+global ww 1 4 4 3ED71570
+global ww 2 4 4 3EE3140D
+global ww 3 4 4 3EEF1259
+global ww 4 4 4 3EFB1059
+global ww 5 4 4 3F7AE147
+global ww 0 5 4 3F68F5C2
+global ww 1 5 4 3F6E147A
+global ww 2 5 4 3F733333
+global ww 3 5 4 3F7851EB
+global ww 4 5 4 3F7D70A3
+global ww 5 5 4 3F8147AE
+global ww 0 0 5 3F400000
+global ww 1 0 5 3F451EB8
+global ww 2 0 5 3F4A3D71
+global ww 3 0 5 3F4F5C29
+global ww 4 0 5 3F547AE1
+global ww 5 0 5 3F599999
+global ww 0 1 5 3F47AE14
+global ww 1 1 5 3F4CCCCC
+global ww 2 1 5 3F51EB85
+global ww 3 1 5 3F570A3D
+global ww 4 1 5 3F5C28F5
+global ww 5 1 5 3F6147AD
+global ww 0 2 5 3F4F5C29
+global ww 1 2 5 3F547AE1
+global ww 2 2 5 3F59999A
+global ww 3 2 5 3F5EB852
+global ww 4 2 5 3F63D70A
+global ww 5 2 5 3F68F5C2
+global ww 0 3 5 3F570A3D
+global ww 1 3 5 3F5C28F5
+global ww 2 3 5 3F6147AE
+global ww 3 3 5 3F666666
+global ww 4 3 5 3F6B851E
+global ww 5 3 5 3F70A3D6
+global ww 0 4 5 3F5EB852
+global ww 1 4 5 3F63D70A
+global ww 2 4 5 3F68F5C3
+global ww 3 4 5 3F6E147B
+global ww 4 4 5 3F733333
+global ww 5 4 5 3F7851EB
+global ww 0 5 5 3F666666
+global ww 1 5 5 3F6B851E
+global ww 2 5 5 3F70A3D7
+global ww 3 5 5 3F75C28F
+global ww 4 5 5 3F7AE147
+global ww 5 5 5 3F7FFFFF
+global t 0 0 0 43960000
+global t 1 0 0 4396599A
+global t 2 0 0 4396B333
+global t 3 0 0 43970CCD
+global t 4 0 0 43976666
+global t 5 0 0 4397C000
+global t 0 1 0 43968CCD
+global t 1 1 0 4396E667
+global t 2 1 0 43974000
+global t 3 1 0 4397999A
+global t 4 1 0 4397F333
+global t 5 1 0 43984CCD
+global t 0 2 0 4397199A
+global t 1 2 0 43977334
+global t 2 2 0 4397CCCD
+global t 3 2 0 43982667
+global t 4 2 0 43988000
+global t 5 2 0 4398D99A
+global t 0 3 0 4397A666
+global t 1 3 0 43980000
+global t 2 3 0 43985999
+global t 3 3 0 4398B333
+global t 4 3 0 43990CCC
+global t 5 3 0 43996666
+global t 0 4 0 43983333
+global t 1 4 0 43988CCD
+global t 2 4 0 4398E666
+global t 3 4 0 43994000
+global t 4 4 0 43999999
+global t 5 4 0 4399F333
+global t 0 5 0 4398C000
+global t 1 5 0 4399199A
+global t 2 5 0 43997333
+global t 3 5 0 4399CCCD
+global t 4 5 0 439A2666
+global t 5 5 0 439A8000
+global t 0 0 1 4395CCCD
+global t 1 0 1 43962667
+global t 2 0 1 43968000
+global t 3 0 1 4396D99A
+global t 4 0 1 43973333
+global t 5 0 1 43978CCD
+global t 0 1 1 4396599A
+global t 1 1 1 43705FA8
+global t 2 1 1 436E3836
+global t 3 1 1 436C1588
+global t 4 1 1 4369F79E
+global t 5 1 1 4398199A
+global t 0 2 1 4396E667
+global t 1 2 1 4397BD97
+global t 2 2 1 439818D0
+global t 3 2 1 4398740C
+global t 4 2 1 4398CF45
+global t 5 2 1 4398A667
+global t 0 3 1 43977333
+global t 1 3 1 43985190
+global t 2 3 1 4398AD0A
+global t 3 3 1 43990883
+global t 4 3 1 439963FB
+global t 5 3 1 43993333
+global t 0 4 1 43980000
+global t 1 4 1 43B83BC3
+global t 2 4 1 43BA1C34
+global t 3 4 1 43BBFA15
+global t 4 4 1 43BDD563
+global t 5 4 1 4399C000
+global t 0 5 1 43988CCD
+global t 1 5 1 4398E667
+global t 2 5 1 43994000
+global t 3 5 1 4399999A
+global t 4 5 1 4399F333
+global t 5 5 1 439A4CCD
+global t 0 0 2 4395999A
+global t 1 0 2 4395F334
+global t 2 0 2 43964CCD
+global t 3 0 2 4396A667
+global t 4 0 2 43970000
+global t 5 0 2 4397599A
+global t 0 1 2 43962667
+global t 1 1 2 437147C0
+global t 2 1 2 436F1A87
+global t 3 1 2 436CF218
+global t 4 1 2 436ACE70
+global t 5 1 2 4397E667
+global t 0 2 2 4396B334
+global t 1 2 2 43978A11
+global t 2 2 2 4397E54A
+global t 3 2 2 43984085
+global t 4 2 2 43989BBE
+global t 5 2 2 43987334
+global t 0 3 2 43974000
+global t 1 3 2 43981DF0
+global t 2 3 2 43987969
+global t 3 3 2 4398D4E2
+global t 4 3 2 4399305B
+global t 5 3 2 43990000
+global t 0 4 2 4397CCCD
+global t 1 4 2 43B754C9
+global t 2 4 2 43B93858
+global t 3 4 2 43BB1955
+global t 4 4 2 43BCF7BC
+global t 5 4 2 43998CCD
+global t 0 5 2 4398599A
+global t 1 5 2 4398B334
+global t 2 5 2 43990CCD
+global t 3 5 2 43996667
+global t 4 5 2 4399C000
+global t 5 5 2 439A199A
+global t 0 0 3 43956666
+global t 1 0 3 4395C000
+global t 2 0 3 43961999
+global t 3 0 3 43967333
+global t 4 0 3 4396CCCC
+global t 5 0 3 43972666
+global t 0 1 3 4395F333
+global t 1 1 3 43723497
+global t 2 1 3 43700195
+global t 3 1 3 436DD35E
+global t 4 1 3 436BA9F3
+global t 5 1 3 4397B333
+global t 0 2 3 43968000
+global t 1 2 3 4397568A
+global t 2 2 3 4397B1C3
+global t 3 2 3 43980CFE
+global t 4 2 3 43986837
+global t 5 2 3 43984000
+global t 0 3 3 43970CCC
+global t 1 3 3 4397EA4E
+global t 2 3 3 439845C8
+global t 3 3 3 4398A141
+global t 4 3 3 4398FCB9
+global t 5 3 3 4398CCCC
+global t 0 4 3 43979999
+global t 1 4 3 43B66B3C
+global t 2 4 3 43B851EB
+global t 3 4 3 43BA3606
+global t 4 4 3 43BC178A
+global t 5 4 3 43995999
+global t 0 5 3 43982666
+global t 1 5 3 43988000
+global t 2 5 3 4398D999
+global t 3 5 3 43993333
+global t 4 5 3 43998CCC
+global t 5 5 3 4399E666
+global t 0 0 4 43953333
+global t 1 0 4 43958CCD
+global t 2 0 4 4395E666
+global t 3 0 4 43964000
+global t 4 0 4 43969999
+global t 5 0 4 4396F333
+global t 0 1 4 4395C000
+global t 1 1 4 43732638
+global t 2 1 4 4370ED66
+global t 3 1 4 436EB965
+global t 4 1 4 436C8A32
+global t 5 1 4 43978000
+global t 0 2 4 43964CCD
+global t 1 2 4 43972305
+global t 2 2 4 43977E3E
+global t 3 2 4 4397D979
+global t 4 2 4 439834B1
+global t 5 2 4 43980CCD
+global t 0 3 4 4396D999
+global t 1 3 4 4397B6AE
+global t 2 3 4 43981227
+global t 3 3 4 43986DA1
+global t 4 3 4 4398C919
+global t 5 3 4 43989999
+global t 0 4 4 43976666
+global t 1 4 4 43B57F19
+global t 2 4 4 43B768EC
+global t 3 4 4 43B95028
+global t 4 4 4 43BB34CA
+global t 5 4 4 43992666
+global t 0 5 4 4397F333
+global t 1 5 4 43984CCD
+global t 2 5 4 4398A666
+global t 3 5 4 43990000
+global t 4 5 4 43995999
+global t 5 5 4 4399B333
+global t 0 0 5 43950000
+global t 1 0 5 4395599A
+global t 2 0 5 4395B333
+global t 3 0 5 43960CCD
+global t 4 0 5 43966666
+global t 5 0 5 4396C000
+global t 0 1 5 43958CCD
+global t 1 1 5 4395E667
+global t 2 1 5 43964000
+global t 3 1 5 4396999A
+global t 4 1 5 4396F333
+global t 5 1 5 43974CCD
+global t 0 2 5 4396199A
+global t 1 2 5 43967334
+global t 2 2 5 4396CCCD
+global t 3 2 5 43972667
+global t 4 2 5 43978000
+global t 5 2 5 4397D99A
+global t 0 3 5 4396A666
+global t 1 3 5 43970000
+global t 2 3 5 43975999
+global t 3 3 5 4397B333
+global t 4 3 5 43980CCC
+global t 5 3 5 43986666
+global t 0 4 5 43973333
+global t 1 4 5 43978CCD
+global t 2 4 5 4397E666
+global t 3 4 5 43984000
+global t 4 4 5 43989999
+global t 5 4 5 4398F333
+global t 0 5 5 4397C000
+global t 1 5 5 4398199A
+global t 2 5 5 43987333
+global t 3 5 5 4398CCCD
+global t 4 5 5 43992666
+global t 5 5 5 43998000
+global tave 0 0 0 C4614000
+global tave 1 0 0 C4614000
+global tave 2 0 0 C4614000
+global tave 3 0 0 C4614000
+global tave 4 0 0 C4614000
+global tave 5 0 0 C4614000
+global tave 0 1 0 C4614000
+global tave 1 1 0 C4614000
+global tave 2 1 0 C4614000
+global tave 3 1 0 C4614000
+global tave 4 1 0 C4614000
+global tave 5 1 0 C4614000
+global tave 0 2 0 C4614000
+global tave 1 2 0 C4614000
+global tave 2 2 0 C4614000
+global tave 3 2 0 C4614000
+global tave 4 2 0 C4614000
+global tave 5 2 0 C4614000
+global tave 0 3 0 C4614000
+global tave 1 3 0 C4614000
+global tave 2 3 0 C4614000
+global tave 3 3 0 C4614000
+global tave 4 3 0 C4614000
+global tave 5 3 0 C4614000
+global tave 0 4 0 C4614000
+global tave 1 4 0 C4614000
+global tave 2 4 0 C4614000
+global tave 3 4 0 C4614000
+global tave 4 4 0 C4614000
+global tave 5 4 0 C4614000
+global tave 0 5 0 C4614000
+global tave 1 5 0 C4614000
+global tave 2 5 0 C4614000
+global tave 3 5 0 C4614000
+global tave 4 5 0 C4614000
+global tave 5 5 0 C4614000
+global tave 0 0 1 C4614000
+global tave 1 0 1 C4614000
+global tave 2 0 1 C4614000
+global tave 3 0 1 C4614000
+global tave 4 0 1 C4614000
+global tave 5 0 1 C4614000
+global tave 0 1 1 C4614000
+global tave 1 1 1 4396B334
+global tave 2 1 1 43970CCD
+global tave 3 1 1 43976667
+global tave 4 1 1 4397C000
+global tave 5 1 1 C4614000
+global tave 0 2 1 C4614000
+global tave 1 2 1 43974001
+global tave 2 2 1 4397999A
+global tave 3 2 1 4397F334
+global tave 4 2 1 43984CCD
+global tave 5 2 1 C4614000
+global tave 0 3 1 C4614000
+global tave 1 3 1 4397CCCD
+global tave 2 3 1 43982666
+global tave 3 3 1 43988000
+global tave 4 3 1 4398D999
+global tave 5 3 1 C4614000
+global tave 0 4 1 C4614000
+global tave 1 4 1 4398599A
+global tave 2 4 1 4398B333
+global tave 3 4 1 43990CCD
+global tave 4 4 1 43996666
+global tave 5 4 1 C4614000
+global tave 0 5 1 C4614000
+global tave 1 5 1 C4614000
+global tave 2 5 1 C4614000
+global tave 3 5 1 C4614000
+global tave 4 5 1 C4614000
+global tave 5 5 1 C4614000
+global tave 0 0 2 C4614000
+global tave 1 0 2 C4614000
+global tave 2 0 2 C4614000
+global tave 3 0 2 C4614000
+global tave 4 0 2 C4614000
+global tave 5 0 2 C4614000
+global tave 0 1 2 C4614000
+global tave 1 1 2 43968001
+global tave 2 1 2 4396D99A
+global tave 3 1 2 43973334
+global tave 4 1 2 43978CCD
+global tave 5 1 2 C4614000
+global tave 0 2 2 C4614000
+global tave 1 2 2 43970CCE
+global tave 2 2 2 43976667
+global tave 3 2 2 4397C001
+global tave 4 2 2 4398199A
+global tave 5 2 2 C4614000
+global tave 0 3 2 C4614000
+global tave 1 3 2 4397999A
+global tave 2 3 2 4397F333
+global tave 3 3 2 43984CCD
+global tave 4 3 2 4398A666
+global tave 5 3 2 C4614000
+global tave 0 4 2 C4614000
+global tave 1 4 2 43982667
+global tave 2 4 2 43988000
+global tave 3 4 2 4398D99A
+global tave 4 4 2 43993333
+global tave 5 4 2 C4614000
+global tave 0 5 2 C4614000
+global tave 1 5 2 C4614000
+global tave 2 5 2 C4614000
+global tave 3 5 2 C4614000
+global tave 4 5 2 C4614000
+global tave 5 5 2 C4614000
+global tave 0 0 3 C4614000
+global tave 1 0 3 C4614000
+global tave 2 0 3 C4614000
+global tave 3 0 3 C4614000
+global tave 4 0 3 C4614000
+global tave 5 0 3 C4614000
+global tave 0 1 3 C4614000
+global tave 1 1 3 43964CCD
+global tave 2 1 3 4396A666
+global tave 3 1 3 43970000
+global tave 4 1 3 43975999
+global tave 5 1 3 C4614000
+global tave 0 2 3 C4614000
+global tave 1 2 3 4396D99A
+global tave 2 2 3 43973333
+global tave 3 2 3 43978CCD
+global tave 4 2 3 4397E666
+global tave 5 2 3 C4614000
+global tave 0 3 3 C4614000
+global tave 1 3 3 43976666
+global tave 2 3 3 4397BFFF
+global tave 3 3 3 43981999
+global tave 4 3 3 43987332
+global tave 5 3 3 C4614000
+global tave 0 4 3 C4614000
+global tave 1 4 3 4397F333
+global tave 2 4 3 43984CCC
+global tave 3 4 3 4398A666
+global tave 4 4 3 4398FFFF
+global tave 5 4 3 C4614000
+global tave 0 5 3 C4614000
+global tave 1 5 3 C4614000
+global tave 2 5 3 C4614000
+global tave 3 5 3 C4614000
+global tave 4 5 3 C4614000
+global tave 5 5 3 C4614000
+global tave 0 0 4 C4614000
+global tave 1 0 4 C4614000
+global tave 2 0 4 C4614000
+global tave 3 0 4 C4614000
+global tave 4 0 4 C4614000
+global tave 5 0 4 C4614000
+global tave 0 1 4 C4614000
+global tave 1 1 4 4396199A
+global tave 2 1 4 43967333
+global tave 3 1 4 4396CCCD
+global tave 4 1 4 43972666
+global tave 5 1 4 C4614000
+global tave 0 2 4 C4614000
+global tave 1 2 4 4396A667
+global tave 2 2 4 43970000
+global tave 3 2 4 4397599A
+global tave 4 2 4 4397B333
+global tave 5 2 4 C4614000
+global tave 0 3 4 C4614000
+global tave 1 3 4 43973333
+global tave 2 3 4 43978CCC
+global tave 3 3 4 4397E666
+global tave 4 3 4 43983FFF
+global tave 5 3 4 C4614000
+global tave 0 4 4 C4614000
+global tave 1 4 4 4397C000
+global tave 2 4 4 43981999
+global tave 3 4 4 43987333
+global tave 4 4 4 4398CCCC
+global tave 5 4 4 C4614000
+global tave 0 5 4 C4614000
+global tave 1 5 4 C4614000
+global tave 2 5 4 C4614000
+global tave 3 5 4 C4614000
+global tave 4 5 4 C4614000
+global tave 5 5 4 C4614000
+global tave 0 0 5 C4614000
+global tave 1 0 5 C4614000
+global tave 2 0 5 C4614000
+global tave 3 0 5 C4614000
+global tave 4 0 5 C4614000
+global tave 5 0 5 C4614000
+global tave 0 1 5 C4614000
+global tave 1 1 5 C4614000
+global tave 2 1 5 C4614000
+global tave 3 1 5 C4614000
+global tave 4 1 5 C4614000
+global tave 5 1 5 C4614000
+global tave 0 2 5 C4614000
+global tave 1 2 5 C4614000
+global tave 2 2 5 C4614000
+global tave 3 2 5 C4614000
+global tave 4 2 5 C4614000
+global tave 5 2 5 C4614000
+global tave 0 3 5 C4614000
+global tave 1 3 5 C4614000
+global tave 2 3 5 C4614000
+global tave 3 3 5 C4614000
+global tave 4 3 5 C4614000
+global tave 5 3 5 C4614000
+global tave 0 4 5 C4614000
+global tave 1 4 5 C4614000
+global tave 2 4 5 C4614000
+global tave 3 4 5 C4614000
+global tave 4 4 5 C4614000
+global tave 5 4 5 C4614000
+global tave 0 5 5 C4614000
+global tave 1 5 5 C4614000
+global tave 2 5 5 C4614000
+global tave 3 5 5 C4614000
+global tave 4 5 5 C4614000
+global tave 5 5 5 C4614000
+global mu 0 0 40000000
+global mu 1 0 40070A3D
+global mu 2 0 400E147B
+global mu 3 0 40151EB8
+global mu 4 0 401C28F6
+global mu 5 0 40233333
+global mu 0 1 400AE148
+global mu 1 1 4012B774
+global mu 2 1 4019CECD
+global mu 3 1 4020E624
+global mu 4 1 4027FD7D
+global mu 5 1 402E147B
+global mu 0 2 4015C28F
+global mu 1 2 401D9231
+global mu 2 2 4024A989
+global mu 3 2 402BC0E1
+global mu 4 2 4032D83A
+global mu 5 2 4038F5C2
+global mu 0 3 4020A3D7
+global mu 1 3 40286CEE
+global mu 2 3 402F8447
+global mu 3 3 40369B9F
+global mu 4 3 403DB2F8
+global mu 5 3 4043D70A
+global mu 0 4 402B851F
+global mu 1 4 403347AC
+global mu 2 4 403A5F05
+global mu 3 4 4041765D
+global mu 4 4 40488DB6
+global mu 5 4 404EB852
+global mu 0 5 40366666
+global mu 1 5 403D70A4
+global mu 2 5 40447AE2
+global mu 3 5 404B851E
+global mu 4 5 40528F5C
+global mu 5 5 4059999A
+global muave 0 0 C4618000
+global muave 1 0 C4618000
+global muave 2 0 C4618000
+global muave 3 0 C4618000
+global muave 4 0 C4618000
+global muave 5 0 C4618000
+global muave 0 1 C4618000
+global muave 1 1 40125BAE
+global muave 2 1 40196D22
+global muave 3 1 40207E94
+global muave 4 1 40279007
+global muave 5 1 C4618000
+global muave 0 2 C4618000
+global muave 1 2 401D395D
+global muave 2 2 40244AD0
+global muave 3 2 402B5C42
+global muave 4 2 40326DB5
+global muave 5 2 C4618000
+global muave 0 3 C4618000
+global muave 1 3 4028170C
+global muave 2 3 402F2880
+global muave 3 3 403639F1
+global muave 4 3 403D4B64
+global muave 5 3 C4618000
+global muave 0 4 C4618000
+global muave 1 4 4032F4BB
+global muave 2 4 403A062E
+global muave 3 4 404117A0
+global muave 4 4 40482914
+global muave 5 4 C4618000
+global muave 0 5 C4618000
+global muave 1 5 C4618000
+global muave 2 5 C4618000
+global muave 3 5 C4618000
+global muave 4 5 C4618000
+global muave 5 5 C4618000
+global muts 0 0 C461C000
+global muts 1 0 C461C000
+global muts 2 0 C461C000
+global muts 3 0 C461C000
+global muts 4 0 C461C000
+global muts 5 0 C461C000
+global muts 0 1 C461C000
+global muts 1 1 415551B4
+global muts 2 1 41592C05
+global muts 3 1 415D0656
+global muts 4 1 4160E0A7
+global muts 5 1 C461C000
+global muts 0 2 C461C000
+global muts 1 2 415697BF
+global muts 2 2 415A7210
+global muts 3 2 415E4C61
+global muts 4 2 416226B2
+global muts 5 2 C461C000
+global muts 0 3 C461C000
+global muts 1 3 4157DDCA
+global muts 2 3 415BB81C
+global muts 3 3 415F926D
+global muts 4 3 41636CBE
+global muts 5 3 C461C000
+global muts 0 4 C461C000
+global muts 1 4 415923D7
+global muts 2 4 415CFE28
+global muts 3 4 4160D879
+global muts 4 4 4164B2CA
+global muts 5 4 C461C000
+global muts 0 5 C461C000
+global muts 1 5 C461C000
+global muts 2 5 C461C000
+global muts 3 5 C461C000
+global muts 4 5 C461C000
+global muts 5 5 C461C000
+global mudf 0 0 C4620000
+global mudf 1 0 C4620000
+global mudf 2 0 C4620000
+global mudf 3 0 C4620000
+global mudf 4 0 C4620000
+global mudf 5 0 C4620000
+global mudf 0 1 C4620000
+global mudf 1 1 3CFEEA71
+global mudf 2 1 3D07A5F1
+global mudf 3 1 3D0FD6AB
+global mudf 4 1 3D180766
+global mudf 5 1 C4620000
+global mudf 0 2 C4620000
+global mudf 1 2 3CF6BDB8
+global mudf 2 2 3D038F94
+global mudf 3 2 3D0BC04D
+global mudf 4 2 3D13F108
+global mudf 5 2 C4620000
+global mudf 0 3 C4620000
+global mudf 1 3 3CEE9107
+global mudf 2 3 3CFEF276
+global mudf 3 3 3D07A9F4
+global mudf 4 3 3D0FDAAE
+global mudf 5 3 C4620000
+global mudf 0 4 C4620000
+global mudf 1 4 3CE6645E
+global mudf 2 4 3CF6C5CB
+global mudf 3 4 3D03939D
+global mudf 4 4 3D0BC457
+global mudf 5 4 C4620000
+global mudf 0 5 C4620000
+global mudf 1 5 C4620000
+global mudf 2 5 C4620000
+global mudf 3 5 C4620000
+global mudf 4 5 C4620000
+global mudf 5 5 C4620000
+nested ww 0 0 0 3F4CCCCD
+nested ww 1 0 0 3F51EB85
+nested ww 2 0 0 3F570A3E
+nested ww 3 0 0 3F5C28F6
+nested ww 4 0 0 3F6147AE
+nested ww 5 0 0 3F666666
+nested ww 0 1 0 3F547AE1
+nested ww 1 1 0 3F599999
+nested ww 2 1 0 3F5EB852
+nested ww 3 1 0 3F63D70A
+nested ww 4 1 0 3F68F5C2
+nested ww 5 1 0 3F6E147A
+nested ww 0 2 0 3F5C28F6
+nested ww 1 2 0 3F6147AE
+nested ww 2 2 0 3F666667
+nested ww 3 2 0 3F6B851F
+nested ww 4 2 0 3F70A3D7
+nested ww 5 2 0 3F75C28F
+nested ww 0 3 0 3F63D70A
+nested ww 1 3 0 3F68F5C2
+nested ww 2 3 0 3F6E147B
+nested ww 3 3 0 3F733333
+nested ww 4 3 0 3F7851EB
+nested ww 5 3 0 3F7D70A3
+nested ww 0 4 0 3F6B851F
+nested ww 1 4 0 3F70A3D7
+nested ww 2 4 0 3F75C290
+nested ww 3 4 0 3F7AE148
+nested ww 4 4 0 3F800000
+nested ww 5 4 0 3F828F5C
+nested ww 0 5 0 3F733333
+nested ww 1 5 0 3F7851EB
+nested ww 2 5 0 3F7D70A4
+nested ww 3 5 0 3F8147AE
+nested ww 4 5 0 3F83D70A
+nested ww 5 5 0 3F866666
+nested ww 0 0 1 3F4A3D71
+nested ww 1 0 1 3F4F5C29
+nested ww 2 0 1 3F547AE2
+nested ww 3 0 1 3F59999A
+nested ww 4 0 1 3F5EB852
+nested ww 5 0 1 3F63D70A
+nested ww 0 1 1 3F51EB85
+nested ww 1 1 1 3F570A3D
+nested ww 2 1 1 3F5C28F6
+nested ww 3 1 1 3F6147AE
+nested ww 4 1 1 3F666666
+nested ww 5 1 1 3F6B851E
+nested ww 0 2 1 3F59999A
+nested ww 1 2 1 3F5EB852
+nested ww 2 2 1 3F63D70B
+nested ww 3 2 1 3F68F5C3
+nested ww 4 2 1 3F6E147B
+nested ww 5 2 1 3F733333
+nested ww 0 3 1 3F6147AE
+nested ww 1 3 1 3F666666
+nested ww 2 3 1 3F6B851F
+nested ww 3 3 1 3F70A3D7
+nested ww 4 3 1 3F75C28F
+nested ww 5 3 1 3F7AE147
+nested ww 0 4 1 3F68F5C3
+nested ww 1 4 1 3F6E147B
+nested ww 2 4 1 3F733334
+nested ww 3 4 1 3F7851EC
+nested ww 4 4 1 3F7D70A4
+nested ww 5 4 1 3F8147AE
+nested ww 0 5 1 3F70A3D7
+nested ww 1 5 1 3F75C28F
+nested ww 2 5 1 3F7AE148
+nested ww 3 5 1 3F800000
+nested ww 4 5 1 3F828F5C
+nested ww 5 5 1 3F851EB8
+nested ww 0 0 2 3F47AE15
+nested ww 1 0 2 3F4CCCCD
+nested ww 2 0 2 3F51EB86
+nested ww 3 0 2 3F570A3E
+nested ww 4 0 2 3F5C28F6
+nested ww 5 0 2 3F6147AE
+nested ww 0 1 2 3F4F5C29
+nested ww 1 1 2 3F547AE1
+nested ww 2 1 2 3EFDF3B6
+nested ww 3 1 2 3F051EB8
+nested ww 4 1 2 3F63D70A
+nested ww 5 1 2 3F68F5C2
+nested ww 0 2 2 3F570A3E
+nested ww 1 2 2 3F5C28F6
+nested ww 2 2 2 3EF969BA
+nested ww 3 2 2 3F02CDBF
+nested ww 4 2 2 3F6B851F
+nested ww 5 2 2 3F70A3D7
+nested ww 0 3 2 3F5EB852
+nested ww 1 3 2 3F63D70A
+nested ww 2 3 2 3EF4C941
+nested ww 3 3 2 3F0070D0
+nested ww 4 3 2 3F733333
+nested ww 5 3 2 3F7851EB
+nested ww 0 4 2 3F666667
+nested ww 1 4 2 3F6B851F
+nested ww 2 4 2 3EF011B5
+nested ww 3 4 2 3EFC0F37
+nested ww 4 4 2 3F7AE148
+nested ww 5 4 2 3F800000
+nested ww 0 5 2 3F6E147B
+nested ww 1 5 2 3F733333
+nested ww 2 5 2 3F7851EC
+nested ww 3 5 2 3F7D70A4
+nested ww 4 5 2 3F8147AE
+nested ww 5 5 2 3F83D70A
+nested ww 0 0 3 3F451EB9
+nested ww 1 0 3 3F4A3D71
+nested ww 2 0 3 3F4F5C2A
+nested ww 3 0 3 3F547AE2
+nested ww 4 0 3 3F59999A
+nested ww 5 0 3 3F5EB852
+nested ww 0 1 3 3F4CCCCD
+nested ww 1 1 3 3F51EB85
+nested ww 2 1 3 3EF74BC7
+nested ww 3 1 3 3F01CAC0
+nested ww 4 1 3 3F6147AE
+nested ww 5 1 3 3F666666
+nested ww 0 2 3 3F547AE2
+nested ww 1 2 3 3F59999A
+nested ww 2 2 3 3EF2CEC3
+nested ww 3 2 3 3EFF00A9
+nested ww 4 2 3 3F68F5C3
+nested ww 5 2 3 3F6E147B
+nested ww 0 3 3 3F5C28F6
+nested ww 1 3 3 3F6147AE
+nested ww 2 3 3 3EEE3C0C
+nested ww 3 3 3 3EFA54B0
+nested ww 4 3 3 3F70A3D7
+nested ww 5 3 3 3F75C28F
+nested ww 0 4 3 3F63D70B
+nested ww 1 4 3 3F68F5C3
+nested ww 2 4 3 3EE9930C
+nested ww 3 4 3 3EF590F6
+nested ww 4 4 3 3F7851EC
+nested ww 5 4 3 3F7D70A4
+nested ww 0 5 3 3F6B851F
+nested ww 1 5 3 3F70A3D7
+nested ww 2 5 3 3F75C290
+nested ww 3 5 3 3F7AE148
+nested ww 4 5 3 3F800000
+nested ww 5 5 3 3F828F5C
+nested ww 0 0 4 3F428F5C
+nested ww 1 0 4 3F47AE14
+nested ww 2 0 4 3F4CCCCD
+nested ww 3 0 4 3F51EB85
+nested ww 4 0 4 3F570A3D
+nested ww 5 0 4 3F5C28F5
+nested ww 0 1 4 3F4A3D70
+nested ww 1 1 4 3F4F5C28
+nested ww 2 1 4 3F547AE1
+nested ww 3 1 4 3F599999
+nested ww 4 1 4 3F5EB851
+nested ww 5 1 4 3F63D709
+nested ww 0 2 4 3F51EB85
+nested ww 1 2 4 3F570A3D
+nested ww 2 2 4 3F5C28F6
+nested ww 3 2 4 3F6147AE
+nested ww 4 2 4 3F666666
+nested ww 5 2 4 3F6B851E
+nested ww 0 3 4 3F599999
+nested ww 1 3 4 3F5EB851
+nested ww 2 3 4 3F63D70A
+nested ww 3 3 4 3F68F5C2
+nested ww 4 3 4 3F6E147A
+nested ww 5 3 4 3F733332
+nested ww 0 4 4 3F6147AE
+nested ww 1 4 4 3F666666
+nested ww 2 4 4 3F6B851F
+nested ww 3 4 4 3F70A3D7
+nested ww 4 4 4 3F75C28F
+nested ww 5 4 4 3F7AE147
+nested ww 0 5 4 3F68F5C2
+nested ww 1 5 4 3F6E147A
+nested ww 2 5 4 3F733333
+nested ww 3 5 4 3F7851EB
+nested ww 4 5 4 3F7D70A3
+nested ww 5 5 4 3F8147AE
+nested ww 0 0 5 3F400000
+nested ww 1 0 5 3F451EB8
+nested ww 2 0 5 3F4A3D71
+nested ww 3 0 5 3F4F5C29
+nested ww 4 0 5 3F547AE1
+nested ww 5 0 5 3F599999
+nested ww 0 1 5 3F47AE14
+nested ww 1 1 5 3F4CCCCC
+nested ww 2 1 5 3F51EB85
+nested ww 3 1 5 3F570A3D
+nested ww 4 1 5 3F5C28F5
+nested ww 5 1 5 3F6147AD
+nested ww 0 2 5 3F4F5C29
+nested ww 1 2 5 3F547AE1
+nested ww 2 2 5 3F59999A
+nested ww 3 2 5 3F5EB852
+nested ww 4 2 5 3F63D70A
+nested ww 5 2 5 3F68F5C2
+nested ww 0 3 5 3F570A3D
+nested ww 1 3 5 3F5C28F5
+nested ww 2 3 5 3F6147AE
+nested ww 3 3 5 3F666666
+nested ww 4 3 5 3F6B851E
+nested ww 5 3 5 3F70A3D6
+nested ww 0 4 5 3F5EB852
+nested ww 1 4 5 3F63D70A
+nested ww 2 4 5 3F68F5C3
+nested ww 3 4 5 3F6E147B
+nested ww 4 4 5 3F733333
+nested ww 5 4 5 3F7851EB
+nested ww 0 5 5 3F666666
+nested ww 1 5 5 3F6B851E
+nested ww 2 5 5 3F70A3D7
+nested ww 3 5 5 3F75C28F
+nested ww 4 5 5 3F7AE147
+nested ww 5 5 5 3F7FFFFF
+nested t 0 0 0 43960000
+nested t 1 0 0 4396599A
+nested t 2 0 0 4396B333
+nested t 3 0 0 43970CCD
+nested t 4 0 0 43976666
+nested t 5 0 0 4397C000
+nested t 0 1 0 43968CCD
+nested t 1 1 0 4396E667
+nested t 2 1 0 43974000
+nested t 3 1 0 4397999A
+nested t 4 1 0 4397F333
+nested t 5 1 0 43984CCD
+nested t 0 2 0 4397199A
+nested t 1 2 0 43977334
+nested t 2 2 0 4397CCCD
+nested t 3 2 0 43982667
+nested t 4 2 0 43988000
+nested t 5 2 0 4398D99A
+nested t 0 3 0 4397A666
+nested t 1 3 0 43980000
+nested t 2 3 0 43985999
+nested t 3 3 0 4398B333
+nested t 4 3 0 43990CCC
+nested t 5 3 0 43996666
+nested t 0 4 0 43983333
+nested t 1 4 0 43988CCD
+nested t 2 4 0 4398E666
+nested t 3 4 0 43994000
+nested t 4 4 0 43999999
+nested t 5 4 0 4399F333
+nested t 0 5 0 4398C000
+nested t 1 5 0 4399199A
+nested t 2 5 0 43997333
+nested t 3 5 0 4399CCCD
+nested t 4 5 0 439A2666
+nested t 5 5 0 439A8000
+nested t 0 0 1 4395CCCD
+nested t 1 0 1 43962667
+nested t 2 0 1 43968000
+nested t 3 0 1 4396D99A
+nested t 4 0 1 43973333
+nested t 5 0 1 43978CCD
+nested t 0 1 1 4396599A
+nested t 1 1 1 4396B334
+nested t 2 1 1 43970CCD
+nested t 3 1 1 43976667
+nested t 4 1 1 4397C000
+nested t 5 1 1 4398199A
+nested t 0 2 1 4396E667
+nested t 1 2 1 43974001
+nested t 2 2 1 4397999A
+nested t 3 2 1 4397F334
+nested t 4 2 1 43984CCD
+nested t 5 2 1 4398A667
+nested t 0 3 1 43977333
+nested t 1 3 1 4397CCCD
+nested t 2 3 1 43982666
+nested t 3 3 1 43988000
+nested t 4 3 1 4398D999
+nested t 5 3 1 43993333
+nested t 0 4 1 43980000
+nested t 1 4 1 4398599A
+nested t 2 4 1 4398B333
+nested t 3 4 1 43990CCD
+nested t 4 4 1 43996666
+nested t 5 4 1 4399C000
+nested t 0 5 1 43988CCD
+nested t 1 5 1 4398E667
+nested t 2 5 1 43994000
+nested t 3 5 1 4399999A
+nested t 4 5 1 4399F333
+nested t 5 5 1 439A4CCD
+nested t 0 0 2 4395999A
+nested t 1 0 2 4395F334
+nested t 2 0 2 43964CCD
+nested t 3 0 2 4396A667
+nested t 4 0 2 43970000
+nested t 5 0 2 4397599A
+nested t 0 1 2 43962667
+nested t 1 1 2 43968001
+nested t 2 1 2 436F1A87
+nested t 3 1 2 436CF218
+nested t 4 1 2 43978CCD
+nested t 5 1 2 4397E667
+nested t 0 2 2 4396B334
+nested t 1 2 2 43970CCE
+nested t 2 2 2 4397E54A
+nested t 3 2 2 43984085
+nested t 4 2 2 4398199A
+nested t 5 2 2 43987334
+nested t 0 3 2 43974000
+nested t 1 3 2 4397999A
+nested t 2 3 2 43987969
+nested t 3 3 2 4398D4E2
+nested t 4 3 2 4398A666
+nested t 5 3 2 43990000
+nested t 0 4 2 4397CCCD
+nested t 1 4 2 43982667
+nested t 2 4 2 43B93858
+nested t 3 4 2 43BB1955
+nested t 4 4 2 43993333
+nested t 5 4 2 43998CCD
+nested t 0 5 2 4398599A
+nested t 1 5 2 4398B334
+nested t 2 5 2 43990CCD
+nested t 3 5 2 43996667
+nested t 4 5 2 4399C000
+nested t 5 5 2 439A199A
+nested t 0 0 3 43956666
+nested t 1 0 3 4395C000
+nested t 2 0 3 43961999
+nested t 3 0 3 43967333
+nested t 4 0 3 4396CCCC
+nested t 5 0 3 43972666
+nested t 0 1 3 4395F333
+nested t 1 1 3 43964CCD
+nested t 2 1 3 43700195
+nested t 3 1 3 436DD35E
+nested t 4 1 3 43975999
+nested t 5 1 3 4397B333
+nested t 0 2 3 43968000
+nested t 1 2 3 4396D99A
+nested t 2 2 3 4397B1C3
+nested t 3 2 3 43980CFE
+nested t 4 2 3 4397E666
+nested t 5 2 3 43984000
+nested t 0 3 3 43970CCC
+nested t 1 3 3 43976666
+nested t 2 3 3 439845C8
+nested t 3 3 3 4398A141
+nested t 4 3 3 43987332
+nested t 5 3 3 4398CCCC
+nested t 0 4 3 43979999
+nested t 1 4 3 4397F333
+nested t 2 4 3 43B851EB
+nested t 3 4 3 43BA3606
+nested t 4 4 3 4398FFFF
+nested t 5 4 3 43995999
+nested t 0 5 3 43982666
+nested t 1 5 3 43988000
+nested t 2 5 3 4398D999
+nested t 3 5 3 43993333
+nested t 4 5 3 43998CCC
+nested t 5 5 3 4399E666
+nested t 0 0 4 43953333
+nested t 1 0 4 43958CCD
+nested t 2 0 4 4395E666
+nested t 3 0 4 43964000
+nested t 4 0 4 43969999
+nested t 5 0 4 4396F333
+nested t 0 1 4 4395C000
+nested t 1 1 4 4396199A
+nested t 2 1 4 43967333
+nested t 3 1 4 4396CCCD
+nested t 4 1 4 43972666
+nested t 5 1 4 43978000
+nested t 0 2 4 43964CCD
+nested t 1 2 4 4396A667
+nested t 2 2 4 43970000
+nested t 3 2 4 4397599A
+nested t 4 2 4 4397B333
+nested t 5 2 4 43980CCD
+nested t 0 3 4 4396D999
+nested t 1 3 4 43973333
+nested t 2 3 4 43978CCC
+nested t 3 3 4 4397E666
+nested t 4 3 4 43983FFF
+nested t 5 3 4 43989999
+nested t 0 4 4 43976666
+nested t 1 4 4 4397C000
+nested t 2 4 4 43981999
+nested t 3 4 4 43987333
+nested t 4 4 4 4398CCCC
+nested t 5 4 4 43992666
+nested t 0 5 4 4397F333
+nested t 1 5 4 43984CCD
+nested t 2 5 4 4398A666
+nested t 3 5 4 43990000
+nested t 4 5 4 43995999
+nested t 5 5 4 4399B333
+nested t 0 0 5 43950000
+nested t 1 0 5 4395599A
+nested t 2 0 5 4395B333
+nested t 3 0 5 43960CCD
+nested t 4 0 5 43966666
+nested t 5 0 5 4396C000
+nested t 0 1 5 43958CCD
+nested t 1 1 5 4395E667
+nested t 2 1 5 43964000
+nested t 3 1 5 4396999A
+nested t 4 1 5 4396F333
+nested t 5 1 5 43974CCD
+nested t 0 2 5 4396199A
+nested t 1 2 5 43967334
+nested t 2 2 5 4396CCCD
+nested t 3 2 5 43972667
+nested t 4 2 5 43978000
+nested t 5 2 5 4397D99A
+nested t 0 3 5 4396A666
+nested t 1 3 5 43970000
+nested t 2 3 5 43975999
+nested t 3 3 5 4397B333
+nested t 4 3 5 43980CCC
+nested t 5 3 5 43986666
+nested t 0 4 5 43973333
+nested t 1 4 5 43978CCD
+nested t 2 4 5 4397E666
+nested t 3 4 5 43984000
+nested t 4 4 5 43989999
+nested t 5 4 5 4398F333
+nested t 0 5 5 4397C000
+nested t 1 5 5 4398199A
+nested t 2 5 5 43987333
+nested t 3 5 5 4398CCCD
+nested t 4 5 5 43992666
+nested t 5 5 5 43998000
+nested tave 0 0 0 C4614000
+nested tave 1 0 0 C4614000
+nested tave 2 0 0 C4614000
+nested tave 3 0 0 C4614000
+nested tave 4 0 0 C4614000
+nested tave 5 0 0 C4614000
+nested tave 0 1 0 C4614000
+nested tave 1 1 0 C4614000
+nested tave 2 1 0 C4614000
+nested tave 3 1 0 C4614000
+nested tave 4 1 0 C4614000
+nested tave 5 1 0 C4614000
+nested tave 0 2 0 C4614000
+nested tave 1 2 0 C4614000
+nested tave 2 2 0 C4614000
+nested tave 3 2 0 C4614000
+nested tave 4 2 0 C4614000
+nested tave 5 2 0 C4614000
+nested tave 0 3 0 C4614000
+nested tave 1 3 0 C4614000
+nested tave 2 3 0 C4614000
+nested tave 3 3 0 C4614000
+nested tave 4 3 0 C4614000
+nested tave 5 3 0 C4614000
+nested tave 0 4 0 C4614000
+nested tave 1 4 0 C4614000
+nested tave 2 4 0 C4614000
+nested tave 3 4 0 C4614000
+nested tave 4 4 0 C4614000
+nested tave 5 4 0 C4614000
+nested tave 0 5 0 C4614000
+nested tave 1 5 0 C4614000
+nested tave 2 5 0 C4614000
+nested tave 3 5 0 C4614000
+nested tave 4 5 0 C4614000
+nested tave 5 5 0 C4614000
+nested tave 0 0 1 C4614000
+nested tave 1 0 1 C4614000
+nested tave 2 0 1 C4614000
+nested tave 3 0 1 C4614000
+nested tave 4 0 1 C4614000
+nested tave 5 0 1 C4614000
+nested tave 0 1 1 C4614000
+nested tave 1 1 1 C4614000
+nested tave 2 1 1 C4614000
+nested tave 3 1 1 C4614000
+nested tave 4 1 1 C4614000
+nested tave 5 1 1 C4614000
+nested tave 0 2 1 C4614000
+nested tave 1 2 1 C4614000
+nested tave 2 2 1 C4614000
+nested tave 3 2 1 C4614000
+nested tave 4 2 1 C4614000
+nested tave 5 2 1 C4614000
+nested tave 0 3 1 C4614000
+nested tave 1 3 1 C4614000
+nested tave 2 3 1 C4614000
+nested tave 3 3 1 C4614000
+nested tave 4 3 1 C4614000
+nested tave 5 3 1 C4614000
+nested tave 0 4 1 C4614000
+nested tave 1 4 1 C4614000
+nested tave 2 4 1 C4614000
+nested tave 3 4 1 C4614000
+nested tave 4 4 1 C4614000
+nested tave 5 4 1 C4614000
+nested tave 0 5 1 C4614000
+nested tave 1 5 1 C4614000
+nested tave 2 5 1 C4614000
+nested tave 3 5 1 C4614000
+nested tave 4 5 1 C4614000
+nested tave 5 5 1 C4614000
+nested tave 0 0 2 C4614000
+nested tave 1 0 2 C4614000
+nested tave 2 0 2 C4614000
+nested tave 3 0 2 C4614000
+nested tave 4 0 2 C4614000
+nested tave 5 0 2 C4614000
+nested tave 0 1 2 C4614000
+nested tave 1 1 2 C4614000
+nested tave 2 1 2 4396D99A
+nested tave 3 1 2 43973334
+nested tave 4 1 2 C4614000
+nested tave 5 1 2 C4614000
+nested tave 0 2 2 C4614000
+nested tave 1 2 2 C4614000
+nested tave 2 2 2 43976667
+nested tave 3 2 2 4397C001
+nested tave 4 2 2 C4614000
+nested tave 5 2 2 C4614000
+nested tave 0 3 2 C4614000
+nested tave 1 3 2 C4614000
+nested tave 2 3 2 4397F333
+nested tave 3 3 2 43984CCD
+nested tave 4 3 2 C4614000
+nested tave 5 3 2 C4614000
+nested tave 0 4 2 C4614000
+nested tave 1 4 2 C4614000
+nested tave 2 4 2 43988000
+nested tave 3 4 2 4398D99A
+nested tave 4 4 2 C4614000
+nested tave 5 4 2 C4614000
+nested tave 0 5 2 C4614000
+nested tave 1 5 2 C4614000
+nested tave 2 5 2 C4614000
+nested tave 3 5 2 C4614000
+nested tave 4 5 2 C4614000
+nested tave 5 5 2 C4614000
+nested tave 0 0 3 C4614000
+nested tave 1 0 3 C4614000
+nested tave 2 0 3 C4614000
+nested tave 3 0 3 C4614000
+nested tave 4 0 3 C4614000
+nested tave 5 0 3 C4614000
+nested tave 0 1 3 C4614000
+nested tave 1 1 3 C4614000
+nested tave 2 1 3 4396A666
+nested tave 3 1 3 43970000
+nested tave 4 1 3 C4614000
+nested tave 5 1 3 C4614000
+nested tave 0 2 3 C4614000
+nested tave 1 2 3 C4614000
+nested tave 2 2 3 43973333
+nested tave 3 2 3 43978CCD
+nested tave 4 2 3 C4614000
+nested tave 5 2 3 C4614000
+nested tave 0 3 3 C4614000
+nested tave 1 3 3 C4614000
+nested tave 2 3 3 4397BFFF
+nested tave 3 3 3 43981999
+nested tave 4 3 3 C4614000
+nested tave 5 3 3 C4614000
+nested tave 0 4 3 C4614000
+nested tave 1 4 3 C4614000
+nested tave 2 4 3 43984CCC
+nested tave 3 4 3 4398A666
+nested tave 4 4 3 C4614000
+nested tave 5 4 3 C4614000
+nested tave 0 5 3 C4614000
+nested tave 1 5 3 C4614000
+nested tave 2 5 3 C4614000
+nested tave 3 5 3 C4614000
+nested tave 4 5 3 C4614000
+nested tave 5 5 3 C4614000
+nested tave 0 0 4 C4614000
+nested tave 1 0 4 C4614000
+nested tave 2 0 4 C4614000
+nested tave 3 0 4 C4614000
+nested tave 4 0 4 C4614000
+nested tave 5 0 4 C4614000
+nested tave 0 1 4 C4614000
+nested tave 1 1 4 C4614000
+nested tave 2 1 4 C4614000
+nested tave 3 1 4 C4614000
+nested tave 4 1 4 C4614000
+nested tave 5 1 4 C4614000
+nested tave 0 2 4 C4614000
+nested tave 1 2 4 C4614000
+nested tave 2 2 4 C4614000
+nested tave 3 2 4 C4614000
+nested tave 4 2 4 C4614000
+nested tave 5 2 4 C4614000
+nested tave 0 3 4 C4614000
+nested tave 1 3 4 C4614000
+nested tave 2 3 4 C4614000
+nested tave 3 3 4 C4614000
+nested tave 4 3 4 C4614000
+nested tave 5 3 4 C4614000
+nested tave 0 4 4 C4614000
+nested tave 1 4 4 C4614000
+nested tave 2 4 4 C4614000
+nested tave 3 4 4 C4614000
+nested tave 4 4 4 C4614000
+nested tave 5 4 4 C4614000
+nested tave 0 5 4 C4614000
+nested tave 1 5 4 C4614000
+nested tave 2 5 4 C4614000
+nested tave 3 5 4 C4614000
+nested tave 4 5 4 C4614000
+nested tave 5 5 4 C4614000
+nested tave 0 0 5 C4614000
+nested tave 1 0 5 C4614000
+nested tave 2 0 5 C4614000
+nested tave 3 0 5 C4614000
+nested tave 4 0 5 C4614000
+nested tave 5 0 5 C4614000
+nested tave 0 1 5 C4614000
+nested tave 1 1 5 C4614000
+nested tave 2 1 5 C4614000
+nested tave 3 1 5 C4614000
+nested tave 4 1 5 C4614000
+nested tave 5 1 5 C4614000
+nested tave 0 2 5 C4614000
+nested tave 1 2 5 C4614000
+nested tave 2 2 5 C4614000
+nested tave 3 2 5 C4614000
+nested tave 4 2 5 C4614000
+nested tave 5 2 5 C4614000
+nested tave 0 3 5 C4614000
+nested tave 1 3 5 C4614000
+nested tave 2 3 5 C4614000
+nested tave 3 3 5 C4614000
+nested tave 4 3 5 C4614000
+nested tave 5 3 5 C4614000
+nested tave 0 4 5 C4614000
+nested tave 1 4 5 C4614000
+nested tave 2 4 5 C4614000
+nested tave 3 4 5 C4614000
+nested tave 4 4 5 C4614000
+nested tave 5 4 5 C4614000
+nested tave 0 5 5 C4614000
+nested tave 1 5 5 C4614000
+nested tave 2 5 5 C4614000
+nested tave 3 5 5 C4614000
+nested tave 4 5 5 C4614000
+nested tave 5 5 5 C4614000
+nested mu 0 0 40000000
+nested mu 1 0 40070A3D
+nested mu 2 0 400E147B
+nested mu 3 0 40151EB8
+nested mu 4 0 401C28F6
+nested mu 5 0 40233333
+nested mu 0 1 400AE148
+nested mu 1 1 4011EB85
+nested mu 2 1 4018F5C3
+nested mu 3 1 40200000
+nested mu 4 1 40270A3E
+nested mu 5 1 402E147B
+nested mu 0 2 4015C28F
+nested mu 1 2 401CCCCC
+nested mu 2 2 4024A989
+nested mu 3 2 402BC0E1
+nested mu 4 2 4031EB85
+nested mu 5 2 4038F5C2
+nested mu 0 3 4020A3D7
+nested mu 1 3 4027AE14
+nested mu 2 3 402F8447
+nested mu 3 3 40369B9F
+nested mu 4 3 403CCCCD
+nested mu 5 3 4043D70A
+nested mu 0 4 402B851F
+nested mu 1 4 40328F5C
+nested mu 2 4 4039999A
+nested mu 3 4 4040A3D7
+nested mu 4 4 4047AE15
+nested mu 5 4 404EB852
+nested mu 0 5 40366666
+nested mu 1 5 403D70A4
+nested mu 2 5 40447AE2
+nested mu 3 5 404B851E
+nested mu 4 5 40528F5C
+nested mu 5 5 4059999A
+nested muave 0 0 C4618000
+nested muave 1 0 C4618000
+nested muave 2 0 C4618000
+nested muave 3 0 C4618000
+nested muave 4 0 C4618000
+nested muave 5 0 C4618000
+nested muave 0 1 C4618000
+nested muave 1 1 C4618000
+nested muave 2 1 C4618000
+nested muave 3 1 C4618000
+nested muave 4 1 C4618000
+nested muave 5 1 C4618000
+nested muave 0 2 C4618000
+nested muave 1 2 C4618000
+nested muave 2 2 40244AD0
+nested muave 3 2 402B5C42
+nested muave 4 2 C4618000
+nested muave 5 2 C4618000
+nested muave 0 3 C4618000
+nested muave 1 3 C4618000
+nested muave 2 3 402F2880
+nested muave 3 3 403639F1
+nested muave 4 3 C4618000
+nested muave 5 3 C4618000
+nested muave 0 4 C4618000
+nested muave 1 4 C4618000
+nested muave 2 4 C4618000
+nested muave 3 4 C4618000
+nested muave 4 4 C4618000
+nested muave 5 4 C4618000
+nested muave 0 5 C4618000
+nested muave 1 5 C4618000
+nested muave 2 5 C4618000
+nested muave 3 5 C4618000
+nested muave 4 5 C4618000
+nested muave 5 5 C4618000
+nested muts 0 0 C461C000
+nested muts 1 0 C461C000
+nested muts 2 0 C461C000
+nested muts 3 0 C461C000
+nested muts 4 0 C461C000
+nested muts 5 0 C461C000
+nested muts 0 1 C461C000
+nested muts 1 1 C461C000
+nested muts 2 1 C461C000
+nested muts 3 1 C461C000
+nested muts 4 1 C461C000
+nested muts 5 1 C461C000
+nested muts 0 2 C461C000
+nested muts 1 2 C461C000
+nested muts 2 2 415A7210
+nested muts 3 2 415E4C61
+nested muts 4 2 C461C000
+nested muts 5 2 C461C000
+nested muts 0 3 C461C000
+nested muts 1 3 C461C000
+nested muts 2 3 415BB81C
+nested muts 3 3 415F926D
+nested muts 4 3 C461C000
+nested muts 5 3 C461C000
+nested muts 0 4 C461C000
+nested muts 1 4 C461C000
+nested muts 2 4 C461C000
+nested muts 3 4 C461C000
+nested muts 4 4 C461C000
+nested muts 5 4 C461C000
+nested muts 0 5 C461C000
+nested muts 1 5 C461C000
+nested muts 2 5 C461C000
+nested muts 3 5 C461C000
+nested muts 4 5 C461C000
+nested muts 5 5 C461C000
+nested mudf 0 0 C4620000
+nested mudf 1 0 C4620000
+nested mudf 2 0 C4620000
+nested mudf 3 0 C4620000
+nested mudf 4 0 C4620000
+nested mudf 5 0 C4620000
+nested mudf 0 1 C4620000
+nested mudf 1 1 C4620000
+nested mudf 2 1 C4620000
+nested mudf 3 1 C4620000
+nested mudf 4 1 C4620000
+nested mudf 5 1 C4620000
+nested mudf 0 2 C4620000
+nested mudf 1 2 C4620000
+nested mudf 2 2 3D038F94
+nested mudf 3 2 3D0BC04D
+nested mudf 4 2 C4620000
+nested mudf 5 2 C4620000
+nested mudf 0 3 C4620000
+nested mudf 1 3 C4620000
+nested mudf 2 3 3CFEF276
+nested mudf 3 3 3D07A9F4
+nested mudf 4 3 C4620000
+nested mudf 5 3 C4620000
+nested mudf 0 4 C4620000
+nested mudf 1 4 C4620000
+nested mudf 2 4 C4620000
+nested mudf 3 4 C4620000
+nested mudf 4 4 C4620000
+nested mudf 5 4 C4620000
+nested mudf 0 5 C4620000
+nested mudf 1 5 C4620000
+nested mudf 2 5 C4620000
+nested mudf 3 5 C4620000
+nested mudf 4 5 C4620000
+nested mudf 5 5 C4620000
+nested_periodic ww 0 0 0 3F4CCCCD
+nested_periodic ww 1 0 0 3F51EB85
+nested_periodic ww 2 0 0 3F570A3E
+nested_periodic ww 3 0 0 3F5C28F6
+nested_periodic ww 4 0 0 3F6147AE
+nested_periodic ww 5 0 0 3F666666
+nested_periodic ww 0 1 0 3F547AE1
+nested_periodic ww 1 1 0 3F599999
+nested_periodic ww 2 1 0 3F5EB852
+nested_periodic ww 3 1 0 3F63D70A
+nested_periodic ww 4 1 0 3F68F5C2
+nested_periodic ww 5 1 0 3F6E147A
+nested_periodic ww 0 2 0 3F5C28F6
+nested_periodic ww 1 2 0 3F6147AE
+nested_periodic ww 2 2 0 3F666667
+nested_periodic ww 3 2 0 3F6B851F
+nested_periodic ww 4 2 0 3F70A3D7
+nested_periodic ww 5 2 0 3F75C28F
+nested_periodic ww 0 3 0 3F63D70A
+nested_periodic ww 1 3 0 3F68F5C2
+nested_periodic ww 2 3 0 3F6E147B
+nested_periodic ww 3 3 0 3F733333
+nested_periodic ww 4 3 0 3F7851EB
+nested_periodic ww 5 3 0 3F7D70A3
+nested_periodic ww 0 4 0 3F6B851F
+nested_periodic ww 1 4 0 3F70A3D7
+nested_periodic ww 2 4 0 3F75C290
+nested_periodic ww 3 4 0 3F7AE148
+nested_periodic ww 4 4 0 3F800000
+nested_periodic ww 5 4 0 3F828F5C
+nested_periodic ww 0 5 0 3F733333
+nested_periodic ww 1 5 0 3F7851EB
+nested_periodic ww 2 5 0 3F7D70A4
+nested_periodic ww 3 5 0 3F8147AE
+nested_periodic ww 4 5 0 3F83D70A
+nested_periodic ww 5 5 0 3F866666
+nested_periodic ww 0 0 1 3F4A3D71
+nested_periodic ww 1 0 1 3F4F5C29
+nested_periodic ww 2 0 1 3F547AE2
+nested_periodic ww 3 0 1 3F59999A
+nested_periodic ww 4 0 1 3F5EB852
+nested_periodic ww 5 0 1 3F63D70A
+nested_periodic ww 0 1 1 3F51EB85
+nested_periodic ww 1 1 1 3F570A3D
+nested_periodic ww 2 1 1 3F5C28F6
+nested_periodic ww 3 1 1 3F6147AE
+nested_periodic ww 4 1 1 3F666666
+nested_periodic ww 5 1 1 3F6B851E
+nested_periodic ww 0 2 1 3F59999A
+nested_periodic ww 1 2 1 3F5EB852
+nested_periodic ww 2 2 1 3F63D70B
+nested_periodic ww 3 2 1 3F68F5C3
+nested_periodic ww 4 2 1 3F6E147B
+nested_periodic ww 5 2 1 3F733333
+nested_periodic ww 0 3 1 3F6147AE
+nested_periodic ww 1 3 1 3F666666
+nested_periodic ww 2 3 1 3F6B851F
+nested_periodic ww 3 3 1 3F70A3D7
+nested_periodic ww 4 3 1 3F75C28F
+nested_periodic ww 5 3 1 3F7AE147
+nested_periodic ww 0 4 1 3F68F5C3
+nested_periodic ww 1 4 1 3F6E147B
+nested_periodic ww 2 4 1 3F733334
+nested_periodic ww 3 4 1 3F7851EC
+nested_periodic ww 4 4 1 3F7D70A4
+nested_periodic ww 5 4 1 3F8147AE
+nested_periodic ww 0 5 1 3F70A3D7
+nested_periodic ww 1 5 1 3F75C28F
+nested_periodic ww 2 5 1 3F7AE148
+nested_periodic ww 3 5 1 3F800000
+nested_periodic ww 4 5 1 3F828F5C
+nested_periodic ww 5 5 1 3F851EB8
+nested_periodic ww 0 0 2 3F47AE15
+nested_periodic ww 1 0 2 3F4CCCCD
+nested_periodic ww 2 0 2 3F51EB86
+nested_periodic ww 3 0 2 3F570A3E
+nested_periodic ww 4 0 2 3F5C28F6
+nested_periodic ww 5 0 2 3F6147AE
+nested_periodic ww 0 1 2 3F4F5C29
+nested_periodic ww 1 1 2 3EF1A9FB
+nested_periodic ww 2 1 2 3EFDF3B6
+nested_periodic ww 3 1 2 3F051EB8
+nested_periodic ww 4 1 2 3F0B4395
+nested_periodic ww 5 1 2 3F68F5C2
+nested_periodic ww 0 2 2 3F570A3E
+nested_periodic ww 1 2 2 3EED37D9
+nested_periodic ww 2 2 2 3EF969BA
+nested_periodic ww 3 2 2 3F02CDBF
+nested_periodic ww 4 2 2 3F08E695
+nested_periodic ww 5 2 2 3F70A3D7
+nested_periodic ww 0 3 2 3F5EB852
+nested_periodic ww 1 3 2 3EE8B0AA
+nested_periodic ww 2 3 2 3EF4C941
+nested_periodic ww 3 3 2 3F0070D0
+nested_periodic ww 4 3 2 3F067CE8
+nested_periodic ww 5 3 2 3F7851EB
+nested_periodic ww 0 4 2 3F666667
+nested_periodic ww 1 4 2 3EE413DE
+nested_periodic ww 2 4 2 3EF011B5
+nested_periodic ww 3 4 2 3EFC0F37
+nested_periodic ww 4 4 2 3F040634
+nested_periodic ww 5 4 2 3F800000
+nested_periodic ww 0 5 2 3F6E147B
+nested_periodic ww 1 5 2 3F733333
+nested_periodic ww 2 5 2 3F7851EC
+nested_periodic ww 3 5 2 3F7D70A4
+nested_periodic ww 4 5 2 3F8147AE
+nested_periodic ww 5 5 2 3F83D70A
+nested_periodic ww 0 0 3 3F451EB9
+nested_periodic ww 1 0 3 3F4A3D71
+nested_periodic ww 2 0 3 3F4F5C2A
+nested_periodic ww 3 0 3 3F547AE2
+nested_periodic ww 4 0 3 3F59999A
+nested_periodic ww 5 0 3 3F5EB852
+nested_periodic ww 0 1 3 3F4CCCCD
+nested_periodic ww 1 1 3 3EEB020C
+nested_periodic ww 2 1 3 3EF74BC7
+nested_periodic ww 3 1 3 3F01CAC0
+nested_periodic ww 4 1 3 3F07EF9E
+nested_periodic ww 5 1 3 3F666666
+nested_periodic ww 0 2 3 3F547AE2
+nested_periodic ww 1 2 3 3EE69CC4
+nested_periodic ww 2 2 3 3EF2CEC3
+nested_periodic ww 3 2 3 3EFF00A9
+nested_periodic ww 4 2 3 3F05993A
+nested_periodic ww 5 2 3 3F6E147B
+nested_periodic ww 0 3 3 3F5C28F6
+nested_periodic ww 1 3 3 3EE22335
+nested_periodic ww 2 3 3 3EEE3C0C
+nested_periodic ww 3 3 3 3EFA54B0
+nested_periodic ww 4 3 3 3F03368F
+nested_periodic ww 5 3 3 3F75C28F
+nested_periodic ww 0 4 3 3F63D70B
+nested_periodic ww 1 4 3 3EDD94D3
+nested_periodic ww 2 4 3 3EE9930C
+nested_periodic ww 3 4 3 3EF590F6
+nested_periodic ww 4 4 3 3F00C747
+nested_periodic ww 5 4 3 3F7D70A4
+nested_periodic ww 0 5 3 3F6B851F
+nested_periodic ww 1 5 3 3F70A3D7
+nested_periodic ww 2 5 3 3F75C290
+nested_periodic ww 3 5 3 3F7AE148
+nested_periodic ww 4 5 3 3F800000
+nested_periodic ww 5 5 3 3F828F5C
+nested_periodic ww 0 0 4 3F428F5C
+nested_periodic ww 1 0 4 3F47AE14
+nested_periodic ww 2 0 4 3F4CCCCD
+nested_periodic ww 3 0 4 3F51EB85
+nested_periodic ww 4 0 4 3F570A3D
+nested_periodic ww 5 0 4 3F5C28F5
+nested_periodic ww 0 1 4 3F4A3D70
+nested_periodic ww 1 1 4 3F4F5C28
+nested_periodic ww 2 1 4 3F547AE1
+nested_periodic ww 3 1 4 3F599999
+nested_periodic ww 4 1 4 3F5EB851
+nested_periodic ww 5 1 4 3F63D709
+nested_periodic ww 0 2 4 3F51EB85
+nested_periodic ww 1 2 4 3F570A3D
+nested_periodic ww 2 2 4 3F5C28F6
+nested_periodic ww 3 2 4 3F6147AE
+nested_periodic ww 4 2 4 3F666666
+nested_periodic ww 5 2 4 3F6B851E
+nested_periodic ww 0 3 4 3F599999
+nested_periodic ww 1 3 4 3F5EB851
+nested_periodic ww 2 3 4 3F63D70A
+nested_periodic ww 3 3 4 3F68F5C2
+nested_periodic ww 4 3 4 3F6E147A
+nested_periodic ww 5 3 4 3F733332
+nested_periodic ww 0 4 4 3F6147AE
+nested_periodic ww 1 4 4 3F666666
+nested_periodic ww 2 4 4 3F6B851F
+nested_periodic ww 3 4 4 3F70A3D7
+nested_periodic ww 4 4 4 3F75C28F
+nested_periodic ww 5 4 4 3F7AE147
+nested_periodic ww 0 5 4 3F68F5C2
+nested_periodic ww 1 5 4 3F6E147A
+nested_periodic ww 2 5 4 3F733333
+nested_periodic ww 3 5 4 3F7851EB
+nested_periodic ww 4 5 4 3F7D70A3
+nested_periodic ww 5 5 4 3F8147AE
+nested_periodic ww 0 0 5 3F400000
+nested_periodic ww 1 0 5 3F451EB8
+nested_periodic ww 2 0 5 3F4A3D71
+nested_periodic ww 3 0 5 3F4F5C29
+nested_periodic ww 4 0 5 3F547AE1
+nested_periodic ww 5 0 5 3F599999
+nested_periodic ww 0 1 5 3F47AE14
+nested_periodic ww 1 1 5 3F4CCCCC
+nested_periodic ww 2 1 5 3F51EB85
+nested_periodic ww 3 1 5 3F570A3D
+nested_periodic ww 4 1 5 3F5C28F5
+nested_periodic ww 5 1 5 3F6147AD
+nested_periodic ww 0 2 5 3F4F5C29
+nested_periodic ww 1 2 5 3F547AE1
+nested_periodic ww 2 2 5 3F59999A
+nested_periodic ww 3 2 5 3F5EB852
+nested_periodic ww 4 2 5 3F63D70A
+nested_periodic ww 5 2 5 3F68F5C2
+nested_periodic ww 0 3 5 3F570A3D
+nested_periodic ww 1 3 5 3F5C28F5
+nested_periodic ww 2 3 5 3F6147AE
+nested_periodic ww 3 3 5 3F666666
+nested_periodic ww 4 3 5 3F6B851E
+nested_periodic ww 5 3 5 3F70A3D6
+nested_periodic ww 0 4 5 3F5EB852
+nested_periodic ww 1 4 5 3F63D70A
+nested_periodic ww 2 4 5 3F68F5C3
+nested_periodic ww 3 4 5 3F6E147B
+nested_periodic ww 4 4 5 3F733333
+nested_periodic ww 5 4 5 3F7851EB
+nested_periodic ww 0 5 5 3F666666
+nested_periodic ww 1 5 5 3F6B851E
+nested_periodic ww 2 5 5 3F70A3D7
+nested_periodic ww 3 5 5 3F75C28F
+nested_periodic ww 4 5 5 3F7AE147
+nested_periodic ww 5 5 5 3F7FFFFF
+nested_periodic t 0 0 0 43960000
+nested_periodic t 1 0 0 4396599A
+nested_periodic t 2 0 0 4396B333
+nested_periodic t 3 0 0 43970CCD
+nested_periodic t 4 0 0 43976666
+nested_periodic t 5 0 0 4397C000
+nested_periodic t 0 1 0 43968CCD
+nested_periodic t 1 1 0 4396E667
+nested_periodic t 2 1 0 43974000
+nested_periodic t 3 1 0 4397999A
+nested_periodic t 4 1 0 4397F333
+nested_periodic t 5 1 0 43984CCD
+nested_periodic t 0 2 0 4397199A
+nested_periodic t 1 2 0 43977334
+nested_periodic t 2 2 0 4397CCCD
+nested_periodic t 3 2 0 43982667
+nested_periodic t 4 2 0 43988000
+nested_periodic t 5 2 0 4398D99A
+nested_periodic t 0 3 0 4397A666
+nested_periodic t 1 3 0 43980000
+nested_periodic t 2 3 0 43985999
+nested_periodic t 3 3 0 4398B333
+nested_periodic t 4 3 0 43990CCC
+nested_periodic t 5 3 0 43996666
+nested_periodic t 0 4 0 43983333
+nested_periodic t 1 4 0 43988CCD
+nested_periodic t 2 4 0 4398E666
+nested_periodic t 3 4 0 43994000
+nested_periodic t 4 4 0 43999999
+nested_periodic t 5 4 0 4399F333
+nested_periodic t 0 5 0 4398C000
+nested_periodic t 1 5 0 4399199A
+nested_periodic t 2 5 0 43997333
+nested_periodic t 3 5 0 4399CCCD
+nested_periodic t 4 5 0 439A2666
+nested_periodic t 5 5 0 439A8000
+nested_periodic t 0 0 1 4395CCCD
+nested_periodic t 1 0 1 43962667
+nested_periodic t 2 0 1 43968000
+nested_periodic t 3 0 1 4396D99A
+nested_periodic t 4 0 1 43973333
+nested_periodic t 5 0 1 43978CCD
+nested_periodic t 0 1 1 4396599A
+nested_periodic t 1 1 1 4396B334
+nested_periodic t 2 1 1 43970CCD
+nested_periodic t 3 1 1 43976667
+nested_periodic t 4 1 1 4397C000
+nested_periodic t 5 1 1 4398199A
+nested_periodic t 0 2 1 4396E667
+nested_periodic t 1 2 1 43974001
+nested_periodic t 2 2 1 4397999A
+nested_periodic t 3 2 1 4397F334
+nested_periodic t 4 2 1 43984CCD
+nested_periodic t 5 2 1 4398A667
+nested_periodic t 0 3 1 43977333
+nested_periodic t 1 3 1 4397CCCD
+nested_periodic t 2 3 1 43982666
+nested_periodic t 3 3 1 43988000
+nested_periodic t 4 3 1 4398D999
+nested_periodic t 5 3 1 43993333
+nested_periodic t 0 4 1 43980000
+nested_periodic t 1 4 1 4398599A
+nested_periodic t 2 4 1 4398B333
+nested_periodic t 3 4 1 43990CCD
+nested_periodic t 4 4 1 43996666
+nested_periodic t 5 4 1 4399C000
+nested_periodic t 0 5 1 43988CCD
+nested_periodic t 1 5 1 4398E667
+nested_periodic t 2 5 1 43994000
+nested_periodic t 3 5 1 4399999A
+nested_periodic t 4 5 1 4399F333
+nested_periodic t 5 5 1 439A4CCD
+nested_periodic t 0 0 2 4395999A
+nested_periodic t 1 0 2 4395F334
+nested_periodic t 2 0 2 43964CCD
+nested_periodic t 3 0 2 4396A667
+nested_periodic t 4 0 2 43970000
+nested_periodic t 5 0 2 4397599A
+nested_periodic t 0 1 2 43962667
+nested_periodic t 1 1 2 437147C0
+nested_periodic t 2 1 2 436F1A87
+nested_periodic t 3 1 2 436CF218
+nested_periodic t 4 1 2 436ACE70
+nested_periodic t 5 1 2 4397E667
+nested_periodic t 0 2 2 4396B334
+nested_periodic t 1 2 2 43978A11
+nested_periodic t 2 2 2 4397E54A
+nested_periodic t 3 2 2 43984085
+nested_periodic t 4 2 2 43989BBE
+nested_periodic t 5 2 2 43987334
+nested_periodic t 0 3 2 43974000
+nested_periodic t 1 3 2 43981DF0
+nested_periodic t 2 3 2 43987969
+nested_periodic t 3 3 2 4398D4E2
+nested_periodic t 4 3 2 4399305B
+nested_periodic t 5 3 2 43990000
+nested_periodic t 0 4 2 4397CCCD
+nested_periodic t 1 4 2 43B754C9
+nested_periodic t 2 4 2 43B93858
+nested_periodic t 3 4 2 43BB1955
+nested_periodic t 4 4 2 43BCF7BC
+nested_periodic t 5 4 2 43998CCD
+nested_periodic t 0 5 2 4398599A
+nested_periodic t 1 5 2 4398B334
+nested_periodic t 2 5 2 43990CCD
+nested_periodic t 3 5 2 43996667
+nested_periodic t 4 5 2 4399C000
+nested_periodic t 5 5 2 439A199A
+nested_periodic t 0 0 3 43956666
+nested_periodic t 1 0 3 4395C000
+nested_periodic t 2 0 3 43961999
+nested_periodic t 3 0 3 43967333
+nested_periodic t 4 0 3 4396CCCC
+nested_periodic t 5 0 3 43972666
+nested_periodic t 0 1 3 4395F333
+nested_periodic t 1 1 3 43723497
+nested_periodic t 2 1 3 43700195
+nested_periodic t 3 1 3 436DD35E
+nested_periodic t 4 1 3 436BA9F3
+nested_periodic t 5 1 3 4397B333
+nested_periodic t 0 2 3 43968000
+nested_periodic t 1 2 3 4397568A
+nested_periodic t 2 2 3 4397B1C3
+nested_periodic t 3 2 3 43980CFE
+nested_periodic t 4 2 3 43986837
+nested_periodic t 5 2 3 43984000
+nested_periodic t 0 3 3 43970CCC
+nested_periodic t 1 3 3 4397EA4E
+nested_periodic t 2 3 3 439845C8
+nested_periodic t 3 3 3 4398A141
+nested_periodic t 4 3 3 4398FCB9
+nested_periodic t 5 3 3 4398CCCC
+nested_periodic t 0 4 3 43979999
+nested_periodic t 1 4 3 43B66B3C
+nested_periodic t 2 4 3 43B851EB
+nested_periodic t 3 4 3 43BA3606
+nested_periodic t 4 4 3 43BC178A
+nested_periodic t 5 4 3 43995999
+nested_periodic t 0 5 3 43982666
+nested_periodic t 1 5 3 43988000
+nested_periodic t 2 5 3 4398D999
+nested_periodic t 3 5 3 43993333
+nested_periodic t 4 5 3 43998CCC
+nested_periodic t 5 5 3 4399E666
+nested_periodic t 0 0 4 43953333
+nested_periodic t 1 0 4 43958CCD
+nested_periodic t 2 0 4 4395E666
+nested_periodic t 3 0 4 43964000
+nested_periodic t 4 0 4 43969999
+nested_periodic t 5 0 4 4396F333
+nested_periodic t 0 1 4 4395C000
+nested_periodic t 1 1 4 4396199A
+nested_periodic t 2 1 4 43967333
+nested_periodic t 3 1 4 4396CCCD
+nested_periodic t 4 1 4 43972666
+nested_periodic t 5 1 4 43978000
+nested_periodic t 0 2 4 43964CCD
+nested_periodic t 1 2 4 4396A667
+nested_periodic t 2 2 4 43970000
+nested_periodic t 3 2 4 4397599A
+nested_periodic t 4 2 4 4397B333
+nested_periodic t 5 2 4 43980CCD
+nested_periodic t 0 3 4 4396D999
+nested_periodic t 1 3 4 43973333
+nested_periodic t 2 3 4 43978CCC
+nested_periodic t 3 3 4 4397E666
+nested_periodic t 4 3 4 43983FFF
+nested_periodic t 5 3 4 43989999
+nested_periodic t 0 4 4 43976666
+nested_periodic t 1 4 4 4397C000
+nested_periodic t 2 4 4 43981999
+nested_periodic t 3 4 4 43987333
+nested_periodic t 4 4 4 4398CCCC
+nested_periodic t 5 4 4 43992666
+nested_periodic t 0 5 4 4397F333
+nested_periodic t 1 5 4 43984CCD
+nested_periodic t 2 5 4 4398A666
+nested_periodic t 3 5 4 43990000
+nested_periodic t 4 5 4 43995999
+nested_periodic t 5 5 4 4399B333
+nested_periodic t 0 0 5 43950000
+nested_periodic t 1 0 5 4395599A
+nested_periodic t 2 0 5 4395B333
+nested_periodic t 3 0 5 43960CCD
+nested_periodic t 4 0 5 43966666
+nested_periodic t 5 0 5 4396C000
+nested_periodic t 0 1 5 43958CCD
+nested_periodic t 1 1 5 4395E667
+nested_periodic t 2 1 5 43964000
+nested_periodic t 3 1 5 4396999A
+nested_periodic t 4 1 5 4396F333
+nested_periodic t 5 1 5 43974CCD
+nested_periodic t 0 2 5 4396199A
+nested_periodic t 1 2 5 43967334
+nested_periodic t 2 2 5 4396CCCD
+nested_periodic t 3 2 5 43972667
+nested_periodic t 4 2 5 43978000
+nested_periodic t 5 2 5 4397D99A
+nested_periodic t 0 3 5 4396A666
+nested_periodic t 1 3 5 43970000
+nested_periodic t 2 3 5 43975999
+nested_periodic t 3 3 5 4397B333
+nested_periodic t 4 3 5 43980CCC
+nested_periodic t 5 3 5 43986666
+nested_periodic t 0 4 5 43973333
+nested_periodic t 1 4 5 43978CCD
+nested_periodic t 2 4 5 4397E666
+nested_periodic t 3 4 5 43984000
+nested_periodic t 4 4 5 43989999
+nested_periodic t 5 4 5 4398F333
+nested_periodic t 0 5 5 4397C000
+nested_periodic t 1 5 5 4398199A
+nested_periodic t 2 5 5 43987333
+nested_periodic t 3 5 5 4398CCCD
+nested_periodic t 4 5 5 43992666
+nested_periodic t 5 5 5 43998000
+nested_periodic tave 0 0 0 C4614000
+nested_periodic tave 1 0 0 C4614000
+nested_periodic tave 2 0 0 C4614000
+nested_periodic tave 3 0 0 C4614000
+nested_periodic tave 4 0 0 C4614000
+nested_periodic tave 5 0 0 C4614000
+nested_periodic tave 0 1 0 C4614000
+nested_periodic tave 1 1 0 C4614000
+nested_periodic tave 2 1 0 C4614000
+nested_periodic tave 3 1 0 C4614000
+nested_periodic tave 4 1 0 C4614000
+nested_periodic tave 5 1 0 C4614000
+nested_periodic tave 0 2 0 C4614000
+nested_periodic tave 1 2 0 C4614000
+nested_periodic tave 2 2 0 C4614000
+nested_periodic tave 3 2 0 C4614000
+nested_periodic tave 4 2 0 C4614000
+nested_periodic tave 5 2 0 C4614000
+nested_periodic tave 0 3 0 C4614000
+nested_periodic tave 1 3 0 C4614000
+nested_periodic tave 2 3 0 C4614000
+nested_periodic tave 3 3 0 C4614000
+nested_periodic tave 4 3 0 C4614000
+nested_periodic tave 5 3 0 C4614000
+nested_periodic tave 0 4 0 C4614000
+nested_periodic tave 1 4 0 C4614000
+nested_periodic tave 2 4 0 C4614000
+nested_periodic tave 3 4 0 C4614000
+nested_periodic tave 4 4 0 C4614000
+nested_periodic tave 5 4 0 C4614000
+nested_periodic tave 0 5 0 C4614000
+nested_periodic tave 1 5 0 C4614000
+nested_periodic tave 2 5 0 C4614000
+nested_periodic tave 3 5 0 C4614000
+nested_periodic tave 4 5 0 C4614000
+nested_periodic tave 5 5 0 C4614000
+nested_periodic tave 0 0 1 C4614000
+nested_periodic tave 1 0 1 C4614000
+nested_periodic tave 2 0 1 C4614000
+nested_periodic tave 3 0 1 C4614000
+nested_periodic tave 4 0 1 C4614000
+nested_periodic tave 5 0 1 C4614000
+nested_periodic tave 0 1 1 C4614000
+nested_periodic tave 1 1 1 C4614000
+nested_periodic tave 2 1 1 C4614000
+nested_periodic tave 3 1 1 C4614000
+nested_periodic tave 4 1 1 C4614000
+nested_periodic tave 5 1 1 C4614000
+nested_periodic tave 0 2 1 C4614000
+nested_periodic tave 1 2 1 C4614000
+nested_periodic tave 2 2 1 C4614000
+nested_periodic tave 3 2 1 C4614000
+nested_periodic tave 4 2 1 C4614000
+nested_periodic tave 5 2 1 C4614000
+nested_periodic tave 0 3 1 C4614000
+nested_periodic tave 1 3 1 C4614000
+nested_periodic tave 2 3 1 C4614000
+nested_periodic tave 3 3 1 C4614000
+nested_periodic tave 4 3 1 C4614000
+nested_periodic tave 5 3 1 C4614000
+nested_periodic tave 0 4 1 C4614000
+nested_periodic tave 1 4 1 C4614000
+nested_periodic tave 2 4 1 C4614000
+nested_periodic tave 3 4 1 C4614000
+nested_periodic tave 4 4 1 C4614000
+nested_periodic tave 5 4 1 C4614000
+nested_periodic tave 0 5 1 C4614000
+nested_periodic tave 1 5 1 C4614000
+nested_periodic tave 2 5 1 C4614000
+nested_periodic tave 3 5 1 C4614000
+nested_periodic tave 4 5 1 C4614000
+nested_periodic tave 5 5 1 C4614000
+nested_periodic tave 0 0 2 C4614000
+nested_periodic tave 1 0 2 C4614000
+nested_periodic tave 2 0 2 C4614000
+nested_periodic tave 3 0 2 C4614000
+nested_periodic tave 4 0 2 C4614000
+nested_periodic tave 5 0 2 C4614000
+nested_periodic tave 0 1 2 C4614000
+nested_periodic tave 1 1 2 43968001
+nested_periodic tave 2 1 2 4396D99A
+nested_periodic tave 3 1 2 43973334
+nested_periodic tave 4 1 2 43978CCD
+nested_periodic tave 5 1 2 C4614000
+nested_periodic tave 0 2 2 C4614000
+nested_periodic tave 1 2 2 43970CCE
+nested_periodic tave 2 2 2 43976667
+nested_periodic tave 3 2 2 4397C001
+nested_periodic tave 4 2 2 4398199A
+nested_periodic tave 5 2 2 C4614000
+nested_periodic tave 0 3 2 C4614000
+nested_periodic tave 1 3 2 4397999A
+nested_periodic tave 2 3 2 4397F333
+nested_periodic tave 3 3 2 43984CCD
+nested_periodic tave 4 3 2 4398A666
+nested_periodic tave 5 3 2 C4614000
+nested_periodic tave 0 4 2 C4614000
+nested_periodic tave 1 4 2 43982667
+nested_periodic tave 2 4 2 43988000
+nested_periodic tave 3 4 2 4398D99A
+nested_periodic tave 4 4 2 43993333
+nested_periodic tave 5 4 2 C4614000
+nested_periodic tave 0 5 2 C4614000
+nested_periodic tave 1 5 2 C4614000
+nested_periodic tave 2 5 2 C4614000
+nested_periodic tave 3 5 2 C4614000
+nested_periodic tave 4 5 2 C4614000
+nested_periodic tave 5 5 2 C4614000
+nested_periodic tave 0 0 3 C4614000
+nested_periodic tave 1 0 3 C4614000
+nested_periodic tave 2 0 3 C4614000
+nested_periodic tave 3 0 3 C4614000
+nested_periodic tave 4 0 3 C4614000
+nested_periodic tave 5 0 3 C4614000
+nested_periodic tave 0 1 3 C4614000
+nested_periodic tave 1 1 3 43964CCD
+nested_periodic tave 2 1 3 4396A666
+nested_periodic tave 3 1 3 43970000
+nested_periodic tave 4 1 3 43975999
+nested_periodic tave 5 1 3 C4614000
+nested_periodic tave 0 2 3 C4614000
+nested_periodic tave 1 2 3 4396D99A
+nested_periodic tave 2 2 3 43973333
+nested_periodic tave 3 2 3 43978CCD
+nested_periodic tave 4 2 3 4397E666
+nested_periodic tave 5 2 3 C4614000
+nested_periodic tave 0 3 3 C4614000
+nested_periodic tave 1 3 3 43976666
+nested_periodic tave 2 3 3 4397BFFF
+nested_periodic tave 3 3 3 43981999
+nested_periodic tave 4 3 3 43987332
+nested_periodic tave 5 3 3 C4614000
+nested_periodic tave 0 4 3 C4614000
+nested_periodic tave 1 4 3 4397F333
+nested_periodic tave 2 4 3 43984CCC
+nested_periodic tave 3 4 3 4398A666
+nested_periodic tave 4 4 3 4398FFFF
+nested_periodic tave 5 4 3 C4614000
+nested_periodic tave 0 5 3 C4614000
+nested_periodic tave 1 5 3 C4614000
+nested_periodic tave 2 5 3 C4614000
+nested_periodic tave 3 5 3 C4614000
+nested_periodic tave 4 5 3 C4614000
+nested_periodic tave 5 5 3 C4614000
+nested_periodic tave 0 0 4 C4614000
+nested_periodic tave 1 0 4 C4614000
+nested_periodic tave 2 0 4 C4614000
+nested_periodic tave 3 0 4 C4614000
+nested_periodic tave 4 0 4 C4614000
+nested_periodic tave 5 0 4 C4614000
+nested_periodic tave 0 1 4 C4614000
+nested_periodic tave 1 1 4 C4614000
+nested_periodic tave 2 1 4 C4614000
+nested_periodic tave 3 1 4 C4614000
+nested_periodic tave 4 1 4 C4614000
+nested_periodic tave 5 1 4 C4614000
+nested_periodic tave 0 2 4 C4614000
+nested_periodic tave 1 2 4 C4614000
+nested_periodic tave 2 2 4 C4614000
+nested_periodic tave 3 2 4 C4614000
+nested_periodic tave 4 2 4 C4614000
+nested_periodic tave 5 2 4 C4614000
+nested_periodic tave 0 3 4 C4614000
+nested_periodic tave 1 3 4 C4614000
+nested_periodic tave 2 3 4 C4614000
+nested_periodic tave 3 3 4 C4614000
+nested_periodic tave 4 3 4 C4614000
+nested_periodic tave 5 3 4 C4614000
+nested_periodic tave 0 4 4 C4614000
+nested_periodic tave 1 4 4 C4614000
+nested_periodic tave 2 4 4 C4614000
+nested_periodic tave 3 4 4 C4614000
+nested_periodic tave 4 4 4 C4614000
+nested_periodic tave 5 4 4 C4614000
+nested_periodic tave 0 5 4 C4614000
+nested_periodic tave 1 5 4 C4614000
+nested_periodic tave 2 5 4 C4614000
+nested_periodic tave 3 5 4 C4614000
+nested_periodic tave 4 5 4 C4614000
+nested_periodic tave 5 5 4 C4614000
+nested_periodic tave 0 0 5 C4614000
+nested_periodic tave 1 0 5 C4614000
+nested_periodic tave 2 0 5 C4614000
+nested_periodic tave 3 0 5 C4614000
+nested_periodic tave 4 0 5 C4614000
+nested_periodic tave 5 0 5 C4614000
+nested_periodic tave 0 1 5 C4614000
+nested_periodic tave 1 1 5 C4614000
+nested_periodic tave 2 1 5 C4614000
+nested_periodic tave 3 1 5 C4614000
+nested_periodic tave 4 1 5 C4614000
+nested_periodic tave 5 1 5 C4614000
+nested_periodic tave 0 2 5 C4614000
+nested_periodic tave 1 2 5 C4614000
+nested_periodic tave 2 2 5 C4614000
+nested_periodic tave 3 2 5 C4614000
+nested_periodic tave 4 2 5 C4614000
+nested_periodic tave 5 2 5 C4614000
+nested_periodic tave 0 3 5 C4614000
+nested_periodic tave 1 3 5 C4614000
+nested_periodic tave 2 3 5 C4614000
+nested_periodic tave 3 3 5 C4614000
+nested_periodic tave 4 3 5 C4614000
+nested_periodic tave 5 3 5 C4614000
+nested_periodic tave 0 4 5 C4614000
+nested_periodic tave 1 4 5 C4614000
+nested_periodic tave 2 4 5 C4614000
+nested_periodic tave 3 4 5 C4614000
+nested_periodic tave 4 4 5 C4614000
+nested_periodic tave 5 4 5 C4614000
+nested_periodic tave 0 5 5 C4614000
+nested_periodic tave 1 5 5 C4614000
+nested_periodic tave 2 5 5 C4614000
+nested_periodic tave 3 5 5 C4614000
+nested_periodic tave 4 5 5 C4614000
+nested_periodic tave 5 5 5 C4614000
+nested_periodic mu 0 0 40000000
+nested_periodic mu 1 0 40070A3D
+nested_periodic mu 2 0 400E147B
+nested_periodic mu 3 0 40151EB8
+nested_periodic mu 4 0 401C28F6
+nested_periodic mu 5 0 40233333
+nested_periodic mu 0 1 400AE148
+nested_periodic mu 1 1 4011EB85
+nested_periodic mu 2 1 4018F5C3
+nested_periodic mu 3 1 40200000
+nested_periodic mu 4 1 40270A3E
+nested_periodic mu 5 1 402E147B
+nested_periodic mu 0 2 4015C28F
+nested_periodic mu 1 2 401D9231
+nested_periodic mu 2 2 4024A989
+nested_periodic mu 3 2 402BC0E1
+nested_periodic mu 4 2 4032D83A
+nested_periodic mu 5 2 4038F5C2
+nested_periodic mu 0 3 4020A3D7
+nested_periodic mu 1 3 40286CEE
+nested_periodic mu 2 3 402F8447
+nested_periodic mu 3 3 40369B9F
+nested_periodic mu 4 3 403DB2F8
+nested_periodic mu 5 3 4043D70A
+nested_periodic mu 0 4 402B851F
+nested_periodic mu 1 4 40328F5C
+nested_periodic mu 2 4 4039999A
+nested_periodic mu 3 4 4040A3D7
+nested_periodic mu 4 4 4047AE15
+nested_periodic mu 5 4 404EB852
+nested_periodic mu 0 5 40366666
+nested_periodic mu 1 5 403D70A4
+nested_periodic mu 2 5 40447AE2
+nested_periodic mu 3 5 404B851E
+nested_periodic mu 4 5 40528F5C
+nested_periodic mu 5 5 4059999A
+nested_periodic muave 0 0 C4618000
+nested_periodic muave 1 0 C4618000
+nested_periodic muave 2 0 C4618000
+nested_periodic muave 3 0 C4618000
+nested_periodic muave 4 0 C4618000
+nested_periodic muave 5 0 C4618000
+nested_periodic muave 0 1 C4618000
+nested_periodic muave 1 1 C4618000
+nested_periodic muave 2 1 C4618000
+nested_periodic muave 3 1 C4618000
+nested_periodic muave 4 1 C4618000
+nested_periodic muave 5 1 C4618000
+nested_periodic muave 0 2 C4618000
+nested_periodic muave 1 2 401D395D
+nested_periodic muave 2 2 40244AD0
+nested_periodic muave 3 2 402B5C42
+nested_periodic muave 4 2 40326DB5
+nested_periodic muave 5 2 C4618000
+nested_periodic muave 0 3 C4618000
+nested_periodic muave 1 3 4028170C
+nested_periodic muave 2 3 402F2880
+nested_periodic muave 3 3 403639F1
+nested_periodic muave 4 3 403D4B64
+nested_periodic muave 5 3 C4618000
+nested_periodic muave 0 4 C4618000
+nested_periodic muave 1 4 C4618000
+nested_periodic muave 2 4 C4618000
+nested_periodic muave 3 4 C4618000
+nested_periodic muave 4 4 C4618000
+nested_periodic muave 5 4 C4618000
+nested_periodic muave 0 5 C4618000
+nested_periodic muave 1 5 C4618000
+nested_periodic muave 2 5 C4618000
+nested_periodic muave 3 5 C4618000
+nested_periodic muave 4 5 C4618000
+nested_periodic muave 5 5 C4618000
+nested_periodic muts 0 0 C461C000
+nested_periodic muts 1 0 C461C000
+nested_periodic muts 2 0 C461C000
+nested_periodic muts 3 0 C461C000
+nested_periodic muts 4 0 C461C000
+nested_periodic muts 5 0 C461C000
+nested_periodic muts 0 1 C461C000
+nested_periodic muts 1 1 C461C000
+nested_periodic muts 2 1 C461C000
+nested_periodic muts 3 1 C461C000
+nested_periodic muts 4 1 C461C000
+nested_periodic muts 5 1 C461C000
+nested_periodic muts 0 2 C461C000
+nested_periodic muts 1 2 415697BF
+nested_periodic muts 2 2 415A7210
+nested_periodic muts 3 2 415E4C61
+nested_periodic muts 4 2 416226B2
+nested_periodic muts 5 2 C461C000
+nested_periodic muts 0 3 C461C000
+nested_periodic muts 1 3 4157DDCA
+nested_periodic muts 2 3 415BB81C
+nested_periodic muts 3 3 415F926D
+nested_periodic muts 4 3 41636CBE
+nested_periodic muts 5 3 C461C000
+nested_periodic muts 0 4 C461C000
+nested_periodic muts 1 4 C461C000
+nested_periodic muts 2 4 C461C000
+nested_periodic muts 3 4 C461C000
+nested_periodic muts 4 4 C461C000
+nested_periodic muts 5 4 C461C000
+nested_periodic muts 0 5 C461C000
+nested_periodic muts 1 5 C461C000
+nested_periodic muts 2 5 C461C000
+nested_periodic muts 3 5 C461C000
+nested_periodic muts 4 5 C461C000
+nested_periodic muts 5 5 C461C000
+nested_periodic mudf 0 0 C4620000
+nested_periodic mudf 1 0 C4620000
+nested_periodic mudf 2 0 C4620000
+nested_periodic mudf 3 0 C4620000
+nested_periodic mudf 4 0 C4620000
+nested_periodic mudf 5 0 C4620000
+nested_periodic mudf 0 1 C4620000
+nested_periodic mudf 1 1 C4620000
+nested_periodic mudf 2 1 C4620000
+nested_periodic mudf 3 1 C4620000
+nested_periodic mudf 4 1 C4620000
+nested_periodic mudf 5 1 C4620000
+nested_periodic mudf 0 2 C4620000
+nested_periodic mudf 1 2 3CF6BDB8
+nested_periodic mudf 2 2 3D038F94
+nested_periodic mudf 3 2 3D0BC04D
+nested_periodic mudf 4 2 3D13F108
+nested_periodic mudf 5 2 C4620000
+nested_periodic mudf 0 3 C4620000
+nested_periodic mudf 1 3 3CEE9107
+nested_periodic mudf 2 3 3CFEF276
+nested_periodic mudf 3 3 3D07A9F4
+nested_periodic mudf 4 3 3D0FDAAE
+nested_periodic mudf 5 3 C4620000
+nested_periodic mudf 0 4 C4620000
+nested_periodic mudf 1 4 C4620000
+nested_periodic mudf 2 4 C4620000
+nested_periodic mudf 3 4 C4620000
+nested_periodic mudf 4 4 C4620000
+nested_periodic mudf 5 4 C4620000
+nested_periodic mudf 0 5 C4620000
+nested_periodic mudf 1 5 C4620000
+nested_periodic mudf 2 5 C4620000
+nested_periodic mudf 3 5 C4620000
+nested_periodic mudf 4 5 C4620000
+nested_periodic mudf 5 5 C4620000
+partial ww 0 0 0 3F4CCCCD
+partial ww 1 0 0 3F51EB85
+partial ww 2 0 0 3F570A3E
+partial ww 3 0 0 3F5C28F6
+partial ww 4 0 0 3F6147AE
+partial ww 5 0 0 3F666666
+partial ww 0 1 0 3F547AE1
+partial ww 1 1 0 3F599999
+partial ww 2 1 0 3F5EB852
+partial ww 3 1 0 3F63D70A
+partial ww 4 1 0 3F68F5C2
+partial ww 5 1 0 3F6E147A
+partial ww 0 2 0 3F5C28F6
+partial ww 1 2 0 3F6147AE
+partial ww 2 2 0 3F666667
+partial ww 3 2 0 3F6B851F
+partial ww 4 2 0 3F70A3D7
+partial ww 5 2 0 3F75C28F
+partial ww 0 3 0 3F63D70A
+partial ww 1 3 0 3F68F5C2
+partial ww 2 3 0 3F6E147B
+partial ww 3 3 0 3F733333
+partial ww 4 3 0 3F7851EB
+partial ww 5 3 0 3F7D70A3
+partial ww 0 4 0 3F6B851F
+partial ww 1 4 0 3F70A3D7
+partial ww 2 4 0 3F75C290
+partial ww 3 4 0 3F7AE148
+partial ww 4 4 0 3F800000
+partial ww 5 4 0 3F828F5C
+partial ww 0 5 0 3F733333
+partial ww 1 5 0 3F7851EB
+partial ww 2 5 0 3F7D70A4
+partial ww 3 5 0 3F8147AE
+partial ww 4 5 0 3F83D70A
+partial ww 5 5 0 3F866666
+partial ww 0 0 1 3F4A3D71
+partial ww 1 0 1 3F4F5C29
+partial ww 2 0 1 3F547AE2
+partial ww 3 0 1 3F59999A
+partial ww 4 0 1 3F5EB852
+partial ww 5 0 1 3F63D70A
+partial ww 0 1 1 3F51EB85
+partial ww 1 1 1 3F570A3D
+partial ww 2 1 1 3F5C28F6
+partial ww 3 1 1 3F6147AE
+partial ww 4 1 1 3F666666
+partial ww 5 1 1 3F6B851E
+partial ww 0 2 1 3F59999A
+partial ww 1 2 1 3F5EB852
+partial ww 2 2 1 3F63D70B
+partial ww 3 2 1 3F68F5C3
+partial ww 4 2 1 3F6E147B
+partial ww 5 2 1 3F733333
+partial ww 0 3 1 3F6147AE
+partial ww 1 3 1 3F666666
+partial ww 2 3 1 3F6B851F
+partial ww 3 3 1 3F70A3D7
+partial ww 4 3 1 3F75C28F
+partial ww 5 3 1 3F7AE147
+partial ww 0 4 1 3F68F5C3
+partial ww 1 4 1 3F6E147B
+partial ww 2 4 1 3F733334
+partial ww 3 4 1 3F7851EC
+partial ww 4 4 1 3F7D70A4
+partial ww 5 4 1 3F8147AE
+partial ww 0 5 1 3F70A3D7
+partial ww 1 5 1 3F75C28F
+partial ww 2 5 1 3F7AE148
+partial ww 3 5 1 3F800000
+partial ww 4 5 1 3F828F5C
+partial ww 5 5 1 3F851EB8
+partial ww 0 0 2 3F47AE15
+partial ww 1 0 2 3F4CCCCD
+partial ww 2 0 2 3F51EB86
+partial ww 3 0 2 3F570A3E
+partial ww 4 0 2 3F5C28F6
+partial ww 5 0 2 3F6147AE
+partial ww 0 1 2 3F4F5C29
+partial ww 1 1 2 3F547AE1
+partial ww 2 1 2 3EFDF3B6
+partial ww 3 1 2 3F051EB8
+partial ww 4 1 2 3F0B4395
+partial ww 5 1 2 3F68F5C2
+partial ww 0 2 2 3F570A3E
+partial ww 1 2 2 3F5C28F6
+partial ww 2 2 2 3EF969BA
+partial ww 3 2 2 3F02CDBF
+partial ww 4 2 2 3F08E695
+partial ww 5 2 2 3F70A3D7
+partial ww 0 3 2 3F5EB852
+partial ww 1 3 2 3F63D70A
+partial ww 2 3 2 3EF4C941
+partial ww 3 3 2 3F0070D0
+partial ww 4 3 2 3F067CE8
+partial ww 5 3 2 3F7851EB
+partial ww 0 4 2 3F666667
+partial ww 1 4 2 3F6B851F
+partial ww 2 4 2 3EF011B5
+partial ww 3 4 2 3EFC0F37
+partial ww 4 4 2 3F040634
+partial ww 5 4 2 3F800000
+partial ww 0 5 2 3F6E147B
+partial ww 1 5 2 3F733333
+partial ww 2 5 2 3F7851EC
+partial ww 3 5 2 3F7D70A4
+partial ww 4 5 2 3F8147AE
+partial ww 5 5 2 3F83D70A
+partial ww 0 0 3 3F451EB9
+partial ww 1 0 3 3F4A3D71
+partial ww 2 0 3 3F4F5C2A
+partial ww 3 0 3 3F547AE2
+partial ww 4 0 3 3F59999A
+partial ww 5 0 3 3F5EB852
+partial ww 0 1 3 3F4CCCCD
+partial ww 1 1 3 3F51EB85
+partial ww 2 1 3 3EF74BC7
+partial ww 3 1 3 3F01CAC0
+partial ww 4 1 3 3F07EF9E
+partial ww 5 1 3 3F666666
+partial ww 0 2 3 3F547AE2
+partial ww 1 2 3 3F59999A
+partial ww 2 2 3 3EF2CEC3
+partial ww 3 2 3 3EFF00A9
+partial ww 4 2 3 3F05993A
+partial ww 5 2 3 3F6E147B
+partial ww 0 3 3 3F5C28F6
+partial ww 1 3 3 3F6147AE
+partial ww 2 3 3 3EEE3C0C
+partial ww 3 3 3 3EFA54B0
+partial ww 4 3 3 3F03368F
+partial ww 5 3 3 3F75C28F
+partial ww 0 4 3 3F63D70B
+partial ww 1 4 3 3F68F5C3
+partial ww 2 4 3 3EE9930C
+partial ww 3 4 3 3EF590F6
+partial ww 4 4 3 3F00C747
+partial ww 5 4 3 3F7D70A4
+partial ww 0 5 3 3F6B851F
+partial ww 1 5 3 3F70A3D7
+partial ww 2 5 3 3F75C290
+partial ww 3 5 3 3F7AE148
+partial ww 4 5 3 3F800000
+partial ww 5 5 3 3F828F5C
+partial ww 0 0 4 3F428F5C
+partial ww 1 0 4 3F47AE14
+partial ww 2 0 4 3F4CCCCD
+partial ww 3 0 4 3F51EB85
+partial ww 4 0 4 3F570A3D
+partial ww 5 0 4 3F5C28F5
+partial ww 0 1 4 3F4A3D70
+partial ww 1 1 4 3F4F5C28
+partial ww 2 1 4 3EF0A3D6
+partial ww 3 1 4 3EFCED90
+partial ww 4 1 4 3F049BA5
+partial ww 5 1 4 3F63D709
+partial ww 0 2 4 3F51EB85
+partial ww 1 2 4 3F570A3D
+partial ww 2 2 4 3EEC33B0
+partial ww 3 2 4 3EF865B6
+partial ww 4 2 4 3F024BD1
+partial ww 5 2 4 3F6B851E
+partial ww 0 3 4 3F599999
+partial ww 1 3 4 3F5EB851
+partial ww 2 3 4 3EE7AE9D
+partial ww 3 3 4 3EF3C781
+partial ww 4 3 4 3EFFE033
+partial ww 5 3 4 3F733332
+partial ww 0 4 4 3F6147AE
+partial ww 1 4 4 3F666666
+partial ww 2 4 4 3EE3140D
+partial ww 3 4 4 3EEF1259
+partial ww 4 4 4 3EFB1059
+partial ww 5 4 4 3F7AE147
+partial ww 0 5 4 3F68F5C2
+partial ww 1 5 4 3F6E147A
+partial ww 2 5 4 3F733333
+partial ww 3 5 4 3F7851EB
+partial ww 4 5 4 3F7D70A3
+partial ww 5 5 4 3F8147AE
+partial ww 0 0 5 3F400000
+partial ww 1 0 5 3F451EB8
+partial ww 2 0 5 3F4A3D71
+partial ww 3 0 5 3F4F5C29
+partial ww 4 0 5 3F547AE1
+partial ww 5 0 5 3F599999
+partial ww 0 1 5 3F47AE14
+partial ww 1 1 5 3F4CCCCC
+partial ww 2 1 5 3F51EB85
+partial ww 3 1 5 3F570A3D
+partial ww 4 1 5 3F5C28F5
+partial ww 5 1 5 3F6147AD
+partial ww 0 2 5 3F4F5C29
+partial ww 1 2 5 3F547AE1
+partial ww 2 2 5 3F59999A
+partial ww 3 2 5 3F5EB852
+partial ww 4 2 5 3F63D70A
+partial ww 5 2 5 3F68F5C2
+partial ww 0 3 5 3F570A3D
+partial ww 1 3 5 3F5C28F5
+partial ww 2 3 5 3F6147AE
+partial ww 3 3 5 3F666666
+partial ww 4 3 5 3F6B851E
+partial ww 5 3 5 3F70A3D6
+partial ww 0 4 5 3F5EB852
+partial ww 1 4 5 3F63D70A
+partial ww 2 4 5 3F68F5C3
+partial ww 3 4 5 3F6E147B
+partial ww 4 4 5 3F733333
+partial ww 5 4 5 3F7851EB
+partial ww 0 5 5 3F666666
+partial ww 1 5 5 3F6B851E
+partial ww 2 5 5 3F70A3D7
+partial ww 3 5 5 3F75C28F
+partial ww 4 5 5 3F7AE147
+partial ww 5 5 5 3F7FFFFF
+partial t 0 0 0 43960000
+partial t 1 0 0 4396599A
+partial t 2 0 0 4396B333
+partial t 3 0 0 43970CCD
+partial t 4 0 0 43976666
+partial t 5 0 0 4397C000
+partial t 0 1 0 43968CCD
+partial t 1 1 0 4396E667
+partial t 2 1 0 43974000
+partial t 3 1 0 4397999A
+partial t 4 1 0 4397F333
+partial t 5 1 0 43984CCD
+partial t 0 2 0 4397199A
+partial t 1 2 0 43977334
+partial t 2 2 0 4397CCCD
+partial t 3 2 0 43982667
+partial t 4 2 0 43988000
+partial t 5 2 0 4398D99A
+partial t 0 3 0 4397A666
+partial t 1 3 0 43980000
+partial t 2 3 0 43985999
+partial t 3 3 0 4398B333
+partial t 4 3 0 43990CCC
+partial t 5 3 0 43996666
+partial t 0 4 0 43983333
+partial t 1 4 0 43988CCD
+partial t 2 4 0 4398E666
+partial t 3 4 0 43994000
+partial t 4 4 0 43999999
+partial t 5 4 0 4399F333
+partial t 0 5 0 4398C000
+partial t 1 5 0 4399199A
+partial t 2 5 0 43997333
+partial t 3 5 0 4399CCCD
+partial t 4 5 0 439A2666
+partial t 5 5 0 439A8000
+partial t 0 0 1 4395CCCD
+partial t 1 0 1 43962667
+partial t 2 0 1 43968000
+partial t 3 0 1 4396D99A
+partial t 4 0 1 43973333
+partial t 5 0 1 43978CCD
+partial t 0 1 1 4396599A
+partial t 1 1 1 4396B334
+partial t 2 1 1 43970CCD
+partial t 3 1 1 43976667
+partial t 4 1 1 4397C000
+partial t 5 1 1 4398199A
+partial t 0 2 1 4396E667
+partial t 1 2 1 43974001
+partial t 2 2 1 4397999A
+partial t 3 2 1 4397F334
+partial t 4 2 1 43984CCD
+partial t 5 2 1 4398A667
+partial t 0 3 1 43977333
+partial t 1 3 1 4397CCCD
+partial t 2 3 1 43982666
+partial t 3 3 1 43988000
+partial t 4 3 1 4398D999
+partial t 5 3 1 43993333
+partial t 0 4 1 43980000
+partial t 1 4 1 4398599A
+partial t 2 4 1 4398B333
+partial t 3 4 1 43990CCD
+partial t 4 4 1 43996666
+partial t 5 4 1 4399C000
+partial t 0 5 1 43988CCD
+partial t 1 5 1 4398E667
+partial t 2 5 1 43994000
+partial t 3 5 1 4399999A
+partial t 4 5 1 4399F333
+partial t 5 5 1 439A4CCD
+partial t 0 0 2 4395999A
+partial t 1 0 2 4395F334
+partial t 2 0 2 43964CCD
+partial t 3 0 2 4396A667
+partial t 4 0 2 43970000
+partial t 5 0 2 4397599A
+partial t 0 1 2 43962667
+partial t 1 1 2 43968001
+partial t 2 1 2 436F1A87
+partial t 3 1 2 436CF218
+partial t 4 1 2 436ACE70
+partial t 5 1 2 4397E667
+partial t 0 2 2 4396B334
+partial t 1 2 2 43970CCE
+partial t 2 2 2 4397E54A
+partial t 3 2 2 43984085
+partial t 4 2 2 43989BBE
+partial t 5 2 2 43987334
+partial t 0 3 2 43974000
+partial t 1 3 2 4397999A
+partial t 2 3 2 43987969
+partial t 3 3 2 4398D4E2
+partial t 4 3 2 4399305B
+partial t 5 3 2 43990000
+partial t 0 4 2 4397CCCD
+partial t 1 4 2 43982667
+partial t 2 4 2 43B93858
+partial t 3 4 2 43BB1955
+partial t 4 4 2 43BCF7BC
+partial t 5 4 2 43998CCD
+partial t 0 5 2 4398599A
+partial t 1 5 2 4398B334
+partial t 2 5 2 43990CCD
+partial t 3 5 2 43996667
+partial t 4 5 2 4399C000
+partial t 5 5 2 439A199A
+partial t 0 0 3 43956666
+partial t 1 0 3 4395C000
+partial t 2 0 3 43961999
+partial t 3 0 3 43967333
+partial t 4 0 3 4396CCCC
+partial t 5 0 3 43972666
+partial t 0 1 3 4395F333
+partial t 1 1 3 43964CCD
+partial t 2 1 3 43700195
+partial t 3 1 3 436DD35E
+partial t 4 1 3 436BA9F3
+partial t 5 1 3 4397B333
+partial t 0 2 3 43968000
+partial t 1 2 3 4396D99A
+partial t 2 2 3 4397B1C3
+partial t 3 2 3 43980CFE
+partial t 4 2 3 43986837
+partial t 5 2 3 43984000
+partial t 0 3 3 43970CCC
+partial t 1 3 3 43976666
+partial t 2 3 3 439845C8
+partial t 3 3 3 4398A141
+partial t 4 3 3 4398FCB9
+partial t 5 3 3 4398CCCC
+partial t 0 4 3 43979999
+partial t 1 4 3 4397F333
+partial t 2 4 3 43B851EB
+partial t 3 4 3 43BA3606
+partial t 4 4 3 43BC178A
+partial t 5 4 3 43995999
+partial t 0 5 3 43982666
+partial t 1 5 3 43988000
+partial t 2 5 3 4398D999
+partial t 3 5 3 43993333
+partial t 4 5 3 43998CCC
+partial t 5 5 3 4399E666
+partial t 0 0 4 43953333
+partial t 1 0 4 43958CCD
+partial t 2 0 4 4395E666
+partial t 3 0 4 43964000
+partial t 4 0 4 43969999
+partial t 5 0 4 4396F333
+partial t 0 1 4 4395C000
+partial t 1 1 4 4396199A
+partial t 2 1 4 4370ED66
+partial t 3 1 4 436EB965
+partial t 4 1 4 436C8A32
+partial t 5 1 4 43978000
+partial t 0 2 4 43964CCD
+partial t 1 2 4 4396A667
+partial t 2 2 4 43977E3E
+partial t 3 2 4 4397D979
+partial t 4 2 4 439834B1
+partial t 5 2 4 43980CCD
+partial t 0 3 4 4396D999
+partial t 1 3 4 43973333
+partial t 2 3 4 43981227
+partial t 3 3 4 43986DA1
+partial t 4 3 4 4398C919
+partial t 5 3 4 43989999
+partial t 0 4 4 43976666
+partial t 1 4 4 4397C000
+partial t 2 4 4 43B768EC
+partial t 3 4 4 43B95028
+partial t 4 4 4 43BB34CA
+partial t 5 4 4 43992666
+partial t 0 5 4 4397F333
+partial t 1 5 4 43984CCD
+partial t 2 5 4 4398A666
+partial t 3 5 4 43990000
+partial t 4 5 4 43995999
+partial t 5 5 4 4399B333
+partial t 0 0 5 43950000
+partial t 1 0 5 4395599A
+partial t 2 0 5 4395B333
+partial t 3 0 5 43960CCD
+partial t 4 0 5 43966666
+partial t 5 0 5 4396C000
+partial t 0 1 5 43958CCD
+partial t 1 1 5 4395E667
+partial t 2 1 5 43964000
+partial t 3 1 5 4396999A
+partial t 4 1 5 4396F333
+partial t 5 1 5 43974CCD
+partial t 0 2 5 4396199A
+partial t 1 2 5 43967334
+partial t 2 2 5 4396CCCD
+partial t 3 2 5 43972667
+partial t 4 2 5 43978000
+partial t 5 2 5 4397D99A
+partial t 0 3 5 4396A666
+partial t 1 3 5 43970000
+partial t 2 3 5 43975999
+partial t 3 3 5 4397B333
+partial t 4 3 5 43980CCC
+partial t 5 3 5 43986666
+partial t 0 4 5 43973333
+partial t 1 4 5 43978CCD
+partial t 2 4 5 4397E666
+partial t 3 4 5 43984000
+partial t 4 4 5 43989999
+partial t 5 4 5 4398F333
+partial t 0 5 5 4397C000
+partial t 1 5 5 4398199A
+partial t 2 5 5 43987333
+partial t 3 5 5 4398CCCD
+partial t 4 5 5 43992666
+partial t 5 5 5 43998000
+partial tave 0 0 0 C4614000
+partial tave 1 0 0 C4614000
+partial tave 2 0 0 C4614000
+partial tave 3 0 0 C4614000
+partial tave 4 0 0 C4614000
+partial tave 5 0 0 C4614000
+partial tave 0 1 0 C4614000
+partial tave 1 1 0 C4614000
+partial tave 2 1 0 C4614000
+partial tave 3 1 0 C4614000
+partial tave 4 1 0 C4614000
+partial tave 5 1 0 C4614000
+partial tave 0 2 0 C4614000
+partial tave 1 2 0 C4614000
+partial tave 2 2 0 C4614000
+partial tave 3 2 0 C4614000
+partial tave 4 2 0 C4614000
+partial tave 5 2 0 C4614000
+partial tave 0 3 0 C4614000
+partial tave 1 3 0 C4614000
+partial tave 2 3 0 C4614000
+partial tave 3 3 0 C4614000
+partial tave 4 3 0 C4614000
+partial tave 5 3 0 C4614000
+partial tave 0 4 0 C4614000
+partial tave 1 4 0 C4614000
+partial tave 2 4 0 C4614000
+partial tave 3 4 0 C4614000
+partial tave 4 4 0 C4614000
+partial tave 5 4 0 C4614000
+partial tave 0 5 0 C4614000
+partial tave 1 5 0 C4614000
+partial tave 2 5 0 C4614000
+partial tave 3 5 0 C4614000
+partial tave 4 5 0 C4614000
+partial tave 5 5 0 C4614000
+partial tave 0 0 1 C4614000
+partial tave 1 0 1 C4614000
+partial tave 2 0 1 C4614000
+partial tave 3 0 1 C4614000
+partial tave 4 0 1 C4614000
+partial tave 5 0 1 C4614000
+partial tave 0 1 1 C4614000
+partial tave 1 1 1 C4614000
+partial tave 2 1 1 C4614000
+partial tave 3 1 1 C4614000
+partial tave 4 1 1 C4614000
+partial tave 5 1 1 C4614000
+partial tave 0 2 1 C4614000
+partial tave 1 2 1 C4614000
+partial tave 2 2 1 C4614000
+partial tave 3 2 1 C4614000
+partial tave 4 2 1 C4614000
+partial tave 5 2 1 C4614000
+partial tave 0 3 1 C4614000
+partial tave 1 3 1 C4614000
+partial tave 2 3 1 C4614000
+partial tave 3 3 1 C4614000
+partial tave 4 3 1 C4614000
+partial tave 5 3 1 C4614000
+partial tave 0 4 1 C4614000
+partial tave 1 4 1 C4614000
+partial tave 2 4 1 C4614000
+partial tave 3 4 1 C4614000
+partial tave 4 4 1 C4614000
+partial tave 5 4 1 C4614000
+partial tave 0 5 1 C4614000
+partial tave 1 5 1 C4614000
+partial tave 2 5 1 C4614000
+partial tave 3 5 1 C4614000
+partial tave 4 5 1 C4614000
+partial tave 5 5 1 C4614000
+partial tave 0 0 2 C4614000
+partial tave 1 0 2 C4614000
+partial tave 2 0 2 C4614000
+partial tave 3 0 2 C4614000
+partial tave 4 0 2 C4614000
+partial tave 5 0 2 C4614000
+partial tave 0 1 2 C4614000
+partial tave 1 1 2 C4614000
+partial tave 2 1 2 4396D99A
+partial tave 3 1 2 43973334
+partial tave 4 1 2 43978CCD
+partial tave 5 1 2 C4614000
+partial tave 0 2 2 C4614000
+partial tave 1 2 2 C4614000
+partial tave 2 2 2 43976667
+partial tave 3 2 2 4397C001
+partial tave 4 2 2 4398199A
+partial tave 5 2 2 C4614000
+partial tave 0 3 2 C4614000
+partial tave 1 3 2 C4614000
+partial tave 2 3 2 4397F333
+partial tave 3 3 2 43984CCD
+partial tave 4 3 2 4398A666
+partial tave 5 3 2 C4614000
+partial tave 0 4 2 C4614000
+partial tave 1 4 2 C4614000
+partial tave 2 4 2 43988000
+partial tave 3 4 2 4398D99A
+partial tave 4 4 2 43993333
+partial tave 5 4 2 C4614000
+partial tave 0 5 2 C4614000
+partial tave 1 5 2 C4614000
+partial tave 2 5 2 C4614000
+partial tave 3 5 2 C4614000
+partial tave 4 5 2 C4614000
+partial tave 5 5 2 C4614000
+partial tave 0 0 3 C4614000
+partial tave 1 0 3 C4614000
+partial tave 2 0 3 C4614000
+partial tave 3 0 3 C4614000
+partial tave 4 0 3 C4614000
+partial tave 5 0 3 C4614000
+partial tave 0 1 3 C4614000
+partial tave 1 1 3 C4614000
+partial tave 2 1 3 4396A666
+partial tave 3 1 3 43970000
+partial tave 4 1 3 43975999
+partial tave 5 1 3 C4614000
+partial tave 0 2 3 C4614000
+partial tave 1 2 3 C4614000
+partial tave 2 2 3 43973333
+partial tave 3 2 3 43978CCD
+partial tave 4 2 3 4397E666
+partial tave 5 2 3 C4614000
+partial tave 0 3 3 C4614000
+partial tave 1 3 3 C4614000
+partial tave 2 3 3 4397BFFF
+partial tave 3 3 3 43981999
+partial tave 4 3 3 43987332
+partial tave 5 3 3 C4614000
+partial tave 0 4 3 C4614000
+partial tave 1 4 3 C4614000
+partial tave 2 4 3 43984CCC
+partial tave 3 4 3 4398A666
+partial tave 4 4 3 4398FFFF
+partial tave 5 4 3 C4614000
+partial tave 0 5 3 C4614000
+partial tave 1 5 3 C4614000
+partial tave 2 5 3 C4614000
+partial tave 3 5 3 C4614000
+partial tave 4 5 3 C4614000
+partial tave 5 5 3 C4614000
+partial tave 0 0 4 C4614000
+partial tave 1 0 4 C4614000
+partial tave 2 0 4 C4614000
+partial tave 3 0 4 C4614000
+partial tave 4 0 4 C4614000
+partial tave 5 0 4 C4614000
+partial tave 0 1 4 C4614000
+partial tave 1 1 4 C4614000
+partial tave 2 1 4 43967333
+partial tave 3 1 4 4396CCCD
+partial tave 4 1 4 43972666
+partial tave 5 1 4 C4614000
+partial tave 0 2 4 C4614000
+partial tave 1 2 4 C4614000
+partial tave 2 2 4 43970000
+partial tave 3 2 4 4397599A
+partial tave 4 2 4 4397B333
+partial tave 5 2 4 C4614000
+partial tave 0 3 4 C4614000
+partial tave 1 3 4 C4614000
+partial tave 2 3 4 43978CCC
+partial tave 3 3 4 4397E666
+partial tave 4 3 4 43983FFF
+partial tave 5 3 4 C4614000
+partial tave 0 4 4 C4614000
+partial tave 1 4 4 C4614000
+partial tave 2 4 4 43981999
+partial tave 3 4 4 43987333
+partial tave 4 4 4 4398CCCC
+partial tave 5 4 4 C4614000
+partial tave 0 5 4 C4614000
+partial tave 1 5 4 C4614000
+partial tave 2 5 4 C4614000
+partial tave 3 5 4 C4614000
+partial tave 4 5 4 C4614000
+partial tave 5 5 4 C4614000
+partial tave 0 0 5 C4614000
+partial tave 1 0 5 C4614000
+partial tave 2 0 5 C4614000
+partial tave 3 0 5 C4614000
+partial tave 4 0 5 C4614000
+partial tave 5 0 5 C4614000
+partial tave 0 1 5 C4614000
+partial tave 1 1 5 C4614000
+partial tave 2 1 5 C4614000
+partial tave 3 1 5 C4614000
+partial tave 4 1 5 C4614000
+partial tave 5 1 5 C4614000
+partial tave 0 2 5 C4614000
+partial tave 1 2 5 C4614000
+partial tave 2 2 5 C4614000
+partial tave 3 2 5 C4614000
+partial tave 4 2 5 C4614000
+partial tave 5 2 5 C4614000
+partial tave 0 3 5 C4614000
+partial tave 1 3 5 C4614000
+partial tave 2 3 5 C4614000
+partial tave 3 3 5 C4614000
+partial tave 4 3 5 C4614000
+partial tave 5 3 5 C4614000
+partial tave 0 4 5 C4614000
+partial tave 1 4 5 C4614000
+partial tave 2 4 5 C4614000
+partial tave 3 4 5 C4614000
+partial tave 4 4 5 C4614000
+partial tave 5 4 5 C4614000
+partial tave 0 5 5 C4614000
+partial tave 1 5 5 C4614000
+partial tave 2 5 5 C4614000
+partial tave 3 5 5 C4614000
+partial tave 4 5 5 C4614000
+partial tave 5 5 5 C4614000
+partial mu 0 0 40000000
+partial mu 1 0 40070A3D
+partial mu 2 0 400E147B
+partial mu 3 0 40151EB8
+partial mu 4 0 401C28F6
+partial mu 5 0 40233333
+partial mu 0 1 400AE148
+partial mu 1 1 4011EB85
+partial mu 2 1 4018F5C3
+partial mu 3 1 40200000
+partial mu 4 1 40270A3E
+partial mu 5 1 402E147B
+partial mu 0 2 4015C28F
+partial mu 1 2 401CCCCC
+partial mu 2 2 4024A989
+partial mu 3 2 402BC0E1
+partial mu 4 2 4032D83A
+partial mu 5 2 4038F5C2
+partial mu 0 3 4020A3D7
+partial mu 1 3 4027AE14
+partial mu 2 3 402F8447
+partial mu 3 3 40369B9F
+partial mu 4 3 403DB2F8
+partial mu 5 3 4043D70A
+partial mu 0 4 402B851F
+partial mu 1 4 40328F5C
+partial mu 2 4 403A5F05
+partial mu 3 4 4041765D
+partial mu 4 4 40488DB6
+partial mu 5 4 404EB852
+partial mu 0 5 40366666
+partial mu 1 5 403D70A4
+partial mu 2 5 40447AE2
+partial mu 3 5 404B851E
+partial mu 4 5 40528F5C
+partial mu 5 5 4059999A
+partial muave 0 0 C4618000
+partial muave 1 0 C4618000
+partial muave 2 0 C4618000
+partial muave 3 0 C4618000
+partial muave 4 0 C4618000
+partial muave 5 0 C4618000
+partial muave 0 1 C4618000
+partial muave 1 1 C4618000
+partial muave 2 1 C4618000
+partial muave 3 1 C4618000
+partial muave 4 1 C4618000
+partial muave 5 1 C4618000
+partial muave 0 2 C4618000
+partial muave 1 2 C4618000
+partial muave 2 2 40244AD0
+partial muave 3 2 402B5C42
+partial muave 4 2 40326DB5
+partial muave 5 2 C4618000
+partial muave 0 3 C4618000
+partial muave 1 3 C4618000
+partial muave 2 3 402F2880
+partial muave 3 3 403639F1
+partial muave 4 3 403D4B64
+partial muave 5 3 C4618000
+partial muave 0 4 C4618000
+partial muave 1 4 C4618000
+partial muave 2 4 403A062E
+partial muave 3 4 404117A0
+partial muave 4 4 40482914
+partial muave 5 4 C4618000
+partial muave 0 5 C4618000
+partial muave 1 5 C4618000
+partial muave 2 5 C4618000
+partial muave 3 5 C4618000
+partial muave 4 5 C4618000
+partial muave 5 5 C4618000
+partial muts 0 0 C461C000
+partial muts 1 0 C461C000
+partial muts 2 0 C461C000
+partial muts 3 0 C461C000
+partial muts 4 0 C461C000
+partial muts 5 0 C461C000
+partial muts 0 1 C461C000
+partial muts 1 1 C461C000
+partial muts 2 1 C461C000
+partial muts 3 1 C461C000
+partial muts 4 1 C461C000
+partial muts 5 1 C461C000
+partial muts 0 2 C461C000
+partial muts 1 2 C461C000
+partial muts 2 2 415A7210
+partial muts 3 2 415E4C61
+partial muts 4 2 416226B2
+partial muts 5 2 C461C000
+partial muts 0 3 C461C000
+partial muts 1 3 C461C000
+partial muts 2 3 415BB81C
+partial muts 3 3 415F926D
+partial muts 4 3 41636CBE
+partial muts 5 3 C461C000
+partial muts 0 4 C461C000
+partial muts 1 4 C461C000
+partial muts 2 4 415CFE28
+partial muts 3 4 4160D879
+partial muts 4 4 4164B2CA
+partial muts 5 4 C461C000
+partial muts 0 5 C461C000
+partial muts 1 5 C461C000
+partial muts 2 5 C461C000
+partial muts 3 5 C461C000
+partial muts 4 5 C461C000
+partial muts 5 5 C461C000
+partial mudf 0 0 C4620000
+partial mudf 1 0 C4620000
+partial mudf 2 0 C4620000
+partial mudf 3 0 C4620000
+partial mudf 4 0 C4620000
+partial mudf 5 0 C4620000
+partial mudf 0 1 C4620000
+partial mudf 1 1 C4620000
+partial mudf 2 1 C4620000
+partial mudf 3 1 C4620000
+partial mudf 4 1 C4620000
+partial mudf 5 1 C4620000
+partial mudf 0 2 C4620000
+partial mudf 1 2 C4620000
+partial mudf 2 2 3D038F94
+partial mudf 3 2 3D0BC04D
+partial mudf 4 2 3D13F108
+partial mudf 5 2 C4620000
+partial mudf 0 3 C4620000
+partial mudf 1 3 C4620000
+partial mudf 2 3 3CFEF276
+partial mudf 3 3 3D07A9F4
+partial mudf 4 3 3D0FDAAE
+partial mudf 5 3 C4620000
+partial mudf 0 4 C4620000
+partial mudf 1 4 C4620000
+partial mudf 2 4 3CF6C5CB
+partial mudf 3 4 3D03939D
+partial mudf 4 4 3D0BC457
+partial mudf 5 4 C4620000
+partial mudf 0 5 C4620000
+partial mudf 1 5 C4620000
+partial mudf 2 5 C4620000
+partial mudf 3 5 C4620000
+partial mudf 4 5 C4620000
+partial mudf 5 5 C4620000

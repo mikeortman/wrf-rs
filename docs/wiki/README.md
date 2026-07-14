@@ -67,6 +67,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic horizontal momentum](Acoustic-Horizontal-Momentum.md) — split U/V
   pressure gradients, C-grid boundaries, scratch-free parallel execution, and
   exact pinned-source evidence.
+- [Acoustic mass, omega, and potential temperature](Acoustic-Mass-Omega-and-Theta.md)
+  — continuity integration, vertical mass flux, theta transport, complete-column
+  contracts, output reuse, and exact pinned-source evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.

@@ -919,3 +919,49 @@ dedicated fixture spanning governing mode, top lid, relaxation, open,
 symmetric, periodic, and polar branches. The safe Rust kernel uses no numerical
 scratch and checks raw bits against the extracted routine. Suggested upstream
 action: add a branch fixture before changing scratch lifetime or loop fusion.
+
+## WRF-049: `advance_mu_t` carries thirteen dead arguments and two dead bounds
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable body never reads `c1f`, `c2f`, `c3h`, `c4h`, `c3f`, `c4f`,
+`msfux`, `msfvx`, or `msfvy`. It never reads or writes the declared `INOUT`
+arrays `uam`, `vam`, and `wwam`, and it does not read `step` or `kds`.
+Locals `i_endu` and `j_endv` are assigned but never consumed. The Rust
+capability omits all of them. Suggested upstream action: remove dead plumbing
+during an interface revision and enable unused-dummy/local warnings.
+
+## WRF-050: `advance_mu_t` partially defines three `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect.
+
+`muave`, `muts`, and `mudf` are declared `INTENT(OUT)` but only active tile
+points are assigned. Fortran makes the complete actual arrays undefined on
+entry, so inactive halo/tile values cannot portably retain their contents even
+though GNU Fortran currently leaves their bytes intact. Suggested upstream
+action: use `INTENT(INOUT)` when inactive preservation is intended, or define
+the complete arrays and test that policy.
+
+## WRF-051: `advance_mu_t` accepts partial vertical tiles but requires a complete column
+
+Status: source-confirmed correctness and contract defect.
+
+The divergence loop honors `k_start`, but omega and theta loops restart from
+literal levels 1 or 2. They then read `dvdxi` and `wdtn` values whose
+initialization depends on a complete column ending at `kde`. A partial vertical
+tile can therefore read uninitialized automatic-array elements. The Rust region
+requires the complete half-level column plus its upper full level. Suggested
+upstream action: document/assert that invariant or make every loop and boundary
+initialization consistently honor the supplied tile.
+
+## WRF-052: `advance_mu_t` scratch arrays are avoidable and lack focused regression
+
+Status: confirmed local-memory opportunity and repository-level test gap.
+
+The routine allocates tile-sized `wdtn` and `dvdxi` arrays plus horizontal
+`dmdt`. Rust stores divergence briefly in the required `t_ave` output and prior
+mass in `muts`, computes vertical theta transport locally, then writes the
+specified final values. This removes numerical scratch while matching all
+3,168 oracle values. WRF has no dedicated fixture spanning global, nested,
+periodic-X, partial horizontal, complete-column, and inactive-storage behavior.
+Suggested upstream action: add that fixture before refactoring scratch or loops.

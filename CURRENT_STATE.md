@@ -823,6 +823,11 @@ domain, field, and CPU modules. A direct rigid-lid nonhydrostatic oracle matches
 all 432 stored U/V values exactly; branch, failure-atomicity, and worker tests
 pass. On the matched 256 × 256 × 40 workload, 16-worker Rust is 3.1% slower
 than optimized serial Fortran, so further SIMD tuning is deferred.
+Acoustic mass, omega, and theta advancement implements `advance_mu_t` with a
+complete-column typed region and scratch-free output reuse. Four direct global,
+nested, periodic-X, and partial-horizontal cases match all 3,168 stored values
+exactly. On the matched 256 × 256 × 40 workload, 16-worker Rust is 1.27× faster
+than optimized serial Fortran; SIMD tuning stops.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -875,9 +880,9 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port `advance_mu_t` and `advance_w`, then compare a complete acoustic
-   small-step trajectory with the existing preparation, pressure, coefficient,
-   and horizontal-momentum kernels.
+1. Port `advance_w`, then compare a complete acoustic small-step trajectory
+   with the existing preparation, pressure, coefficient, horizontal-momentum,
+   and mass/theta kernels.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message
