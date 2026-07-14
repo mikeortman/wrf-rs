@@ -14,6 +14,8 @@
 //! copy rule to specified nonhydrostatic vertical-momentum boundaries.
 //! [`SpecifiedBoundaryFlowKernels`] classifies scalar boundaries from coupled
 //! U/V signs, copying outflow and clearing inflow.
+//! [`SpecifiedBoundaryTendencyKernels`] assigns boundary-file tendencies before
+//! relaxation and acoustic advancement.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -176,6 +178,8 @@ pub use specified_boundary_update::{
     SpecifiedBoundaryFlowRegion, SpecifiedBoundaryFlowResult, SpecifiedBoundaryGeopotentialError,
     SpecifiedBoundaryGeopotentialInputs, SpecifiedBoundaryGeopotentialKernels,
     SpecifiedBoundaryGeopotentialResult, SpecifiedBoundaryInflowPolicy,
+    SpecifiedBoundaryTendencies, SpecifiedBoundaryTendencyError, SpecifiedBoundaryTendencyKernels,
+    SpecifiedBoundaryTendencyParameters, SpecifiedBoundaryTendencyResult,
     SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateKernels,
     SpecifiedBoundaryUpdateParameters, SpecifiedBoundaryUpdateRegion,
     SpecifiedBoundaryUpdateResult, SpecifiedBoundaryWestEastPeriodicity,

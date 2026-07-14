@@ -1,9 +1,10 @@
 //! Specified-zone updates and finalization for ARW prognostic fields.
 //!
-//! This module translates WRF v4.7.1 tendency, geopotential, zero-gradient,
-//! and flow-dependent boundary routines. Typed field locations and flow roles
-//! replace source selectors, while validated regions own staggered execution
-//! ranges and neighbor contracts.
+//! This module translates WRF v4.7.1 tendency advancement, boundary-file
+//! tendency assignment, geopotential, zero-gradient, and flow-dependent
+//! routines. Typed field locations and flow roles replace source selectors,
+//! while validated regions own staggered execution ranges and neighbor
+//! contracts.
 
 mod cpu;
 mod error;
@@ -16,6 +17,7 @@ mod kernels;
 mod parameters;
 mod periodicity;
 mod region;
+mod tendency_assignment;
 mod zero_gradient;
 
 pub use error::{SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateResult};
@@ -39,6 +41,10 @@ pub use kernels::SpecifiedBoundaryUpdateKernels;
 pub use parameters::SpecifiedBoundaryUpdateParameters;
 pub use periodicity::SpecifiedBoundaryWestEastPeriodicity;
 pub use region::{SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateRegion};
+pub use tendency_assignment::{
+    SpecifiedBoundaryTendencies, SpecifiedBoundaryTendencyError, SpecifiedBoundaryTendencyKernels,
+    SpecifiedBoundaryTendencyParameters, SpecifiedBoundaryTendencyResult,
+};
 pub use zero_gradient::{
     SpecifiedBoundaryZeroGradientError, SpecifiedBoundaryZeroGradientKernels,
     SpecifiedBoundaryZeroGradientParameters, SpecifiedBoundaryZeroGradientResult,

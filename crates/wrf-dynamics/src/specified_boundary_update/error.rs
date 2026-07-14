@@ -36,6 +36,11 @@ pub enum SpecifiedBoundaryUpdateError {
         /// Available storage extent.
         extent: usize,
     },
+    /// Horizontal column mass must use exactly one stored vertical level.
+    HorizontalMassRequiresSingleLevel {
+        /// Rejected half-level domain.
+        range: Range<usize>,
+    },
     /// A field does not use the region's validated storage shape.
     ShapeMismatch {
         /// Scientific field role.
@@ -71,6 +76,10 @@ impl fmt::Display for SpecifiedBoundaryUpdateError {
             } => write!(
                 formatter,
                 "specified-boundary {axis} stagger requires end {required_end}, but extent is {extent}"
+            ),
+            Self::HorizontalMassRequiresSingleLevel { range } => write!(
+                formatter,
+                "specified-boundary horizontal mass requires one vertical level, but received {range:?}"
             ),
             Self::ShapeMismatch {
                 field,

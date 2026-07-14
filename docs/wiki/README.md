@@ -151,6 +151,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary finalization performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-finalization-2026-07-14.md)
   — matched mass/map-factor reconstruction, CPU scaling, allocation evidence,
   and the multithreaded tuning stop.
+- [Specified-boundary tendency-assignment performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-tendencies-2026-07-14.md)
+  — matched boundary-file copies, CPU scaling, allocation evidence, and the
+  thin-perimeter tuning stop.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

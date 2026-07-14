@@ -56,14 +56,47 @@ safe Rust already clears the performance gate.
 
 ## Parity evidence
 
-The oracle extracts the exact WRF v4.7.1 routine body. Eight cases compare all
-1,728 stored values by raw IEEE-754 bits across mass, U, V, horizontal-mass,
-and full-level fields; periodic X; partial south/west tiles; and an inactive
-interior tile. Added tests cover zero-width zones, shape failure atomicity, and
-one/four-worker complete-output determinism.
+The oracle extracts the exact WRF v4.7.1 routine body. Nine cases compare all
+1,944 stored values by raw IEEE-754 bits across mass, U, V, horizontal-mass,
+and full-level fields; periodic X; partial south/west and shortened upper
+vertical tiles; and an inactive interior tile. Added tests cover zero-width
+zones, shape failure atomicity, and one/four-worker complete-output
+determinism.
 
-The next integration gate ports the remaining boundary-finalization routines
-and inserts boundary and halo operations around the local acoustic trajectory.
+The next integration gate ports `relax_bdytend` and inserts both tendency
+stages plus boundary and halo operations around the local acoustic trajectory.
+
+## Boundary-file tendency assignment
+
+Before applying and relaxing specified boundaries, `spec_bdytend` copies the
+time tendency supplied by the boundary file into the prognostic tendency field.
+It accepts both boundary state and boundary tendency arrays, but the pinned
+routine reads only the four tendency arrays. Rust therefore models only the
+data dependency that affects output through `SpecifiedBoundaryTendencies`.
+
+The assignment reuses the exact trapezoidal geometry above. Each destination
+receives the side value at its line coordinate, vertical level, and distance
+from the boundary. Periodic X suppresses west/east assignment and makes the
+south/north strips rectangular.
+
+The vertical contract depends on field location. Mass-half, U, and V fields
+start at the tile's lower bound but ignore its upper bound, continuing to the
+physical half-level top. Horizontal mass and full-level fields respect the
+supplied upper tile bound; full-level fields may include the extra top point.
+The shared typed region now captures this distinction for both
+`spec_bdytend` and `spec_bdyupdate`.
+
+Twelve direct cases compare all 2,592 stored values by raw bits across every
+field location, periodic X, opposite partial tiles, shortened vertical tiles,
+inactive and zero-width cases, signed zero, infinities, and a subnormal. Shape
+and width failures leave the entire mutable tendency unchanged, and one/four
+worker executions are bitwise identical.
+
+On the matched 256 × 256 × 40 workload, serial Rust is 1.19× faster and
+four-worker Rust is 2.91× faster than optimized serial Fortran. The default
+16-worker path is 3.2% slower, which is operationally equal for this thin copy.
+The kernel allocates no numerical scratch and clones no fields, so custom
+scheduling and explicit SIMD are not justified without an integrated profile.
 
 ## Mass-normalized geopotential
 

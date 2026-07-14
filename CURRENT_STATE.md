@@ -939,6 +939,18 @@ than optimized serial Fortran. One-worker Rust is 92.0% slower, but the normal
 multithreaded path is already competitive, so specialization and SIMD stop.
 The kernel uses no numerical scratch or field clones and records one scheduler
 allocation totaling 1,520 bytes per 100 warmed calls.
+Boundary-file tendency assignment implements `spec_bdytend` behind a focused
+typed capability that exposes only the four boundary tendency arrays actually
+read by WRF. Twelve direct cases cover every stagger location, periodic X,
+opposite partial tiles, shortened vertical tiles, inactive and zero-width
+paths, signed zero, infinities, and a subnormal; all 2,592 stored values match
+by raw bits. The shared region now captures the source's location-dependent
+vertical rule: mass-half, U, and V ignore the upper tile bound, while
+horizontal mass and full-level fields respect it. One-worker Rust is 1.19×
+faster and four-worker Rust is 2.91× faster than optimized serial Fortran; the
+default 16-worker path is within 3.2%, so tuning stops. The kernel uses no
+numerical scratch or field clones and records one 1,520-byte scheduler
+allocation per 100 warmed calls.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -991,7 +1003,7 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port `spec_bdytend` and `relax_bdytend`, then insert them and boundary/halo
+1. Port `relax_bdytend`, then insert it, `spec_bdytend`, and boundary/halo
    operations around the verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
