@@ -3,9 +3,9 @@ use wrf_compute::{CpuBackend, CpuField};
 use super::{
     DryLargeStepBoundaryStageControls, DryLargeStepBoundaryStageInputs,
     DryLargeStepBoundaryStageKernels, DryLargeStepBoundaryStageMode,
-    DryLargeStepBoundaryStageRegions, DryLargeStepBoundaryStageResult,
-    DryLargeStepNestedVertical, DryLargeStepRelaxationBoundaryValues,
-    DryLargeStepRelaxationInputs, DryLargeStepSavedTendencies,
+    DryLargeStepBoundaryStageRegions, DryLargeStepBoundaryStageResult, DryLargeStepNestedVertical,
+    DryLargeStepRelaxationBoundaryValues, DryLargeStepRelaxationInputs,
+    DryLargeStepSavedTendencies,
 };
 use crate::dry_tendency_assembly::validate_cpu_dry_tendency_assembly;
 use crate::specified_boundary_update::{
@@ -64,9 +64,12 @@ impl DryLargeStepBoundaryStageKernels for CpuBackend {
         } = forward;
 
         let (phase, relaxation, vertical_relaxation, vertical_boundaries) = match mode {
-            DryLargeStepBoundaryStageMode::FirstSubstepGlobal { relaxation } => {
-                (DryTendencyAssemblyPhase::FirstSubstep, Some(relaxation), None, None)
-            }
+            DryLargeStepBoundaryStageMode::FirstSubstepGlobal { relaxation } => (
+                DryTendencyAssemblyPhase::FirstSubstep,
+                Some(relaxation),
+                None,
+                None,
+            ),
             DryLargeStepBoundaryStageMode::FirstSubstepNested {
                 relaxation,
                 vertical,
@@ -81,7 +84,10 @@ impl DryLargeStepBoundaryStageKernels for CpuBackend {
                     Some(relaxation),
                     Some((
                         velocity,
-                        DryBoundaryRelaxationBoundaryData::new(boundary_values, boundary_tendencies),
+                        DryBoundaryRelaxationBoundaryData::new(
+                            boundary_values,
+                            boundary_tendencies,
+                        ),
                     )),
                     Some(boundary_tendencies),
                 )
@@ -89,7 +95,9 @@ impl DryLargeStepBoundaryStageKernels for CpuBackend {
             DryLargeStepBoundaryStageMode::LaterSubstepGlobal => {
                 (DryTendencyAssemblyPhase::LaterSubstep, None, None, None)
             }
-            DryLargeStepBoundaryStageMode::LaterSubstepNested { vertical_boundaries } => (
+            DryLargeStepBoundaryStageMode::LaterSubstepNested {
+                vertical_boundaries,
+            } => (
                 DryTendencyAssemblyPhase::LaterSubstep,
                 None,
                 None,

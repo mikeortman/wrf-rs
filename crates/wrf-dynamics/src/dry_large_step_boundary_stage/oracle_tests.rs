@@ -3,15 +3,14 @@ use std::ops::Range;
 use wrf_compute::{ComputeBackend, CpuBackend, CpuField, FieldStorage, GridShape};
 
 use crate::{
-    DryBoundaryRelaxationError, DryBoundaryRelaxationMassCoefficients,
-    DryBoundaryRelaxationState, DryBoundaryRelaxationTarget, DryBoundaryRelaxationWorkspace,
-    DryBoundaryTendencyBoundaryFields, DryBoundaryTendencyError, DryBoundaryTendencyTarget,
-    DryTendencyAssemblyCoefficients, DryTendencyAssemblyForwardTendencies,
-    DryTendencyAssemblyMapFactors, DryTendencyAssemblyRungeKuttaTendencies,
-    DryTendencyAssemblyThermodynamics, SpecifiedBoundaryRelaxationBoundaryValues,
-    SpecifiedBoundaryRelaxationCoefficients, SpecifiedBoundaryRelaxationParameters,
-    SpecifiedBoundaryTendencies, SpecifiedBoundaryTendencyParameters,
-    SpecifiedBoundaryWestEastPeriodicity,
+    DryBoundaryRelaxationError, DryBoundaryRelaxationMassCoefficients, DryBoundaryRelaxationState,
+    DryBoundaryRelaxationTarget, DryBoundaryRelaxationWorkspace, DryBoundaryTendencyBoundaryFields,
+    DryBoundaryTendencyError, DryBoundaryTendencyTarget, DryTendencyAssemblyCoefficients,
+    DryTendencyAssemblyForwardTendencies, DryTendencyAssemblyMapFactors,
+    DryTendencyAssemblyRungeKuttaTendencies, DryTendencyAssemblyThermodynamics,
+    SpecifiedBoundaryRelaxationBoundaryValues, SpecifiedBoundaryRelaxationCoefficients,
+    SpecifiedBoundaryRelaxationParameters, SpecifiedBoundaryTendencies,
+    SpecifiedBoundaryTendencyParameters, SpecifiedBoundaryWestEastPeriodicity,
 };
 
 use super::*;
@@ -137,15 +136,103 @@ struct OracleCase {
 
 fn oracle_cases() -> [OracleCase; 9] {
     [
-        oracle_case("first_global", true, false, false, 1..9, 1..9, 1..6, 1, 3, false),
-        oracle_case("first_nested", true, true, false, 1..9, 1..9, 1..6, 1, 3, false),
-        oracle_case("later_nested", false, true, false, 1..9, 1..9, 1..5, 1, 3, false),
-        oracle_case("periodic_nested", true, true, true, 1..9, 1..9, 1..6, 1, 3, false),
-        oracle_case("south_west", true, true, false, 1..6, 1..6, 1..6, 1, 3, false),
-        oracle_case("north_east", true, true, false, 4..9, 4..9, 1..6, 1, 3, false),
+        oracle_case(
+            "first_global",
+            true,
+            false,
+            false,
+            1..9,
+            1..9,
+            1..6,
+            1,
+            3,
+            false,
+        ),
+        oracle_case(
+            "first_nested",
+            true,
+            true,
+            false,
+            1..9,
+            1..9,
+            1..6,
+            1,
+            3,
+            false,
+        ),
+        oracle_case(
+            "later_nested",
+            false,
+            true,
+            false,
+            1..9,
+            1..9,
+            1..5,
+            1,
+            3,
+            false,
+        ),
+        oracle_case(
+            "periodic_nested",
+            true,
+            true,
+            true,
+            1..9,
+            1..9,
+            1..6,
+            1,
+            3,
+            false,
+        ),
+        oracle_case(
+            "south_west",
+            true,
+            true,
+            false,
+            1..6,
+            1..6,
+            1..6,
+            1,
+            3,
+            false,
+        ),
+        oracle_case(
+            "north_east",
+            true,
+            true,
+            false,
+            4..9,
+            4..9,
+            1..6,
+            1,
+            3,
+            false,
+        ),
         oracle_case("inactive", true, true, false, 4..6, 4..6, 1..6, 1, 3, false),
-        oracle_case("empty_band", true, true, false, 1..9, 1..9, 1..6, 2, 2, false),
-        oracle_case("exceptional", true, true, false, 1..9, 1..9, 1..6, 1, 3, true),
+        oracle_case(
+            "empty_band",
+            true,
+            true,
+            false,
+            1..9,
+            1..9,
+            1..6,
+            2,
+            2,
+            false,
+        ),
+        oracle_case(
+            "exceptional",
+            true,
+            true,
+            false,
+            1..9,
+            1..9,
+            1..6,
+            1,
+            3,
+            true,
+        ),
     ]
 }
 
@@ -323,8 +410,7 @@ fn initialize_prognostic_fields(fixture: &mut Fixture) {
             let horizontal_index = south_north * 10 + west_east;
             fixture.runge_kutta_column_mass.values_mut()[horizontal_index] =
                 0.6 + i * 0.07 - j * 0.03;
-            fixture.forward_column_mass.values_mut()[horizontal_index] =
-                -0.2 + i * 0.02 + j * 0.04;
+            fixture.forward_column_mass.values_mut()[horizontal_index] = -0.2 + i * 0.02 + j * 0.04;
             fixture.perturbation_column_mass.values_mut()[horizontal_index] =
                 60.0 + i * 0.25 - j * 0.125;
             fixture.full_column_mass.values_mut()[horizontal_index] = 50.0 + i * 2.0 + j * 3.0;
