@@ -23,6 +23,7 @@ mod relaxation;
 mod tendency_assignment;
 mod zero_gradient;
 
+pub(crate) use dry_relaxation::validate_cpu_dry_boundary_relaxation;
 pub use dry_relaxation::{
     DryBoundaryRelaxationBoundaryData, DryBoundaryRelaxationBoundaryFields,
     DryBoundaryRelaxationError, DryBoundaryRelaxationField, DryBoundaryRelaxationKernels,

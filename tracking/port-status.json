@@ -45,8 +45,8 @@
       "id": "dynamics",
       "area": "ARW dynamical core",
       "state": "in-progress",
-      "evidence": "Dependency-closed dry, acoustic, and specified-boundary kernels have direct pinned-Fortran parity; the local acoustic trajectory matches 2,196 selected final values.",
-      "next_gate": "Compose first-substep relaxation, specified updates, and halo exchange around the verified acoustic trajectory.",
+      "evidence": "Dependency-closed dry, acoustic, and specified-boundary kernels have direct pinned-Fortran parity; the local acoustic trajectory matches 2,196 selected final values; the complete three-stage dry large-step boundary sequence (first-substep relaxation, tendency assembly, boundary assignment) is composed behind one failure-atomic capability.",
+      "next_gate": "Compose specified updates and halo exchange around the verified acoustic trajectory.",
       "tracking_issue": 86
     },
     {

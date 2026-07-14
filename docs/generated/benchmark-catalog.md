@@ -18,6 +18,7 @@ CI runner classification: **self hosted mac studio 2**.
 | Integrated Runge-Kutta preparation | `wrf-dynamics::runge_kutta_preparation::seven_diagnostics` | `scripts/benchmark-runge-kutta-preparation-fortran.sh` (default) | `scripts/run-runge-kutta-preparation-oracle.sh` |
 | Dry tendency assembly | `wrf-dynamics::dry_tendency_assembly::first_substep` | `scripts/benchmark-dry-tendency-assembly-fortran.sh` (default) | `scripts/run-dry-tendency-assembly-oracle.sh` |
 | Coupled dry tendency and boundary stage | `wrf-dynamics::dry_tendency_boundary_stage::first_nested` | `scripts/benchmark-dry-tendency-boundary-stage-fortran.sh` (default) | `scripts/run-dry-tendency-boundary-stage-oracle.sh` |
+| Dry large-step boundary stage | `wrf-dynamics::dry_large_step_boundary_stage::first_nested` | `scripts/benchmark-dry-large-step-boundary-stage-fortran.sh` (default) | `scripts/run-dry-large-step-boundary-stage-oracle.sh` |
 | Acoustic small-step preparation | `wrf-dynamics::acoustic_step_preparation::first_substep` | `scripts/benchmark-acoustic-step-preparation-fortran.sh` (default) | `scripts/run-acoustic-step-preparation-oracle.sh` |
 | Acoustic pressure, nonhydrostatic | `wrf-dynamics::acoustic_pressure::nonhydrostatic` | `scripts/benchmark-acoustic-pressure-fortran.sh` (nonhydrostatic) | `scripts/run-acoustic-pressure-oracle.sh` |
 | Acoustic pressure, hydrostatic | `wrf-dynamics::acoustic_pressure::hydrostatic` | `scripts/benchmark-acoustic-pressure-fortran.sh` (hydrostatic) | `scripts/run-acoustic-pressure-oracle.sh` |

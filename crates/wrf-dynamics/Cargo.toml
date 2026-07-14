@@ -128,3 +128,7 @@ harness = false
 [[bench]]
 name = "dry_boundary_tendencies"
 harness = false
+
+[[bench]]
+name = "dry_large_step_boundary_stage"
+harness = false

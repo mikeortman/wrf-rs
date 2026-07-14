@@ -166,6 +166,18 @@
       "watch": ["crates/wrf-dynamics/src/dry_tendency_boundary_stage/**", "crates/wrf-dynamics/benches/dry_tendency_boundary_stage.rs", "parity/dry-tendency-boundary-stage/**", "scripts/benchmark-dry-tendency-boundary-stage-fortran.sh"]
     },
     {
+      "id": "dry-large-step-boundary-stage",
+      "label": "Dry large-step boundary stage",
+      "package": "wrf-dynamics",
+      "rust_bench": "dry_large_step_boundary_stage",
+      "criterion_group": "dry_large_step_boundary_stage",
+      "rust_case": "first_nested",
+      "fortran_case": "default",
+      "fortran_script": "scripts/benchmark-dry-large-step-boundary-stage-fortran.sh",
+      "parity_oracle": "scripts/run-dry-large-step-boundary-stage-oracle.sh",
+      "watch": ["crates/wrf-dynamics/src/dry_large_step_boundary_stage/**", "crates/wrf-dynamics/benches/dry_large_step_boundary_stage.rs", "parity/dry-large-step-boundary-stage/**", "scripts/benchmark-dry-large-step-boundary-stage-fortran.sh"]
+    },
+    {
       "id": "acoustic-step-preparation",
       "label": "Acoustic small-step preparation",
       "package": "wrf-dynamics",

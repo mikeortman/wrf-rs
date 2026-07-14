@@ -3,6 +3,8 @@ mod inputs;
 mod mass_weighting;
 mod validation;
 
+pub(crate) use validation::validate_cpu_dry_boundary_relaxation;
+
 use wrf_compute::{CpuBackend, CpuField};
 
 use super::{
