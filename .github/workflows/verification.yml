@@ -71,6 +71,8 @@ jobs:
         run: ./scripts/run-periodic-column-mass-oracle.sh
       - name: Verify momentum coupling
         run: ./scripts/run-momentum-coupling-oracle.sh
+      - name: Verify dry-air omega diagnosis
+        run: ./scripts/run-omega-diagnosis-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

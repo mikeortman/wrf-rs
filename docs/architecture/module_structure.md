@@ -24,6 +24,17 @@ src/
 │   ├── coefficients.rs
 │   ├── region.rs
 │   └── ...
+├── omega_diagnosis/
+│   ├── mod.rs
+│   ├── cpu.rs
+│   ├── kernels.rs
+│   ├── region.rs
+│   ├── row/
+│   │   ├── mod.rs
+│   │   ├── mass_rows.rs
+│   │   ├── velocity_rows.rs
+│   │   └── ...
+│   └── ...
 └── positive_definite/
     ├── mod.rs
     ├── cpu.rs

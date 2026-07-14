@@ -46,8 +46,9 @@ upstream tests and differential fixtures pass.
 - `wrf-dynamics` contains line-parallel, scratch-free ports of WRF's
   positive-definite correction, Held-Suarez momentum damping, and column-mass
   staggering, including periodic `calc_mu_uv` and combined-mass `calc_mu_uv_1`
-  paths, plus three-component mass/map-factor momentum coupling. Deterministic
-  fixtures and seeded randomized corpora check upstream `REAL` bit patterns.
+  paths, three-component mass/map-factor momentum coupling, and complete-column
+  dry-air omega diagnosis. Deterministic fixtures and seeded randomized corpora
+  check upstream `REAL` bit patterns.
 - `wrf-physics` contains the first physical parameterization: parallel Kessler
   warm-rain microphysics with reusable scratch and exact pinned-Fortran output
   parity.
@@ -87,7 +88,7 @@ WRF initialization and match an upstream integration.
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
 | Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
-| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, and `couple_momentum` have exact Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Continue `rk_step_prep` with `calc_ww_cp` and dependency-closed integration |
+| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, `couple_momentum`, and `calc_ww_cp` have exact Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Continue `rk_step_prep` with `calc_cq` and dependency-closed integration |
 | Physics drivers and schemes | In progress | Kessler warm-rain microphysics matches all 660 mutable oracle values exactly; one/four-worker determinism, reusable scratch, matched optimized-Fortran benchmark, and allocation evidence | Port microphysics driver/state mapping and add a coupled precipitation trajectory |
 | I/O and NetCDF metadata | In progress | Typed minimum ARW schema; independent NetCDF-C/Rust restart files match ordered metadata and every field bit | Add full Registry-selected state, alarm metadata, NetCDF-4 output policy, and resumed-trajectory parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
@@ -120,6 +121,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/run-periodic-column-mass-oracle.sh
 ./scripts/run-momentum-coupling-oracle.sh
+./scripts/run-omega-diagnosis-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -133,10 +135,12 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/benchmark-column-mass-staggering-fortran.sh
 ./scripts/benchmark-periodic-column-mass-fortran.sh
 ./scripts/benchmark-momentum-coupling-fortran.sh
+./scripts/benchmark-omega-diagnosis-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo bench -p wrf-dynamics --bench momentum_coupling -- --noplot
+cargo bench -p wrf-dynamics --bench omega_diagnosis -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ```
 

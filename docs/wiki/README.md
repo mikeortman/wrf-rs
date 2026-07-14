@@ -37,6 +37,9 @@ implemented system; proposed work is explicitly labeled.
 - [Momentum coupling](Momentum-Coupling.md) — mass/map-factor equations,
   stagger-specific clipping, typed field ownership, safe vector-friendly rows,
   and exact-bit evidence.
+- [Dry-air omega diagnosis](Omega-Diagnosis.md) — continuity integration,
+  complete-column contract, map-factor fluxes, scratch-free parallel rows, and
+  exact-bit evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -52,6 +55,9 @@ implemented system; proposed work is explicitly labeled.
 - [Momentum-coupling performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/momentum-coupling-2026-07-13.md)
   — matched C-grid workload, bounds-check optimization, scaling, and allocation
   evidence.
+- [Omega-diagnosis performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/omega-diagnosis-2026-07-13.md)
+  — matched complete-column workload, row-layout correction, CPU scaling, and
+  allocation evidence.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

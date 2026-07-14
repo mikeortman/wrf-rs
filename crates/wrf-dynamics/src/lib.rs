@@ -18,6 +18,7 @@
 mod column_mass_staggering;
 mod held_suarez;
 mod momentum_coupling;
+mod omega_diagnosis;
 mod positive_definite;
 #[cfg(test)]
 mod test_support;
@@ -36,6 +37,12 @@ pub use momentum_coupling::{
     MomentumCouplingError, MomentumCouplingField, MomentumCouplingKernels,
     MomentumCouplingMapFactors, MomentumCouplingMasses, MomentumCouplingOutputs,
     MomentumCouplingRegion, MomentumCouplingResult, MomentumCouplingVelocities,
+};
+pub use omega_diagnosis::{
+    OmegaDiagnosisAxis, OmegaDiagnosisCoefficient, OmegaDiagnosisCoefficients, OmegaDiagnosisError,
+    OmegaDiagnosisField, OmegaDiagnosisGridMetrics, OmegaDiagnosisKernels,
+    OmegaDiagnosisMapFactors, OmegaDiagnosisMasses, OmegaDiagnosisRegion, OmegaDiagnosisResult,
+    OmegaDiagnosisVelocities,
 };
 pub use positive_definite::{
     PositiveDefiniteError, PositiveDefiniteKernels, PositiveDefiniteResult,

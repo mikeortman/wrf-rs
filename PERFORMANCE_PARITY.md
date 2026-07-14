@@ -67,6 +67,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
 | Periodic big-step column mass | 2,099,200 momentum-mass outputs | 0.347120 ms median `[0.293724, 0.412366]` | 0.35964 ms `[0.35356, 0.36571]` | 0.18110 ms (4 workers) | Rust serial 3.6% slower; Rust 4-worker 1.92× faster; stop tuning |
 | Momentum coupling | 7,950,336 momentum outputs | 1.152625 ms median `[1.025500, 1.276675]` | 1.3679 ms `[1.3523, 1.3840]` | 0.65495 ms (4 workers) | Rust serial 18.7% slower; Rust 4-worker 1.76× faster; stop tuning |
+| Dry-air omega diagnosis | 2,686,976 omega outputs | 1.832250 ms median `[1.743500, 1.881850]` | 5.0201 ms `[4.9991, 5.0425]` | 0.66690 ms (16 workers) | Rust serial 2.74× slower; Rust 4-worker 1.38× faster; Rust 16-worker 2.75× faster; stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -86,6 +87,7 @@ cargo bench -p wrf-dynamics --bench positive_definite -- --noplot
 cargo bench -p wrf-dynamics --bench held_suarez -- --noplot
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo bench -p wrf-dynamics --bench momentum_coupling -- --noplot
+cargo bench -p wrf-dynamics --bench omega_diagnosis -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -93,6 +95,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-column-mass-staggering-fortran.sh
 ./scripts/benchmark-periodic-column-mass-fortran.sh
 ./scripts/benchmark-momentum-coupling-fortran.sh
+./scripts/benchmark-omega-diagnosis-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -172,6 +175,23 @@ scientific oracle.
   100 calls are independent of field size; no numerical scratch is allocated.
 - No explicit SIMD or target-specific tuning is justified without an
   end-to-end profile identifying this routine as a material hotspot.
+
+## Omega-diagnosis comparison notes
+
+- Both implementations diagnose 2,686,976 complete-column outputs on a
+  256 × 256 × 40 mass grid with identical halos, coefficients, map factors,
+  and grid spacing.
+- Fortran uses eleven samples of 20 calls after ten warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark. All fields are reused.
+- The first parity-correct column-strided Rust version measured 17.960 ms with
+  one worker. Validated equal-length west-east row views preserved all 1,960
+  oracle values and improved accepted serial time by about 72%.
+- One-worker Rust remains slower than serial Fortran, but the standard
+  multithreaded path is faster at both four and 16 workers. Settled execution
+  uses one 1,520-byte scheduler allocation per 100 calls and no numerical
+  scratch.
+- No explicit SIMD is justified until integrated profiling identifies this
+  routine as a material limiter.
 
 ## Kessler microphysics comparison notes
 

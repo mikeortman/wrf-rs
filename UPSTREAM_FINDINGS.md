@@ -385,3 +385,71 @@ covers each upper stagger independently and together, negative/non-one memory
 origins, finite overflow, division by zero, and multiplication by a zero inverse
 factor. A useful upstream regression should add the same branch geometry and
 then exercise the operation through `rk_step_prep` in an idealized trajectory.
+
+## WRF-017: four unused map-factor arguments in `calc_ww_cp`
+
+Status: source-confirmed interface redundancy; no numerical defect.
+
+`calc_ww_cp` accepts and declares `msfty`, `msfux`, `msfvx`, and `msfvy` at
+`dyn_em/module_big_step_utilities_em.F:640-667`. The executable statements at
+lines 692-779 read `msftx`, `msfuy`, and `msfvx_inv`, but never reference the
+other four arrays. The sole production caller still passes all seven factors.
+
+The Rust capability carries only the three arrays read by the algorithm.
+Suggested upstream action: remove the four unused arguments in an
+interface-breaking cleanup, or document that they are retained for call-site
+compatibility. Enabling unused-dummy-argument warnings would identify similar
+signature drift.
+
+## WRF-018: `calc_ww_cp` has an implicit complete-column precondition
+
+Status: source-confirmed latent bounds/initialization defect. Normal ARW calls
+appear to provide the complete vertical column; impact outside that path is not
+established.
+
+The routine accepts `kts` and declares `divv(its:ite,kts:kte)`, but line 714
+writes `ww(i,1,j)` and the recurrence at line 767 starts from literal level
+`2`. If `kts > 1`, the recurrence reads `divv(i,k-1)` below its declared lower
+bound and uses output levels excluded from the tile. If `kte < kde`, the zero
+written at `kte` can be overwritten because `ktf = min(kte,kde-1)`.
+
+The derivation in the routine itself integrates over all levels and assumes
+zero vertical flux at the physical top and bottom, so a partial vertical tile
+is not merely an indexing variation. The Rust region rejects incomplete
+columns explicitly. Suggested upstream fix: document and assert
+`kts == kds == 1` and `kte == kde`, or redesign the interface and mathematics
+for partial columns. Add a bounds-checked regression for invalid `kts`/`kte`.
+
+## WRF-019: `calc_ww_cp` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`ww` is declared `INTENT(OUT)` at line 666. Fortran makes the whole dummy array
+undefined on entry, but the routine assigns only active horizontal points,
+bottom/top tile points, and internal active full levels. Horizontal halos,
+clipped rows, vertical storage outside the physical column, and most upper
+west-east stagger points are not assigned.
+
+Observed compilers leave those bytes unchanged, which is why the local oracle
+can verify sentinel preservation, but relying on their prior values is not
+standard-conforming. Suggested upstream action: change the declaration to
+`INTENT(INOUT)` if preservation is intended, or assign the complete declared
+array and document the value for inactive storage.
+
+## WRF-020: omega-diagnosis numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_ww_cp` routine,
+`rk_step_prep` call, and tangent-linear/adjoint variants, but no dedicated
+numerical regression. The routine combines staggered column-mass averaging,
+component-specific map factors, horizontal divergence, a vertical reduction,
+and a recurrence with fixed physical-boundary values.
+
+The local differential oracle extracts the exact production body and compares
+all 1,960 stored output and sentinel values. It covers interior and upper-edge
+tiles, combined boundaries, non-one/negative memory origins, finite overflow,
+zero map factors, and untouched storage. A useful upstream regression should
+add the same geometry, a full-column contract check, randomized finite inputs,
+and an integrated `rk_step_prep` trajectory.
