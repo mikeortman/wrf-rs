@@ -24,3 +24,7 @@ harness = false
 [[bench]]
 name = "held_suarez"
 harness = false
+
+[[bench]]
+name = "column_mass_staggering"
+harness = false
