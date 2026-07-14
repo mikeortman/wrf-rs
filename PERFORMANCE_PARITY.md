@@ -66,6 +66,15 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Held-Suarez damping | 2,097,152 momentum updates | 0.859712 ms median `[0.851224, 0.877004]` | 0.93459 ms `[0.92879, 0.94090]` | 0.29105 ms (4 workers) | Rust serial 8.7% slower; Rust 4-worker 2.95× faster |
 | Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
 
+Domain topology is setup work and is not benchmarked as a timestep kernel.
+Halo throughput is also not assigned a Rust/Fortran ratio yet: a four-rank
+loopback result would mostly measure the local MPI runtime, while WRF aggregates
+many fields through generated communication descriptors that are not ported.
+The accepted implementation evidence is therefore bounded boundary-only
+buffers, one patch allocation per MPI rank, non-blocking receives-before-sends,
+and exact output parity. A matched communication benchmark becomes meaningful
+after multi-field aggregation lands.
+
 ## Reproduction
 
 ```sh

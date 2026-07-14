@@ -1,6 +1,8 @@
 [workspace]
 members = [
     "crates/wrf-compute",
+    "crates/wrf-domain",
+    "crates/wrf-domain-mpi",
     "crates/wrf-dynamics",
     "crates/wrf-registry",
     "crates/wrf-time",

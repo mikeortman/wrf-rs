@@ -44,8 +44,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Install stable Rust for corpus regeneration
         uses: dtolnay/rust-toolchain@stable
-      - name: Install GNU Fortran
-        run: sudo apt-get update && sudo apt-get install --yes gfortran
+      - name: Install GNU Fortran and Open MPI
+        run: sudo apt-get update && sudo apt-get install --yes gfortran libopenmpi-dev openmpi-bin
       - name: Prepare archive cache
         run: mkdir -p "${RUNNER_TEMP}/wrf-downloads"
       - name: Cache pinned WRF archives
@@ -69,6 +69,14 @@ jobs:
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation
         run: ./scripts/run-registry-oracle.sh
+      - name: Verify domain decomposition
+        run: ./scripts/run-domain-topology-oracle.sh
+      - name: Verify clipped tile bounds
+        run: ./scripts/run-clipped-tiles-oracle.sh
+      - name: Verify serial and MPI halo parity
+        run: ./scripts/run-mpi-halo-parity.sh
+      - name: Verify WRF periodic halo behavior
+        run: ./scripts/run-periodic-halo-oracle.sh
 
   publish-wiki:
     name: Publish Wiki

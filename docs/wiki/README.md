@@ -18,6 +18,9 @@ implemented system; proposed work is explicitly labeled.
   first-divergence diagnosis.
 - [WRF Registry](WRF-Registry.md) — the Registry DSL, preprocessing and typed
   Rust model, generated-state pipeline, supported subset, and parity evidence.
+- [Domain decomposition and halo exchange](Domain-Decomposition-and-Halo-Exchange.md)
+  — process partitions, patch/memory/tile bounds, periodic endpoints, corner
+  propagation, local execution, and MPI transport.
 - [Timekeeping](Timekeeping.md) — exact rational model time and Gregorian
   calendar behavior.
 - [Positive-definite correction](Positive-Definite-Correction.md) — derivation,
