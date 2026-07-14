@@ -26,6 +26,7 @@ mod vertical_metrics;
 pub use axis::AcousticPressureAxis;
 pub use coefficient::AcousticPressureCoefficient;
 pub use coefficients::AcousticPressureCoefficients;
+pub(crate) use cpu::validate_acoustic_pressure;
 pub use damping_phase::AcousticPressureDampingPhase;
 pub use error::{AcousticPressureError, AcousticPressureResult};
 pub use field::AcousticPressureField;

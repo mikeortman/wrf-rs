@@ -19,6 +19,7 @@ pub use boundary::{
     AcousticWestEastBoundary, AcousticWestEastPeriodicity,
 };
 pub use coefficient::AcousticHorizontalMomentumCoefficient;
+pub(crate) use cpu::validate_acoustic_horizontal_momentum;
 pub use domain::{AcousticHorizontalMomentumAxis, AcousticHorizontalMomentumRegion};
 pub use error::{AcousticHorizontalMomentumError, AcousticHorizontalMomentumResult};
 pub use field::AcousticHorizontalMomentumField;

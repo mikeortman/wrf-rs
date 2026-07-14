@@ -27,6 +27,7 @@ pub use axis::AcousticStepPreparationAxis;
 pub use coefficient::AcousticStepPreparationCoefficient;
 pub use coefficients::AcousticStepPreparationCoefficients;
 pub use column_mass_time_levels::AcousticStepPreparationColumnMassTimeLevels;
+pub(crate) use cpu::validate_acoustic_step_preparation;
 pub use diagnostic_inputs::AcousticStepPreparationDiagnosticInputs;
 pub use error::{AcousticStepPreparationError, AcousticStepPreparationResult};
 pub use field::AcousticStepPreparationField;

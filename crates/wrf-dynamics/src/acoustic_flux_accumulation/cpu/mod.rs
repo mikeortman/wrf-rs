@@ -52,6 +52,29 @@ impl AcousticFluxAccumulationKernels for CpuBackend {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn validate_acoustic_flux_accumulation(
+    averages: &AcousticFluxRunningAverages<'_, CpuField<f32>>,
+    current: &AcousticFluxCurrentFields<'_, CpuField<f32>>,
+    linear: &AcousticFluxLinearFields<'_, CpuField<f32>>,
+    masses: &AcousticFluxMassFields<'_, CpuField<f32>>,
+    map_factors: &AcousticFluxMapFactors<'_, CpuField<f32>>,
+    column_mass_multiplier: &[f32],
+    column_mass_offset: &[f32],
+    region: &AcousticFluxAccumulationRegion,
+) -> AcousticFluxAccumulationResult<()> {
+    validation::validate_operation(
+        averages,
+        current,
+        linear,
+        masses,
+        map_factors,
+        column_mass_multiplier,
+        column_mass_offset,
+        region,
+    )
+}
+
 fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> AcousticFluxAccumulationError {
     match error {
         ParallelExecutionError::Kernel(never) => match never {},

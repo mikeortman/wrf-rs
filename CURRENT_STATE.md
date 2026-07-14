@@ -385,6 +385,15 @@ bits match the extracted routine after three substeps; invalid phases, field
 shapes, and coefficient lengths fail before mutation. The Rust API omits ten
 unused source arguments and allocates no numerical scratch.
 
+The complete local nonhydrostatic acoustic trajectory now composes
+`small_step_prep`, initial `calc_p_rho`, `calc_coef_w`, and three repetitions of
+`advance_uv`, `advance_mu_t`, `advance_w`, `sumflux`, and closing `calc_p_rho`.
+All seven stage contracts are checked before the first mutation. A direct
+pinned-Fortran oracle matches 2,196 selected final values exactly, one/four-
+worker complete state is bit-identical, and a final-stage validation error is
+failure-atomic across every mutable field. Communication and external boundary
+operations remain explicit integration boundaries.
+
 ### `wrf-io`
 
 Implemented:
@@ -877,6 +886,11 @@ bits, including first-step zeros at stagger-only tile points. On the matched
 workload, 16-worker Rust is 1.52× faster than optimized serial Fortran, uses no
 numerical scratch, and records 28,880 bytes of scheduler allocation per 100
 settled sequences, so further SIMD tuning stops.
+The complete local trajectory's matched 256 × 256 × 40 stage medians sum to
+108.423 ms for optimized serial Fortran and 73.949 ms for 16-worker Rust, a
+1.47× host-parallel advantage. This is a transparent arithmetic composition,
+not a fused wall-clock benchmark; direct integrated timing waits for the
+communication and boundary driver.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -929,10 +943,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Compare a complete acoustic small-step trajectory through preparation,
-   pressure diagnosis, coefficient construction, horizontal momentum,
-   mass/theta, vertical momentum, flux accumulation, and closing pressure
-   diagnosis.
+1. Insert local halo, physical-boundary, polar, and specified/nested operations
+   around the verified acoustic trajectory and bind it to Registry state.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

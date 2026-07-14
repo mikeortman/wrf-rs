@@ -20,6 +20,7 @@ pub use boundary::{
     AcousticMassThetaWestEastPeriodicity,
 };
 pub use coefficient::AcousticMassThetaCoefficient;
+pub(crate) use cpu::validate_acoustic_mass_and_theta;
 pub use domain::{AcousticMassThetaAxis, AcousticMassThetaRegion};
 pub use error::{AcousticMassThetaError, AcousticMassThetaResult};
 pub use field::AcousticMassThetaField;

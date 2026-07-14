@@ -63,6 +63,24 @@ impl AcousticPressureKernels for CpuBackend {
     }
 }
 
+pub(crate) fn validate_acoustic_pressure(
+    state: &AcousticPressureState<'_, CpuField<f32>>,
+    thermodynamics: &AcousticPressureThermodynamics<'_, CpuField<f32>>,
+    masses: &AcousticPressureMasses<'_, CpuField<f32>>,
+    coefficients: AcousticPressureCoefficients<'_>,
+    vertical_metrics: AcousticPressureVerticalMetrics<'_>,
+    region: &AcousticPressureRegion,
+) -> AcousticPressureResult<()> {
+    validation::validate_operation(
+        state,
+        thermodynamics,
+        masses,
+        coefficients,
+        vertical_metrics,
+        region,
+    )
+}
+
 pub(super) fn map_parallel_error(
     error: ParallelExecutionError<Infallible>,
 ) -> AcousticPressureError {

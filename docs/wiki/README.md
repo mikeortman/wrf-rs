@@ -76,6 +76,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic flux accumulation](Acoustic-Flux-Accumulation.md) — staggered
   running sums, final linear recoupling, first-step clearing, parallel storage,
   and exact three-substep evidence.
+- [Complete local acoustic trajectory](Complete-Local-Acoustic-Trajectory.md) —
+  the seven-kernel execution order, failure-atomic ownership boundary,
+  interpolation roles, and exact coupled three-substep evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -124,6 +127,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic flux-accumulation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-flux-accumulation-2026-07-14.md)
   — matched three-substep workload, staggered output scaling, allocation
   evidence, and the SIMD stopping decision.
+- [Complete local acoustic-trajectory performance estimate](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-trajectory-2026-07-14.md)
+  — exact stage counts, equivalent optimization levels, aggregate timing, and
+  the direct-integrated-benchmark boundary.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.
