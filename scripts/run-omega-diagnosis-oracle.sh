@@ -5,6 +5,7 @@ repository_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 upstream_module="$repository_root/upstream/WRF/dyn_em/module_big_step_utilities_em.F"
 driver="$repository_root/parity/omega-diagnosis/omega_diagnosis_driver.F90"
 expected="$repository_root/crates/wrf-dynamics/test-data/omega_diagnosis.out.correct"
+normalizer="$repository_root/scripts/normalize-fortran-single-nans.awk"
 
 if ! command -v gfortran >/dev/null 2>&1; then
     echo "missing command required by omega-diagnosis oracle: gfortran" >&2
@@ -28,8 +29,12 @@ gfortran -O0 -ffree-form -ffree-line-length-none \
 if [ "${UPDATE_GOLDEN:-0}" = "1" ]; then
     cp "$build_directory/actual.out" "$expected"
 fi
-if ! cmp -s "$build_directory/actual.out" "$expected"; then
-    diff -u "$expected" "$build_directory/actual.out"
+LC_ALL=C awk -f "$normalizer" "$build_directory/actual.out" \
+    > "$build_directory/actual.normalized"
+LC_ALL=C awk -f "$normalizer" "$expected" \
+    > "$build_directory/expected.normalized"
+if ! cmp -s "$build_directory/actual.normalized" "$build_directory/expected.normalized"; then
+    diff -u "$build_directory/expected.normalized" "$build_directory/actual.normalized"
     exit 1
 fi
 
