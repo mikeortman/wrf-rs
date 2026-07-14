@@ -44,3 +44,29 @@ This hierarchy balances discoverability with the style guide's focused-file
 rule. It also scales toward future nested families such as dynamics, physics,
 I/O, and registry generation without exposing internal file layout as public
 API.
+
+`wrf-registry` applies the same rule to build-time infrastructure:
+
+```text
+src/
+├── lib.rs
+├── model/
+│   ├── mod.rs
+│   ├── dimension.rs
+│   ├── state_variable.rs
+│   └── ...
+├── parser/
+│   ├── mod.rs
+│   ├── logical_line.rs
+│   ├── tokenizer.rs
+│   └── registry_parser.rs
+└── generated_state/
+    ├── mod.rs
+    ├── registry_artifact_generator.rs
+    └── ...
+```
+
+The parser owns syntax and typed metadata. `generated_state` consumes that
+model but does not become runtime domain storage. Future runtime domain types
+must live in a runtime crate and consume generated declarations through an
+explicit boundary.

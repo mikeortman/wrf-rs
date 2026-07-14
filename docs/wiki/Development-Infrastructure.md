@@ -14,7 +14,9 @@ with warnings denied, Rust documentation with warnings denied, WRF time case
 coverage, the full WRF time golden oracle, and each numerical differential
 oracle. The randomized ARW gate first regenerates and byte-compares its shared
 inputs, then runs all four pinned Fortran corpus drivers. Numerical slices also
-need release-mode tests and, before optimization, representative benchmarks and
+The Registry slice additionally builds the pinned upstream C generator and
+compares generated artifacts exactly. Numerical slices also need release-mode
+tests and, before optimization, representative benchmarks and
 allocation measurements.
 
 Every numerical kernel also receives a matched optimized-Fortran baseline.

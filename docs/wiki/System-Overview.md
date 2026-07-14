@@ -16,20 +16,23 @@ utility slices are foundations, not evidence of forecast parity.
 
 ## Workspace layers
 
-`wrf-rs` currently has three crates:
+`wrf-rs` currently has four crates:
 
 - `wrf-time` owns civil-calendar conversion, exact model timestamps, intervals,
   and clocks. It corresponds to WRF's bundled ESMF-derived time manager.
 - `wrf-compute` owns backend-neutral field shape/storage contracts and the
   default persistent CPU executor. It contains no weather equations.
+- `wrf-registry` owns typed build-time Registry parsing and selected generated
+  artifacts. It contains no live domain fields.
 - `wrf-dynamics` owns translated ARW numerical capabilities. Its first kernel
-  is the positive-definite sheet correction.
+  families cover positive-definite correction, Held-Suarez damping, and
+  column-mass staggering.
 
 This split follows ownership. Time can be tested without a grid, compute can be
-tested without atmospheric formulas, and numerical crates depend on a narrow
-execution/storage foundation. Future physics, registry, decomposition, and I/O
-crates should be added at similarly real boundaries rather than as one crate
-per Fortran file.
+tested without atmospheric formulas, Registry generation can be tested without
+a live domain, and numerical crates depend on a narrow execution/storage
+foundation. Future physics, decomposition, and I/O crates should be added at
+similarly real boundaries rather than as one crate per Fortran file.
 
 ## Intended model-step flow
 

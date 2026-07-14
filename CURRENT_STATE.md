@@ -22,6 +22,9 @@ compaction or a new session. Update it only with verified current-state facts.
   stable public facades rather than flat implementation indexes.
 - Benchmark the exact pinned Fortran routine on a matched workload for every
   numerical kernel and track honest Rust/Fortran ratios.
+- Stop performance tuning when matched Rust and Fortran implementations are
+  operationally close unless a measured model-level bottleneck justifies more
+  complexity.
 
 ## Upstream reference
 
@@ -74,6 +77,37 @@ Implemented:
 Future numerical crates must define narrow kernel capability traits. Do not put
 unrelated kernels into `ComputeBackend` and do not expose arbitrary CPU closures
 as the GPU API.
+
+### `wrf-registry`
+
+Implemented:
+
+- a safe typed parser for dependency-closed `dimspec`, `state`, and `rconfig`
+  entries;
+- WRF-compatible backslash continuation, case folding, quoted-token, comment,
+  and quoted-`#` behavior;
+- physical source locations and typed diagnostics for malformed input;
+- typed standard, namelist, and constant dimension bounds, coordinate axes,
+  value types, state dimensions/modifiers, staggering flags, time levels, and
+  scalar/expression-sized namelist entries;
+- source-order resolution of state dimension references;
+- a separate selected-artifact generator, with no runtime domain ownership in
+  the parser crate;
+- byte-identical `state_struct.inc`, `namelist_defines.inc`,
+  `namelist_defaults.inc`, `namelist_statements.inc`, and
+  `model_data_order.inc` output against WRF v4.7.1;
+- exact normalized state metadata for regular time levels and generated
+  boundary/boundary-tendency arrays, derived from WRF `allocs_*.F` artifacts;
+- committed upstream goldens and a reproducible `scripts/run-registry-oracle.sh`
+  differential gate.
+
+The first fixture is deliberately small but uses real ARW `t` and `mu` entry
+forms, including continuations, complex I/O specifications, two time levels,
+boundary modifiers, every dimension-length mode, and scalar/vector runtime
+configuration storage. Includes, conditionals, `typedef`, `i1`, packages,
+communication entries, four-dimensional scalar-array generation, and the
+remaining generated files are explicitly not yet supported. See
+`docs/wiki/WRF-Registry.md`.
 
 ### `wrf-dynamics`
 
@@ -271,6 +305,7 @@ cargo test --workspace --release
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
+./scripts/run-registry-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
@@ -327,6 +362,8 @@ and detailed baseline.
 
 ## Immediate next actions
 
-1. Port the first WRF Registry DSL and generated-state slice under issue #4.
+1. Extend Registry preprocessing with includes and conditional definitions.
 2. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
-3. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
+3. Add Registry packages, typedefs, communication entries, and remaining
+   generated artifacts in dependency-closed slices.
+4. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

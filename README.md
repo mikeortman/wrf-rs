@@ -36,6 +36,9 @@ upstream tests and differential fixtures pass.
   time, rational-second intervals, arithmetic, formatting, and model clocks.
 - `wrf-compute` provides contiguous scalar fields and a persistent,
   work-stealing CPU pool that uses host parallelism by default.
+- `wrf-registry` parses the first typed WRF Registry subset and reproduces
+  selected generated state, namelist, dimension-order, and metadata artifacts
+  exactly from an ARW-shaped fixture.
 - `wrf-dynamics` contains line-parallel, scratch-free ports of WRF's
   positive-definite correction, Held-Suarez momentum damping, and non-periodic
   column-mass staggering, checked against upstream `REAL` bit patterns across
@@ -71,7 +74,7 @@ WRF initialization and match an upstream integration.
 |---|---|---|---|
 | Source pin and license | Complete | `UPSTREAM.toml`, `scripts/fetch-wrf.sh` | Monitor upstream only by explicit retargeting |
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
-| Registry/configuration | Not started | — | Parse Registry DSL and port generated-state fixtures |
+| Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
 | Domain decomposition / halo exchange | Not started | — | Serial topology first, then MPI differential tests |
 | ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and every `calc_mu_staggered` physical-boundary path have deterministic and seeded randomized Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Port periodic mass staggering and begin dependency-closed ARW integration |
 | Physics drivers and schemes | Not started | — | Inventory schemes and translate one dependency-closed column |
@@ -105,6 +108,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
+./scripts/run-registry-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh

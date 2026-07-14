@@ -18,16 +18,18 @@ after end-to-end cases run.
 
 ## Oracle construction
 
-A differential oracle compiles the pinned upstream Fortran routine itself. A
-small driver supplies deterministic inputs and emits a machine-independent
-representation where practical. Single-precision exact fixtures use eight hex
-digits per IEEE-754 bit pattern, preserving signed zero and avoiding decimal
-format ambiguity.
+A differential oracle compiles the pinned upstream implementation itself. For
+numerical kernels this is normally the Fortran routine plus a small driver that
+supplies deterministic inputs and emits a machine-independent representation.
+Single-precision exact fixtures use eight hex digits per IEEE-754 bit pattern,
+preserving signed zero and avoiding decimal format ambiguity. For build-time
+infrastructure, the Registry oracle builds WRF's C generator and compares
+generated Fortran and metadata byte-for-byte.
 
 The golden output is committed and consumed by Rust tests. This creates one
 chain of provenance:
 
-`pinned Fortran source -> oracle driver -> golden bits -> Rust assertion`.
+`pinned upstream source -> oracle/fixture -> golden output -> Rust assertion`.
 
 Hand-calculated expected values are useful for review but do not replace that
 chain. During the first dynamics slice, the oracle immediately corrected an

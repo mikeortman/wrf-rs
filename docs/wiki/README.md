@@ -16,6 +16,8 @@ implemented system; proposed work is explicitly labeled.
 - [Randomized differential testing](Randomized-Differential-Testing.md) —
   shared raw-bit inputs, deterministic seeds, exceptional-value policy, and
   first-divergence diagnosis.
+- [WRF Registry](WRF-Registry.md) — the Registry DSL, preprocessing and typed
+  Rust model, generated-state pipeline, supported subset, and parity evidence.
 - [Timekeeping](Timekeeping.md) — exact rational model time and Gregorian
   calendar behavior.
 - [Positive-definite correction](Positive-Definite-Correction.md) — derivation,
