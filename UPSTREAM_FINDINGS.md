@@ -354,3 +354,34 @@ round-trip gate. Suggested upstream action: either remove the programs and
 README instructions as historical artifacts, or update them to current
 interfaces and add a build/CTest target that checks schema, field values,
 multiple records, classic/NetCDF-4 modes, and restart metadata.
+
+## WRF-015: unused `msfv` argument in `couple_momentum`
+
+Status: source-confirmed interface redundancy; no numerical defect.
+
+`couple_momentum` accepts both `msfv` and `msfv_inv` and declares both as input
+arrays. The south-north equation reads only `msfv_inv`; a repository search of
+the exact routine finds no reference to `msfv` after its declaration. Current
+ARW callers nevertheless pass both `msfvx` and `msfvx_inv`.
+
+The Rust capability carries only the inverse factor actually used by the
+algorithm. Suggested upstream action: remove `msfv` in an interface-breaking
+cleanup, or at minimum comment that it is retained for compatibility. Compiler
+warnings for unused dummy arguments would make similar drift easier to find.
+
+## WRF-016: momentum-coupling numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `couple_momentum` routine,
+Runge-Kutta preparation call, and tangent-linear/adjoint derivatives, but no
+dedicated numerical regression for the production routine. Its three loops use
+different horizontal and vertical clipping, different map-factor operations,
+and half- versus full-level coefficients.
+
+The local differential oracle extracts the exact production body and checks all
+3,780 output and inactive sentinel values by raw single-precision bits. It
+covers each upper stagger independently and together, negative/non-one memory
+origins, finite overflow, division by zero, and multiplication by a zero inverse
+factor. A useful upstream regression should add the same branch geometry and
+then exercise the operation through `rk_step_prep` in an idealized trajectory.

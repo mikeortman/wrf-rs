@@ -192,6 +192,16 @@ Implemented:
 - a 960-value raw-bit oracle covering both input forms, every physical and
   periodic boundary path, inactive storage, and an overflow-sensitive finite
   endpoint;
+- WRF `couple_momentum` behind a focused `MomentumCouplingKernels` capability,
+  with role-specific borrowed output, velocity, mass, map-factor, and
+  coefficient bundles;
+- typed C-grid domain/tile validation that derives the distinct U, V, and W
+  half/full-level clipping without caller booleans;
+- three safe row-parallel, scratch-free output passes whose equal-length slices
+  preserve source expression order and enable bounds-check elimination;
+- a 3,780-value exact Fortran oracle covering each upper stagger, negative and
+  non-one memory origins, untouched storage, finite overflow, and zero map
+  factors;
 - a versioned SplitMix64 corpus generator, shared raw-bit input files, and
   pinned Fortran drivers for 68 seeded cases and 39,588 complete outputs across
   all four translated routines;
@@ -216,6 +226,12 @@ expression. The `calc_mu_uv` variants cover all four periodicity states for
 split and already-combined mass. Sixteen randomized `calc_mu_staggered` cases
 cross all physical boundary states. The next gates are a randomized big-step
 corpus and dependency-closed ARW integration.
+
+Momentum coupling now consumes those staggered masses through the same
+backend-owned storage boundary used by future GPU kernels. Every focused output
+matches pinned Fortran bits, validation precedes mutation, and one/four-worker
+results are identical. The Rust API omits WRF's declared but unused `msfv`
+argument; `UPSTREAM_FINDINGS.md` records that interface drift.
 
 ### `wrf-io`
 
@@ -345,6 +361,20 @@ reallocations or numerical scratch. This is close enough to stop tuning and
 retain the readable scalar implementation. See
 `docs/performance/periodic-column-mass-2026-07-13.md`.
 
+## Momentum-coupling performance baseline
+
+For 7,950,336 outputs on a 256 × 256 × 40 C-grid workload, accepted safe Rust
+measured 1.3679 ms with one worker, 654.95 µs with four, and 1.4425 ms with 16.
+Matched GNU Fortran 16.1.0 `-O3 -flto` measured a 1.152625 ms median. Rust is
+18.7% slower serially and 1.76× faster with four workers than serial Fortran.
+
+Replacing repeated global indexing with validated equal-length row slices
+preserved all oracle bits and improved representative timings by about 77%.
+Every warmed 100-call phase recorded five 1,520-byte scheduler allocations and
+no reallocations or numerical scratch. The result is close enough to stop
+tuning without explicit SIMD. See
+`docs/performance/momentum-coupling-2026-07-13.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -414,6 +444,7 @@ cargo test --workspace --release
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/run-periodic-column-mass-oracle.sh
+./scripts/run-momentum-coupling-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -426,18 +457,21 @@ cargo test --workspace --release
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
 ./scripts/benchmark-periodic-column-mass-fortran.sh
+./scripts/benchmark-momentum-coupling-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
+cargo bench -p wrf-dynamics --bench momentum_coupling -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
+cargo run -p wrf-dynamics --release --example measure_momentum_coupling_allocations
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 115 unit tests and five doctests passed in debug and release modes (one
+Result: 122 unit tests and six doctests passed in debug and release modes (one
 corpus-generator test, 13 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 30 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 37 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -448,11 +482,13 @@ one/four/host-worker Criterion run, allocation budget, optimized assembly
 inspection, and rejected SIMD screen remain recorded in the performance ledger
 and detailed baseline. Both big-step column-mass entry points also match all
 960 focused periodic/physical oracle values; their matched timing and
-allocation evidence are recorded. The WRF Registry oracle matches five
-generated includes and eight state-metadata records exactly. Domain
-decomposition and clipped tiles match pinned WRF routines, periodic
-destinations match `period.c` exactly, and complete four-rank MPI patch memory
-matches the local executor.
+allocation evidence are recorded. Momentum coupling matches all 3,780 focused
+values; its
+matched timing, safe hot-loop correction, and allocation evidence are recorded.
+The WRF Registry oracle matches five generated includes
+and eight state-metadata records exactly. Domain decomposition and clipped
+tiles match pinned WRF routines, periodic destinations match `period.c`
+exactly, and complete four-rank MPI patch memory matches the local executor.
 The Kessler oracle matches all 660 mutable values exactly; its matched timing,
 one/four/host-worker scaling, and explicit workspace/allocation accounting are
 recorded in the performance ledgers.
@@ -505,8 +541,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 2. Add Registry-generated asymmetric halo descriptors and multi-field message
    aggregation to the domain transport.
 3. Extend Registry preprocessing with includes and conditional definitions.
-4. Begin dependency-closed ARW coupling around the translated column-mass
-   routines.
+4. Continue Runge-Kutta preparation with `calc_ww_cp`, then integrate the
+   translated column-mass and momentum-coupling routines.
 5. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
 6. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
