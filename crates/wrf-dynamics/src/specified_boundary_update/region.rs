@@ -71,6 +71,15 @@ impl SpecifiedBoundaryUpdateRegion {
             &half_level_domain,
             shape.bottom_top_points(),
         )?;
+        if location == SpecifiedBoundaryFieldLocation::HorizontalMass
+            && half_level_domain.len() != 1
+        {
+            return Err(
+                SpecifiedBoundaryUpdateError::HorizontalMassRequiresSingleLevel {
+                    range: half_level_domain,
+                },
+            );
+        }
         let effective_west_east_domain = extend_upper_stagger(
             SpecifiedBoundaryUpdateAxis::WestEast,
             mass_domain_west_east.clone(),
@@ -107,6 +116,15 @@ impl SpecifiedBoundaryUpdateRegion {
             &half_level_domain,
             shape.bottom_top_points(),
         )?;
+        let active_bottom_top_end = match location {
+            SpecifiedBoundaryFieldLocation::MassHalfLevel
+            | SpecifiedBoundaryFieldLocation::WestEastFace
+            | SpecifiedBoundaryFieldLocation::SouthNorthFace => effective_bottom_top_domain.end,
+            SpecifiedBoundaryFieldLocation::HorizontalMass
+            | SpecifiedBoundaryFieldLocation::FullLevel => {
+                tile_bottom_top.end.min(effective_bottom_top_domain.end)
+            }
+        };
         Ok(Self {
             shape,
             location,
@@ -117,8 +135,7 @@ impl SpecifiedBoundaryUpdateRegion {
                 ..tile_west_east.end.min(effective_west_east_domain.end),
             active_south_north: tile_south_north.start
                 ..tile_south_north.end.min(effective_south_north_domain.end),
-            active_bottom_top: tile_bottom_top.start
-                ..tile_bottom_top.end.min(effective_bottom_top_domain.end),
+            active_bottom_top: tile_bottom_top.start..active_bottom_top_end,
             effective_west_east_domain,
             effective_south_north_domain,
         })
@@ -283,6 +300,68 @@ mod tests {
                 axis: SpecifiedBoundaryUpdateAxis::WestEast,
                 ..
             })
+        ));
+    }
+
+    #[test]
+    fn half_level_locations_ignore_the_upper_vertical_tile_bound() {
+        let shape = GridShape::try_new(7, 7, 7).unwrap();
+        for location in [
+            SpecifiedBoundaryFieldLocation::MassHalfLevel,
+            SpecifiedBoundaryFieldLocation::WestEastFace,
+            SpecifiedBoundaryFieldLocation::SouthNorthFace,
+        ] {
+            let region = SpecifiedBoundaryUpdateRegion::try_new(
+                shape,
+                location,
+                1..6,
+                1..6,
+                1..6,
+                1..6,
+                1..6,
+                2..4,
+            )
+            .unwrap();
+
+            assert_eq!(region.active_ranges().bottom_top, 2..6);
+        }
+    }
+
+    #[test]
+    fn full_level_location_respects_the_upper_vertical_tile_bound() {
+        let region = SpecifiedBoundaryUpdateRegion::try_new(
+            GridShape::try_new(7, 7, 7).unwrap(),
+            SpecifiedBoundaryFieldLocation::FullLevel,
+            1..6,
+            1..6,
+            1..6,
+            1..6,
+            1..6,
+            2..4,
+        )
+        .unwrap();
+
+        assert_eq!(region.active_ranges().bottom_top, 2..4);
+    }
+
+    #[test]
+    fn horizontal_mass_rejects_more_than_one_vertical_level() {
+        let result = SpecifiedBoundaryUpdateRegion::try_new(
+            GridShape::try_new(7, 7, 7).unwrap(),
+            SpecifiedBoundaryFieldLocation::HorizontalMass,
+            1..6,
+            1..6,
+            1..3,
+            1..6,
+            1..6,
+            1..2,
+        );
+
+        assert!(matches!(
+            result,
+            Err(SpecifiedBoundaryUpdateError::HorizontalMassRequiresSingleLevel {
+                range
+            }) if range == (1..3)
         ));
     }
 }

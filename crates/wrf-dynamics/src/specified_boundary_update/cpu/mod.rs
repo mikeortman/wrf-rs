@@ -273,7 +273,7 @@ mod tests {
             .collect()
     }
 
-    fn oracle_cases() -> [OracleCase; 8] {
+    fn oracle_cases() -> [OracleCase; 9] {
         [
             full_case("mass_full", SpecifiedBoundaryFieldLocation::MassHalfLevel),
             full_case(
@@ -311,6 +311,16 @@ mod tests {
                 tile_west_east: 1..4,
                 tile_south_north: 1..4,
                 tile_bottom_top: 2..5,
+                specified_zone_width: 2,
+            },
+            OracleCase {
+                name: "partial_vertical_ignored",
+                location: SpecifiedBoundaryFieldLocation::MassHalfLevel,
+                periodicity: SpecifiedBoundaryWestEastPeriodicity::Nonperiodic,
+                half_level_domain: 1..5,
+                tile_west_east: 1..6,
+                tile_south_north: 1..6,
+                tile_bottom_top: 2..3,
                 specified_zone_width: 2,
             },
             OracleCase {

@@ -1289,3 +1289,48 @@ The local oracle extracts the exact pinned routine and compares all 5,184
 stored values across eleven cases by raw IEEE bits. Suggested upstream action:
 adopt the fixture and include finalization after a multi-substep specified or
 nested acoustic trajectory.
+
+## WRF-075: `spec_bdytend` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed correctness risk.
+
+`spec_bdytend` declares the complete `field_tend` dummy array as `INTENT(OUT)`
+but assigns only contacted specified-zone points. Under Fortran argument
+semantics, the associated entity becomes undefined on entry, so the untouched
+interior, halo, inactive-tile, and unselected vertical values are not
+guaranteed to retain their caller-provided contents. Current GNU Fortran
+builds preserve those bytes in the focused fixture, but that runtime behavior
+does not repair the language-level contract.
+
+Suggested upstream action: change `field_tend` to `INTENT(INOUT)` if untouched
+storage must be preserved, then add a complete-storage regression. The Rust
+capability uses an explicit mutable in/out field and verifies every untouched
+bit.
+
+## WRF-076: `spec_bdytend` carries unused boundary state and patch arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The routine never reads `field_bdy_xs`, `field_bdy_xe`, `field_bdy_ys`, or
+`field_bdy_ye`; only their four tendency counterparts affect output. It also
+never reads `ips`, `ipe`, `jps`, `jpe`, `kps`, or `kpe`. These ten arguments
+obscure the actual copy dependency and increase every call site's plumbing.
+
+Suggested upstream action: remove the dead arguments during a planned
+interface revision or route callers through a smaller internal core after
+compatibility coverage is established.
+
+## WRF-077: no focused numerical regression covers `spec_bdytend`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production calls for U, V, geopotential,
+thermodynamic, column-mass, vertical-momentum, and scalar tendencies, but no
+compact complete-storage fixture covering every stagger, periodic X,
+trapezoidal corners, opposite partial tiles, the location-dependent upper
+vertical tile rule, untouched storage, or IEEE payload copies.
+
+The local oracle extracts the exact pinned routine and compares all 2,592
+stored values across twelve cases by raw IEEE bits. Suggested upstream action:
+adopt the fixture after correcting the `INTENT` contract and include the stage
+before boundary relaxation in a specified-domain acoustic trajectory.

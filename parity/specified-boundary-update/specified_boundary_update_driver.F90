@@ -10,6 +10,7 @@ program specified_boundary_update_driver
   call run_case('horizontal_mass','m',.false.,1,1,5,1,5,1,1,2)
   call run_case('periodic_mass','t',.true.,5,1,5,1,5,1,5,2)
   call run_case('partial_south_west','t',.false.,5,1,3,1,3,2,4,2)
+  call run_case('partial_vertical_ignored','t',.false.,5,1,5,1,5,2,2,2)
   call run_case('interior','t',.false.,5,3,3,3,3,2,4,1)
 contains
   subroutine run_case(name,variable,periodic_x,domain_top,its,ite,jts,jte,kts,kte,spec_zone)
