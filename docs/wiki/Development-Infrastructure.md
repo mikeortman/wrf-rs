@@ -38,10 +38,12 @@ Every implementation issue owns one branch and one pull request. The PR closes
 the issue, required Rust and Fortran checks gate merge, and GitHub auto-merge
 records the successful evidence before deleting the branch.
 
-The canonical wiki Markdown remains under `docs/wiki`. Run
-`scripts/publish-github-wiki.sh` after documentation changes merge to
-synchronize those pages into the private GitHub Wiki with a separate wiki
-commit history.
+The canonical wiki Markdown remains under `docs/wiki`. After a pull request
+merges, the protected-main verification workflow publishes those pages only
+after both Rust and Fortran gates succeed. This gives the GitHub Wiki a separate
+generated commit history without publishing unmerged documentation. Use
+`scripts/publish-github-wiki.sh` manually only for recovery or an intentional
+out-of-band resynchronization.
 
 ## Trusted dependencies
 

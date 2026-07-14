@@ -63,3 +63,26 @@ jobs:
         run: ./scripts/run-held-suarez-oracle.sh
       - name: Verify column-mass staggering
         run: ./scripts/run-column-mass-staggering-oracle.sh
+
+  publish-wiki:
+    name: Publish Wiki
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - rust-quality
+      - fortran-parity
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out canonical documentation
+        uses: actions/checkout@v4
+      - name: Configure Wiki commit identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Authorize Wiki Git transport
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+      - name: Publish canonical Wiki pages
+        run: ./scripts/publish-github-wiki.sh "${GITHUB_REPOSITORY}"
