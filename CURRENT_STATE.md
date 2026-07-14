@@ -764,6 +764,7 @@ cargo test --workspace --release
 ./scripts/run-acoustic-vertical-momentum-oracle.sh
 ./scripts/run-acoustic-flux-accumulation-oracle.sh
 ./scripts/run-specified-boundary-relaxation-oracle.sh
+./scripts/run-dry-boundary-relaxation-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -791,6 +792,7 @@ cargo test --workspace --release
 ./scripts/benchmark-acoustic-vertical-momentum-fortran.sh
 ./scripts/benchmark-acoustic-flux-accumulation-fortran.sh
 ./scripts/benchmark-specified-boundary-relaxation-fortran.sh
+./scripts/benchmark-dry-boundary-relaxation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -809,6 +811,7 @@ cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_flux_accumulation -- --noplot
 cargo bench -p wrf-dynamics --bench specified_boundary_relaxation -- --noplot
+cargo bench -p wrf-dynamics --bench dry_boundary_relaxation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -826,9 +829,9 @@ cargo run -p wrf-dynamics --release --example measure_acoustic_flux_accumulation
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 252 unit tests and 23 doctests passed in debug and release modes (one
+Result: 259 unit tests and 24 doctests passed in debug and release modes (one
 corpus-generator test, 15 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 165 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 172 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -968,6 +971,18 @@ serial Fortran's 0.407650 ms median, within 15%, so SIMD and further duplicated
 side specialization stop pending the integrated boundary driver. The kernel
 uses no numerical scratch or field clones and records one 1,520-byte scheduler
 allocation per 100 warmed calls.
+Complete dry boundary relaxation implements `relax_bdy_dry` and `mass_weight`
+behind a nested, typed capability that composes the verified scalar relaxation
+kernel in WRF's U, V, PH, T, MU, and optional nested-W order. Eight direct cases
+cover global and nested domains, periodic X, opposite partial tiles, inactive
+and empty bands, and exceptional IEEE values. All 24,800 stored tendency values
+match pinned Fortran exactly or by NaN class. One caller-owned tile-halo
+workspace is reused for PH, T, and W; every active field and late boundary is
+preflighted before any tendency changes. Default sixteen-worker Rust measures
+4.1620 ms versus optimized serial Fortran's 4.1218 ms median, within 1%, so
+SIMD and further specialization stop. Across 100 warmed calls, scheduling uses
+14 allocations totaling 21,280 bytes with no reallocation, field clone, or
+per-call field-sized allocation.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -1020,8 +1035,9 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Insert `spec_bdytend`, `relax_bdytend`, specified updates, and boundary/halo
-   operations around the verified acoustic trajectory.
+1. Port `spec_bdy_dry`, then insert boundary-file tendency assignment, complete
+   dry relaxation, specified updates, and boundary/halo operations around the
+   verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

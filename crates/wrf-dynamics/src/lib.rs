@@ -18,6 +18,8 @@
 //! relaxation and acoustic advancement.
 //! [`SpecifiedBoundaryRelaxationKernels`] then applies WRF's five-point
 //! specified-zone relaxation forcing.
+//! [`DryBoundaryRelaxationKernels`] composes that stencil across mass-weighted
+//! dry prognostic fields in `relax_bdy_dry` order.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -171,6 +173,11 @@ pub use runge_kutta_preparation::{
     RungeKuttaPreparationVelocities,
 };
 pub use specified_boundary_update::{
+    DryBoundaryRelaxationBoundaryData, DryBoundaryRelaxationBoundaryFields,
+    DryBoundaryRelaxationError, DryBoundaryRelaxationField, DryBoundaryRelaxationKernels,
+    DryBoundaryRelaxationMassCoefficients, DryBoundaryRelaxationRegion,
+    DryBoundaryRelaxationResult, DryBoundaryRelaxationState, DryBoundaryRelaxationTarget,
+    DryBoundaryRelaxationTendencies, DryBoundaryRelaxationWorkspace, DryBoundaryVerticalRelaxation,
     SpecifiedBoundaryFieldLocation, SpecifiedBoundaryFinalizationBoundaryFields,
     SpecifiedBoundaryFinalizationError, SpecifiedBoundaryFinalizationFieldLocation,
     SpecifiedBoundaryFinalizationInputs, SpecifiedBoundaryFinalizationKernels,

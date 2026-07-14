@@ -12,6 +12,7 @@ mod parameters;
 
 pub use boundary_values::SpecifiedBoundaryRelaxationBoundaryValues;
 pub use coefficients::SpecifiedBoundaryRelaxationCoefficients;
+pub(crate) use cpu::{has_relaxation_updates, validate_cpu_relaxation};
 pub use error::{SpecifiedBoundaryRelaxationError, SpecifiedBoundaryRelaxationResult};
 pub use field::SpecifiedBoundaryRelaxationField;
 pub use inputs::SpecifiedBoundaryRelaxationInputs;

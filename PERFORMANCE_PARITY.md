@@ -90,6 +90,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Specified-boundary finalization | 205,820 reconstructed points on 256 × 256 × 41 full-level grid | 0.157440 ms median `[0.153350, 0.287200]` | 0.30229 ms `[0.30036, 0.30439]` | 0.10483 ms (4 workers) | Rust serial 92.0% slower; Rust 4-worker 1.50× faster; default 16-worker 1.36× faster; stop tuning |
 | Specified-boundary tendency assignment | 200,800 copied points on 256 × 256 × 40 mass grid | 0.082900 ms median `[0.079250, 0.089420]` | 0.069473 ms `[0.069133, 0.069811]` | 0.028529 ms (4 workers) | Rust serial 1.19× faster; Rust 4-worker 2.91× faster; default 16-worker within 3.2%; stop tuning |
 | Specified-boundary relaxation | 238,080 five-point updates on 256 × 256 × 40 mass grid | 0.407650 ms median `[0.399020, 0.471110]` | 1.355342 ms | 0.465916 ms (16 workers) | Rust serial 3.33× slower; Rust 4-worker within 15.0%; default 16-worker within 14.3%; operationally close, stop tuning |
+| Complete dry boundary relaxation | 1,209,216 five-point updates plus 7,995,392 mass-weighted points on 256 × 256 × 40 mass grid | 4.1218 ms median `[3.9272, 4.4852]` | 20.101 ms | 4.1620 ms (16 workers) | Default 16-worker Rust within 1.0%; reusable workspace and no field clones; close enough, stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -128,6 +129,7 @@ cargo bench -p wrf-dynamics --bench flow_dependent_inflow_policies -- --noplot
 cargo bench -p wrf-dynamics --bench specified_boundary_finalization -- --noplot
 cargo bench -p wrf-dynamics --bench specified_boundary_tendencies -- --noplot
 cargo bench -p wrf-dynamics --bench specified_boundary_relaxation -- --noplot
+cargo bench -p wrf-dynamics --bench dry_boundary_relaxation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -154,6 +156,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-specified-boundary-finalization-fortran.sh
 ./scripts/benchmark-specified-boundary-tendencies-fortran.sh
 ./scripts/benchmark-specified-boundary-relaxation-fortran.sh
+./scripts/benchmark-dry-boundary-relaxation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 

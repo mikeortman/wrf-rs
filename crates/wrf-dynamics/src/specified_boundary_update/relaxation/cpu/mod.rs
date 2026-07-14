@@ -12,6 +12,37 @@ use super::{
 use crate::{SpecifiedBoundaryUpdateRegion, SpecifiedBoundaryWestEastPeriodicity};
 use kernel::SpecifiedBoundaryRelaxationCpuKernel;
 
+pub(crate) fn has_relaxation_updates(
+    parameters: SpecifiedBoundaryRelaxationParameters,
+    west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
+    region: &SpecifiedBoundaryUpdateRegion,
+) -> bool {
+    super::geometry::SpecifiedBoundaryRelaxationRanges::new(
+        region.active_ranges(),
+        parameters.specified_zone_width,
+        parameters.relaxation_zone_width,
+        west_east_periodicity,
+    )
+    .required_field_coverage()
+    .is_some()
+}
+
+pub(crate) fn validate_cpu_relaxation(
+    tendency: &CpuField<f32>,
+    inputs: &SpecifiedBoundaryRelaxationInputs<'_, CpuField<f32>>,
+    parameters: SpecifiedBoundaryRelaxationParameters,
+    west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
+    region: &SpecifiedBoundaryUpdateRegion,
+) -> SpecifiedBoundaryRelaxationResult<()> {
+    SpecifiedBoundaryRelaxationCpuKernel::validate_operation(
+        tendency,
+        inputs,
+        parameters,
+        west_east_periodicity,
+        region,
+    )
+}
+
 impl SpecifiedBoundaryRelaxationKernels for CpuBackend {
     type Field = CpuField<f32>;
 

@@ -91,7 +91,10 @@ upstream tests and differential fixtures pass.
   tiles, and WRF's location-dependent upper vertical tile behavior.
   Specified-boundary relaxation now ports both `relax_bdytend` storage forms,
   including the five-point mismatch stencil, fixed/relaxed zone split,
-  periodic X, and halo-extended tile field views.
+  periodic X, and halo-extended tile field views. The complete dry wrapper now
+  ports `relax_bdy_dry` and `mass_weight`, preserving WRF's U, V,
+  geopotential, temperature, column-mass, and optional nested-W order with one
+  reusable tile-halo workspace.
   Deterministic fixtures and seeded randomized corpora check upstream `REAL`
   bit patterns.
 - `wrf-physics` contains the first physical parameterization: parallel Kessler
@@ -133,7 +136,7 @@ WRF initialization and match an upstream integration.
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
 | Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
-| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, integrated failure-atomic `rk_step_prep`, `rk_addtend_dry`, the complete seven-kernel local acoustic trajectory, `spec_bdyupdate`, `spec_bdyupdate_ph`, `zero_grad_bdy`, all three `flow_dep_bdy` policies, `spec_bdy_final`, `spec_bdytend`, and `relax_bdytend` have direct Fortran evidence; the trajectory matches 2,196 selected final values and 26,892 boundary fixture values match exactly or by NaN class | Insert tendency assignment, relaxation, boundary updates, and halo exchange around the local acoustic trajectory, then couple it to the large-step tendency path |
+| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, integrated failure-atomic `rk_step_prep`, `rk_addtend_dry`, the complete seven-kernel local acoustic trajectory, `spec_bdyupdate`, `spec_bdyupdate_ph`, `zero_grad_bdy`, all three `flow_dep_bdy` policies, `spec_bdy_final`, `spec_bdytend`, `relax_bdytend`, and the `relax_bdy_dry`/`mass_weight` dry wrapper have direct Fortran evidence; the trajectory matches 2,196 selected final values and 51,692 boundary fixture values match exactly or by NaN class | Port `spec_bdy_dry`, then insert tendency assignment, dry relaxation, boundary updates, and halo exchange around the local acoustic trajectory |
 | Physics drivers and schemes | In progress | Kessler warm-rain microphysics matches all 660 mutable oracle values exactly; one/four-worker determinism, reusable scratch, matched optimized-Fortran benchmark, and allocation evidence | Port microphysics driver/state mapping and add a coupled precipitation trajectory |
 | I/O and NetCDF metadata | In progress | Typed minimum ARW schema; independent NetCDF-C/Rust restart files match ordered metadata and every field bit | Add full Registry-selected state, alarm metadata, NetCDF-4 output policy, and resumed-trajectory parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
@@ -182,6 +185,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-specified-boundary-finalization-oracle.sh
 ./scripts/run-specified-boundary-tendencies-oracle.sh
 ./scripts/run-specified-boundary-relaxation-oracle.sh
+./scripts/run-dry-boundary-relaxation-oracle.sh
 ./scripts/run-vertical-acoustic-coefficients-oracle.sh
 ./scripts/run-acoustic-horizontal-momentum-oracle.sh
 ./scripts/run-acoustic-mass-theta-oracle.sh
@@ -220,6 +224,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/benchmark-specified-boundary-finalization-fortran.sh
 ./scripts/benchmark-specified-boundary-tendencies-fortran.sh
 ./scripts/benchmark-specified-boundary-relaxation-fortran.sh
+./scripts/benchmark-dry-boundary-relaxation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -243,6 +248,7 @@ cargo bench -p wrf-dynamics --bench flow_dependent_inflow_policies -- --noplot
 cargo bench -p wrf-dynamics --bench specified_boundary_finalization -- --noplot
 cargo bench -p wrf-dynamics --bench specified_boundary_tendencies -- --noplot
 cargo bench -p wrf-dynamics --bench specified_boundary_relaxation -- --noplot
+cargo bench -p wrf-dynamics --bench dry_boundary_relaxation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ```
 
