@@ -1,0 +1,17 @@
+[package]
+name = "wrf-io"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Typed NetCDF compatibility surfaces for the WRF Rust port"
+
+[dependencies]
+netcdf = { version = "0.12.0", default-features = false }
+netcdf3 = "0.6.1"
+
+[dev-dependencies]
+tempfile = "3.20.0"
+
+[lints]
+workspace = true

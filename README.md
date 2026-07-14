@@ -50,6 +50,9 @@ upstream tests and differential fixtures pass.
 - `wrf-physics` contains the first physical parameterization: parallel Kessler
   warm-rain microphysics with reusable scratch and exact pinned-Fortran output
   parity.
+- `wrf-io` defines the first typed ARW NetCDF/restart schema, writes borrowed
+  fields in classic 64-bit-offset format, reads NetCDF-3/4 into caller storage,
+  and compares restart metadata and field bits with bounded scratch.
 - CPU SIMD is selected per translated kernel after scalar parity; see
   `docs/architecture/simd.md`.
 - Scientific source families own nested modules instead of flattening every
@@ -85,7 +88,7 @@ WRF initialization and match an upstream integration.
 | Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
 | ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and every `calc_mu_staggered` physical-boundary path have deterministic and seeded randomized Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Port periodic mass staggering and begin dependency-closed ARW integration |
 | Physics drivers and schemes | In progress | Kessler warm-rain microphysics matches all 660 mutable oracle values exactly; one/four-worker determinism, reusable scratch, matched optimized-Fortran benchmark, and allocation evidence | Port microphysics driver/state mapping and add a coupled precipitation trajectory |
-| I/O and NetCDF metadata | Not started | — | Round-trip WRF files with exact schema parity |
+| I/O and NetCDF metadata | In progress | Typed minimum ARW schema; independent NetCDF-C/Rust restart files match ordered metadata and every field bit | Add full Registry-selected state, alarm metadata, NetCDF-4 output policy, and resumed-trajectory parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
 | End-to-end idealized/regression suite | Not started | — | `em_b_wave`/`em_squall2d_x` differential runs |
 
@@ -121,10 +124,12 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-mpi-halo-parity.sh
 ./scripts/run-periodic-halo-oracle.sh
 ./scripts/run-kessler-oracle.sh
+./scripts/run-netcdf-restart-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
+./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ```

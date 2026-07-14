@@ -18,6 +18,8 @@ implemented system; proposed work is explicitly labeled.
   first-divergence diagnosis.
 - [WRF Registry](WRF-Registry.md) — the Registry DSL, preprocessing and typed
   Rust model, generated-state pipeline, supported subset, and parity evidence.
+- [WRF NetCDF and restarts](WRF-NetCDF-and-Restarts.md) — staggered schema,
+  typed zero-copy I/O, exact restart comparison, and current limitations.
 - [Domain decomposition and halo exchange](Domain-Decomposition-and-Halo-Exchange.md)
   — process partitions, patch/memory/tile bounds, periodic endpoints, corner
   propagation, local execution, and MPI transport.
@@ -47,6 +49,9 @@ implemented system; proposed work is explicitly labeled.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.
+- [NetCDF restart I/O performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/netcdf-restart-2026-07-14.md)
+  — control-plane and bulk throughput, peak memory, buffering decision, and
+  remaining dependency gap.
 - [Rust/Fortran performance ledger](https://github.com/mikeortman/wrf-rs/blob/main/PERFORMANCE_PARITY.md) — matched
   workload policy and cumulative comparison table.
 - [Rust module structure](https://github.com/mikeortman/wrf-rs/blob/main/docs/architecture/module_structure.md) — family-owned
