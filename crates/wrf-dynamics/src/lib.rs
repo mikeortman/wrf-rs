@@ -23,7 +23,8 @@ mod test_support;
 
 pub use column_mass_staggering::{
     ColumnMassStaggeringAxis, ColumnMassStaggeringError, ColumnMassStaggeringField,
-    ColumnMassStaggeringKernels, ColumnMassStaggeringRegion, ColumnMassStaggeringResult,
+    ColumnMassStaggeringKernels, ColumnMassStaggeringPeriodicity, ColumnMassStaggeringRegion,
+    ColumnMassStaggeringResult,
 };
 pub use held_suarez::{
     HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,

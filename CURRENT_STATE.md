@@ -186,6 +186,12 @@ Implemented:
 - exact-body Fortran extraction oracle with 240 raw-bit output/sentinel checks
   across all eight axis/path combinations, plus validation-before-mutation and
   one/four-worker determinism tests at all physical boundaries;
+- exact `calc_mu_uv` and `calc_mu_uv_1` big-step variants with a typed four-state
+  periodicity policy, preserved endpoint expression order, and no numerical
+  scratch;
+- a 960-value raw-bit oracle covering both input forms, every physical and
+  periodic boundary path, inactive storage, and an overflow-sensitive finite
+  endpoint;
 - a versioned SplitMix64 corpus generator, shared raw-bit input files, and
   pinned Fortran drivers for 68 seeded cases and 39,588 complete outputs across
   all four translated routines;
@@ -203,11 +209,13 @@ non-one memory origins. Added Rust tests cover one/four-worker determinism,
 shape failure before mutation, all range categories, staggered predecessors,
 and the pressure reference level.
 
-The non-periodic column-mass staggering routine-level paths are complete for the
-focused and seeded corpora. Interior subdomain tiles use halo mass points;
-physical lower and upper boundaries copy the nearest full mass exactly as WRF
-does. Its 16 randomized cases cross all four boundary states on both axes. The
-next ARW gates are periodic `calc_mu_uv` variants and idealized-case integration.
+The three column-mass staggering entry points now have focused routine-level
+coverage. Interior subdomain tiles use halo mass points; physical lower and
+upper boundaries follow each routine's exact copy or duplicate-average
+expression. The `calc_mu_uv` variants cover all four periodicity states for
+split and already-combined mass. Sixteen randomized `calc_mu_staggered` cases
+cross all physical boundary states. The next gates are a randomized big-step
+corpus and dependency-closed ARW integration.
 
 ### `wrf-io`
 
@@ -328,6 +336,15 @@ one- and four-worker results and was removed. A safe slice-iterator formulation
 also regressed serial performance and was removed. Keep the readable scalar
 implementation. See `docs/performance/column-mass-staggering-2026-07-13.md`.
 
+The doubly periodic big-step variant measured 359.64 µs with one Rust worker,
+181.10 µs with four, and 400.40 µs with 16. Matched GNU Fortran 16.1.0
+`-O3 -flto` measured a 347.120 µs median. Serial Rust is within 3.6%; four
+workers are 1.92× faster than serial Fortran. Its warmed allocation profile is
+the same three 1,520-byte scheduler allocations per 100 calls, with no
+reallocations or numerical scratch. This is close enough to stop tuning and
+retain the readable scalar implementation. See
+`docs/performance/periodic-column-mass-2026-07-13.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -396,6 +413,7 @@ cargo test --workspace --release
 ./scripts/run-positive-definite-oracle.sh
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/run-column-mass-staggering-oracle.sh
+./scripts/run-periodic-column-mass-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -407,6 +425,7 @@ cargo test --workspace --release
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
+./scripts/benchmark-periodic-column-mass-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -416,9 +435,9 @@ cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_all
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 110 unit tests and five doctests passed in debug and release modes (one
+Result: 115 unit tests and five doctests passed in debug and release modes (one
 corpus-generator test, 13 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 25 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 30 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -427,10 +446,13 @@ oracles remain exact, and all four randomized Fortran corpora pass their 39,588
 complete-output comparisons. The column-mass matched benchmark,
 one/four/host-worker Criterion run, allocation budget, optimized assembly
 inspection, and rejected SIMD screen remain recorded in the performance ledger
-and detailed baseline. The WRF Registry oracle matches five generated includes
-and eight state-metadata records exactly. Domain decomposition and clipped
-tiles match pinned WRF routines, periodic destinations match `period.c`
-exactly, and complete four-rank MPI patch memory matches the local executor.
+and detailed baseline. Both big-step column-mass entry points also match all
+960 focused periodic/physical oracle values; their matched timing and
+allocation evidence are recorded. The WRF Registry oracle matches five
+generated includes and eight state-metadata records exactly. Domain
+decomposition and clipped tiles match pinned WRF routines, periodic
+destinations match `period.c` exactly, and complete four-rank MPI patch memory
+matches the local executor.
 The Kessler oracle matches all 660 mutable values exactly; its matched timing,
 one/four/host-worker scaling, and explicit workspace/allocation accounting are
 recorded in the performance ledgers.
@@ -483,7 +505,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 2. Add Registry-generated asymmetric halo descriptors and multi-field message
    aggregation to the domain transport.
 3. Extend Registry preprocessing with includes and conditional definitions.
-4. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
+4. Begin dependency-closed ARW coupling around the translated column-mass
+   routines.
 5. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
 6. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

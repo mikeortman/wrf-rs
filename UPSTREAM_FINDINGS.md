@@ -162,19 +162,25 @@ when evaluating numerical impact.
 
 Status: confirmed repository-level test gap for the pinned source tree.
 
-A repository-wide search finds `calc_mu_staggered`, its internal calls from
-`couple`, and no dedicated numerical regression. The routine has distinct
-interior, lower-boundary, upper-boundary, and both-boundaries paths for each
-horizontal axis. A useful upstream test should cover all eight axis/path
-combinations, subdomain tiles that rely on halos, exact single-precision
-rounding, and untouched storage outside the active rectangles.
+A repository-wide search finds `calc_mu_staggered`, `calc_mu_uv`, and
+`calc_mu_uv_1`, their internal calls, and no dedicated numerical regression.
+The routines have distinct interior, lower-boundary, upper-boundary, and
+both-boundaries paths for each horizontal axis. The big-step variants also
+select physical or periodic endpoint expressions independently on each axis. A
+useful upstream test should cover those paths, subdomain tiles that rely on
+halos, exact single-precision rounding, and untouched storage outside the active
+rectangles.
 
 The local differential oracle now exercises interior, lower-boundary,
 upper-boundary, and both-boundaries paths on both staggerings. It checks all
 240 output and sentinel values by raw bits, including WRF's cross-axis domain
-clipping. This closes the routine-level local gap while leaving the upstream
-test gap unchanged. Periodic `calc_mu_uv` variants and full idealized-case
-integration remain separate coverage requirements.
+clipping. The big-step oracle adds all four periodicity states for both
+split-mass and already-combined-mass entry points, checks all 960
+output/sentinel values, and includes a finite input that distinguishes WRF's
+duplicate endpoint average from a direct copy. This closes the focused
+routine-level local gap while leaving the upstream test gap unchanged. A
+randomized big-step corpus and full idealized-case integration remain separate
+coverage requirements.
 
 ## WRF-008: avoidable intermediate overflow during normalization
 

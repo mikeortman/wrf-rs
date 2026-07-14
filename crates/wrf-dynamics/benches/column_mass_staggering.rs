@@ -9,7 +9,9 @@ use std::thread;
 
 use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 use wrf_compute::{ComputeBackend, CpuBackend, CpuField, FieldStorage, GridShape};
-use wrf_dynamics::{ColumnMassStaggeringKernels, ColumnMassStaggeringRegion};
+use wrf_dynamics::{
+    ColumnMassStaggeringKernels, ColumnMassStaggeringPeriodicity, ColumnMassStaggeringRegion,
+};
 
 const ACTIVE_WEST_EAST_MASS_POINTS: usize = 1_024;
 const ACTIVE_SOUTH_NORTH_MASS_POINTS: usize = 1_024;
@@ -35,6 +37,24 @@ fn benchmark_column_mass_staggering(criterion: &mut Criterion) {
                             black_box(&mut fixture.west_east_momentum_mass),
                             black_box(&mut fixture.south_north_momentum_mass),
                             black_box(&fixture.region),
+                        )
+                        .unwrap();
+                });
+            },
+        );
+        group.bench_with_input(
+            BenchmarkId::new("big_step_periodic_xy", worker_count),
+            &worker_count,
+            |bencher, _| {
+                bencher.iter(|| {
+                    backend
+                        .stagger_column_mass_for_big_step(
+                            black_box(&fixture.perturbation_mass),
+                            black_box(&fixture.base_mass),
+                            black_box(&mut fixture.west_east_momentum_mass),
+                            black_box(&mut fixture.south_north_momentum_mass),
+                            black_box(&fixture.region),
+                            ColumnMassStaggeringPeriodicity::Both,
                         )
                         .unwrap();
                 });

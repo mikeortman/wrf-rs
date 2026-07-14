@@ -65,6 +65,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Positive-definite slab | 1,048,576 values | 2.336656 ms median `[2.322000, 2.371812]` | 1.8084 ms `[1.7985, 1.8189]` | 0.34798 ms (16 workers) | Rust serial 1.29× faster; Rust 16-worker 6.71× faster |
 | Held-Suarez damping | 2,097,152 momentum updates | 0.859712 ms median `[0.851224, 0.877004]` | 0.93459 ms `[0.92879, 0.94090]` | 0.29105 ms (4 workers) | Rust serial 8.7% slower; Rust 4-worker 2.95× faster |
 | Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
+| Periodic big-step column mass | 2,099,200 momentum-mass outputs | 0.347120 ms median `[0.293724, 0.412366]` | 0.35964 ms `[0.35356, 0.36571]` | 0.18110 ms (4 workers) | Rust serial 3.6% slower; Rust 4-worker 1.92× faster; stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -88,6 +89,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
+./scripts/benchmark-periodic-column-mass-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -146,6 +148,12 @@ scientific oracle.
   needed or timed. The four allocated fields are reused.
 - Safe explicit-SIMD and iterator/autovectorization prototypes preserved parity
   but failed the representative performance gate and were removed.
+- The doubly periodic `calc_mu_uv` benchmark uses the same dimensions and
+  storage, but its endpoints read periodic halos instead of physical copies.
+  GNU Fortran 16.1.0 uses the same `-O3 -flto` tier as the earlier baseline.
+- Periodic one-worker Rust is within 3.6% of serial Fortran and four-worker Rust
+  is faster. Its warmed allocation profile is unchanged, so readability wins
+  and no additional SIMD experiment is justified for this slice.
 
 ## Kessler microphysics comparison notes
 
