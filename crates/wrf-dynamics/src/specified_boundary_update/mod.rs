@@ -22,7 +22,7 @@ pub use field_location::SpecifiedBoundaryFieldLocation;
 pub use flow_dependent::{
     SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField, SpecifiedBoundaryFlowInputs,
     SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters, SpecifiedBoundaryFlowRegion,
-    SpecifiedBoundaryFlowResult,
+    SpecifiedBoundaryFlowResult, SpecifiedBoundaryInflowPolicy,
 };
 pub use geopotential::{
     SpecifiedBoundaryGeopotentialError, SpecifiedBoundaryGeopotentialInputs,

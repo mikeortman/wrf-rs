@@ -99,6 +99,8 @@ jobs:
         run: ./scripts/run-zero-gradient-boundary-oracle.sh
       - name: Verify flow-dependent specified boundaries
         run: ./scripts/run-flow-dependent-boundary-oracle.sh
+      - name: Verify flow-dependent inflow policies
+        run: ./scripts/run-flow-dependent-inflow-policies-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

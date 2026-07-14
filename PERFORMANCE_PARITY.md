@@ -85,6 +85,8 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Specified-boundary geopotential update | 205,820 updated points on 256 × 256 × 41 full-level grid | 0.310400 ms median `[0.301490, 0.337520]` | 0.15437 ms `[0.15322, 0.15570]` | 0.055178 ms (4 workers) | Rust serial 2.01× faster; Rust 4-worker 5.63× faster; default 16-worker 3.25× faster; stop tuning |
 | Zero-gradient specified boundary | 205,820 copied points on 256 × 256 × 41 full-level grid | 0.134000 ms median `[0.131830, 0.148520]` | 0.14306 ms `[0.14221, 0.14406]` | 0.11030 ms (4 workers) | Rust serial 6.8% slower; Rust 4-worker 1.21× faster; close enough, stop tuning |
 | Flow-dependent specified boundary | 200,800 classified points on 256 × 256 × 40 mass grid | 0.189720 ms median `[0.188190, 0.305730]` | 0.18688 ms `[0.18611, 0.18778]` | 0.15356 ms (4 workers) | Rust serial 1.5% faster; Rust 4-worker 1.24× faster; stop tuning |
+| Flow-dependent constant inflow | 200,800 classified points on 256 × 256 × 40 mass grid | 0.187580 ms median `[0.186440, 0.256330]` | 0.21569 ms `[0.21443, 0.21714]` | 0.17217 ms (4 workers) | Rust serial 15.0% slower; Rust 4-worker 1.09× faster; close enough, stop tuning |
+| Flow-dependent preserved inflow | 200,800 classified points on 256 × 256 × 40 mass grid | 0.177190 ms median `[0.170250, 0.186570]` | 0.21686 ms `[0.21578, 0.21814]` | 0.17267 ms (4 workers) | Rust serial 22.4% slower; Rust 4-worker 2.6% faster; close enough, stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -119,6 +121,7 @@ cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_flux_accumulation -- --noplot
 cargo bench -p wrf-dynamics --bench zero_gradient_boundary -- --noplot
 cargo bench -p wrf-dynamics --bench flow_dependent_boundary -- --noplot
+cargo bench -p wrf-dynamics --bench flow_dependent_inflow_policies -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -141,6 +144,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-acoustic-flux-accumulation-fortran.sh
 ./scripts/benchmark-zero-gradient-boundary-fortran.sh
 ./scripts/benchmark-flow-dependent-boundary-fortran.sh
+./scripts/benchmark-flow-dependent-inflow-policies-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -515,3 +519,18 @@ scientific oracle.
   host-default pool is overhead-bound for the thin perimeter, but custom
   scheduling is deferred until an integrated moisture/TKE/scalar profile shows
   material value. Explicit SIMD also stops here.
+
+## Flow-dependent inflow-policy comparison notes
+
+- `flow_dep_bdy_qnn` and `flow_dep_bdy_fixed_inflow` use the same 200,800-point
+  workload and mixed U/V signs as the base flow-dependent comparison.
+- Constant-inflow Fortran measures 0.187580 ms median. Rust measures 0.21569 ms
+  with one worker, 0.17217 ms with four, and 0.31029 ms with 16.
+- Preserve-inflow Fortran measures 0.177190 ms median. Rust measures 0.21686 ms
+  with one worker, 0.17267 ms with four, and 0.30735 ms with 16.
+- Each policy records three scheduler allocations and 4,560 bytes across 100
+  settled calls, with no reallocations, numerical scratch, or field clones.
+- The Rust capability pays one explicit policy branch instead of maintaining
+  three copied loop families. Four-worker Rust is competitive or faster for
+  both policies, so the readability and maintenance benefit wins without
+  policy specialization, custom scheduling, or explicit SIMD.
