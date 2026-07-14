@@ -1,0 +1,2 @@
+# Includes itself; upstream pre_parse would recurse forever.
+include registry_self_include

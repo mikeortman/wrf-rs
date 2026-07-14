@@ -29,9 +29,9 @@
       "id": "registry",
       "area": "Registry and configuration",
       "state": "in-progress",
-      "evidence": "Typed dimspec, state, and rconfig parsing plus six exact generated-artifact goldens.",
-      "next_gate": "Includes, conditionals, packages, typedefs, communication entries, and remaining generators.",
-      "tracking_issue": 83
+      "evidence": "Typed dimspec, state, and rconfig parsing now includes nested source expansion, conditional definitions, physical source locations, and six exact generated-artifact goldens.",
+      "next_gate": "Packages, typedefs, communication entries, and remaining generators.",
+      "tracking_issue": 85
     },
     {
       "id": "domain",

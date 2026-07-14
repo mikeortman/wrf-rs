@@ -8,4 +8,6 @@ NAMELIST /domains/ bottom_top
 NAMELIST /time_control/ start_year
 NAMELIST /time_control/ restart
 NAMELIST /time_control/ input_name
+NAMELIST /domains/ parity_slice_opt
+NAMELIST /domains/ unset_feature_default
 !ENDOFREGISTRYGENERATEDINCLUDE

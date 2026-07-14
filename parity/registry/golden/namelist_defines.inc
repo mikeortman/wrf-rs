@@ -10,5 +10,7 @@ integer , DIMENSION(max_domains) :: start_year
 real , DIMENSION(max_domains) :: dt
 logical :: restart
 character*256 :: input_name
+integer :: parity_slice_opt
+integer :: unset_feature_default
 integer    :: last_item_in_struct
 !ENDOFREGISTRYGENERATEDINCLUDE

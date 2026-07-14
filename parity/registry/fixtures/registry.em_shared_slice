@@ -1,0 +1,23 @@
+# Runtime configurations plus a nested include of the state entries.
+rconfig integer bottom_top namelist,domains 1 50 - BOTTOM-TOP \
+    "Model top index" "index"
+rconfig integer start_year namelist,time_control max_domains 1993 - START_YEAR \
+    "Four-digit start year" "year"
+rconfig real dt derived max_domains 2. h "dt" \
+    "TEMPORAL RESOLUTION" "SECONDS"
+rconfig logical restart namelist,time_control 1 .false. - RESTART \
+    "Whether this is a restart" "flag"
+rconfig character*256 input_name namelist,time_control 1 "wrfinput_d<domain>" - INPUT_NAME \
+    "Case-preserving input path" "path"
+
+include registry.state_slice
+
+ifdef PARITY_SLICE=1
+rconfig integer parity_slice_opt namelist,domains 1 1 - PARITY_SLICE_OPT \
+    "Selected by a conditional inside an included file" "flag"
+endif
+
+ifdef UNSET_FEATURE=1
+rconfig integer ghost_opt namelist,domains 1 0 - GHOST_OPT \
+    "Must never reach generated artifacts" "flag"
+endif

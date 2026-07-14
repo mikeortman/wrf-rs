@@ -1,0 +1,9 @@
+# State entries referencing dimensions defined by registry.dimspec_slice.
+state real t ikjb dyn_em 2 - \
+    i0rhusdf=(bdy_interp:dt) "thm" \
+    "either 1) pert moist pot temp=(1+Rv/Rd Qv)*(theta)-T0, or 2) pert dry pot temp=theta-T0; based on use_theta_m setting" "K"
+ifdef INCLUDED_STATE=1
+state real mu ijb dyn_em 2 - \
+    irh01usdf=(bdy_interp:dt) "mu" \
+    "perturbation dry air mass in column" "Pa"
+endif

@@ -1,0 +1,2 @@
+dimspec i 1 standard_domain x west_east
+state real broken i dyn_em 1 - i0 "BROKEN

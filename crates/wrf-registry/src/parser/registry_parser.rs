@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::num::NonZeroU8;
+use std::path::Path;
 use std::sync::Arc;
 
 use crate::model::{
@@ -9,7 +10,12 @@ use crate::model::{
 };
 use crate::parser::logical_line::{LogicalLine, LogicalLineReader};
 use crate::parser::tokenizer::RegistryTokenizer;
-use crate::{RegistryParseError, RegistryParseErrorKind, RegistryResult, SourceLocation};
+use crate::preprocessor::{
+    FileSystemSourceProvider, PreprocessedRegistrySource, RegistryDefinitions, RegistryPreprocessor,
+};
+use crate::{
+    RegistryParseError, RegistryParseErrorKind, RegistryResult, RegistrySourceError, SourceLocation,
+};
 
 /// Parser for the dependency-closed WRF Registry subset documented by this crate.
 pub struct RegistryParser;
@@ -17,23 +23,62 @@ pub struct RegistryParser;
 impl RegistryParser {
     /// Parses one Registry source while retaining physical source locations.
     ///
-    /// Dimensions must appear before states that reference them. The returned
-    /// document owns its strings and does not borrow from `source`.
+    /// The source must already be preprocessed: `include` and conditional
+    /// directives are rejected as unsupported entries. Use
+    /// [`RegistryParser::parse_file`] or [`RegistryParser::parse_preprocessed`]
+    /// for sources that rely on preprocessing. Dimensions must appear before
+    /// states that reference them. The returned document owns its strings and
+    /// does not borrow from `source`.
     pub fn parse(
         source_name: impl Into<Arc<str>>,
         source: &str,
     ) -> RegistryResult<RegistryDocument> {
         let source_name = source_name.into();
         let logical_lines = LogicalLineReader::read(&source_name, source)?;
+        Self::parse_logical_lines(source_name, &logical_lines)
+    }
+
+    /// Expands includes and conditionals from `root_path`, then parses.
+    ///
+    /// Include names are resolved like WRF's `registry` program: first against
+    /// `./Registry/` relative to the current working directory, then against
+    /// the directory containing `root_path`. Entry locations keep the physical
+    /// file and line the entry came from, across nested includes.
+    pub fn parse_file(
+        root_path: impl AsRef<Path>,
+        definitions: &RegistryDefinitions,
+    ) -> Result<RegistryDocument, RegistrySourceError> {
+        let root_path = root_path.as_ref();
+        let root_directory = root_path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .map_or_else(|| Path::new(".").to_path_buf(), Path::to_path_buf);
+        let search_directories = [Path::new("./Registry").to_path_buf(), root_directory];
+        let preprocessed = RegistryPreprocessor::expand(
+            root_path,
+            definitions,
+            &search_directories,
+            &FileSystemSourceProvider,
+        )?;
+        Ok(Self::parse_preprocessed(&preprocessed)?)
+    }
+
+    /// Parses an already include-expanded and conditional-filtered source.
+    pub fn parse_preprocessed(
+        source: &PreprocessedRegistrySource,
+    ) -> RegistryResult<RegistryDocument> {
+        Self::parse_logical_lines(Arc::clone(&source.root_name), &source.lines)
+    }
+
+    fn parse_logical_lines(
+        source_name: Arc<str>,
+        logical_lines: &[LogicalLine],
+    ) -> RegistryResult<RegistryDocument> {
         let mut dimension_names = HashSet::new();
         let mut entries = Vec::new();
 
         for logical_line in logical_lines {
-            let tokens = RegistryTokenizer::tokenize(
-                &source_name,
-                logical_line.location.line(),
-                &logical_line.text,
-            )?;
+            let tokens = RegistryTokenizer::tokenize(&logical_line.location, &logical_line.text)?;
             if tokens.is_empty() {
                 continue;
             }
@@ -50,19 +95,20 @@ impl RegistryParser {
 
     fn parse_entry(
         tokens: &[String],
-        line: LogicalLine,
+        line: &LogicalLine,
         dimension_names: &mut HashSet<String>,
     ) -> RegistryResult<RegistryEntry> {
+        let location = line.location.clone();
         match tokens[0].as_str() {
-            "dimspec" => Self::parse_dimension(tokens, line.location, dimension_names)
+            "dimspec" => Self::parse_dimension(tokens, location, dimension_names)
                 .map(RegistryEntry::Dimension),
             "state" => {
-                Self::parse_state(tokens, line.location, dimension_names).map(RegistryEntry::State)
+                Self::parse_state(tokens, location, dimension_names).map(RegistryEntry::State)
             }
-            "rconfig" => Self::parse_runtime_configuration(tokens, line.location)
+            "rconfig" => Self::parse_runtime_configuration(tokens, location)
                 .map(RegistryEntry::RuntimeConfiguration),
             entry_kind => Err(RegistryParseError::new(
-                line.location,
+                location,
                 RegistryParseErrorKind::UnsupportedEntry {
                     entry_kind: entry_kind.to_owned(),
                 },
@@ -433,20 +479,43 @@ impl RegistryParser {
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
+    use crate::preprocessor::{RegistryPreprocessError, RegistryPreprocessErrorKind};
+
     use super::*;
 
-    const ARW_SLICE: &str = include_str!("../../../../parity/registry/fixtures/registry_arw_slice");
+    fn fixture_path(name: &str) -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../parity/registry/fixtures")
+            .join(name)
+    }
+
+    fn parity_definitions() -> RegistryDefinitions {
+        RegistryDefinitions::from_symbols(["PARITY_SLICE=1"])
+    }
+
+    fn preprocess_error(name: &str) -> RegistryPreprocessError {
+        match RegistryParser::parse_file(fixture_path(name), &parity_definitions()).unwrap_err() {
+            RegistrySourceError::Preprocess(error) => error,
+            RegistrySourceError::Parse(error) => {
+                panic!("expected a preprocess error, found parse error {error}")
+            }
+        }
+    }
 
     #[test]
-    fn parses_dependency_closed_arw_slice() {
-        let document = RegistryParser::parse("Registry.slice", ARW_SLICE).unwrap();
+    fn parses_the_arw_slice_across_nested_includes_and_conditionals() {
+        let document =
+            RegistryParser::parse_file(fixture_path("registry_arw_slice"), &parity_definitions())
+                .unwrap();
         let dimensions: Vec<_> = document.dimensions().collect();
         let states: Vec<_> = document.state_variables().collect();
         let configurations: Vec<_> = document.runtime_configurations().collect();
 
         assert_eq!(dimensions.len(), 6);
-        assert_eq!(states.len(), 2);
-        assert_eq!(configurations.len(), 5);
+        assert_eq!(states.len(), 3);
+        assert_eq!(configurations.len(), 7);
         assert_eq!(
             dimensions[4].length(),
             &DimensionLength::Constant { start: 1, end: 12 }
@@ -458,6 +527,156 @@ mod tests {
             configurations[4].description(),
             Some("Case-preserving input path")
         );
+
+        // Entries keep the physical file they came from through the includes.
+        assert!(
+            dimensions[0]
+                .location()
+                .source_name()
+                .ends_with("registry.dimspec_slice")
+        );
+        assert!(
+            states[0]
+                .location()
+                .source_name()
+                .ends_with("registry.state_slice")
+        );
+        assert!(
+            states[2]
+                .location()
+                .source_name()
+                .ends_with("registry_arw_slice")
+        );
+        assert_eq!(states[2].name(), "qv_slice");
+        assert_eq!(configurations[5].name(), "parity_slice_opt");
+        assert_eq!(configurations[6].name(), "unset_feature_default");
+    }
+
+    #[test]
+    fn excludes_every_entry_guarded_by_an_undefined_symbol() {
+        let document =
+            RegistryParser::parse_file(fixture_path("registry_arw_slice"), &parity_definitions())
+                .unwrap();
+
+        assert!(
+            document
+                .state_variables()
+                .all(|state| state.name() != "ghost")
+        );
+        assert!(
+            document
+                .runtime_configurations()
+                .all(|configuration| !matches!(configuration.name(), "ghost_opt" | "ghost_ifndef"))
+        );
+    }
+
+    #[test]
+    fn selects_ifndef_entries_when_no_symbols_are_defined() {
+        let document = RegistryParser::parse_file(
+            fixture_path("registry_arw_slice"),
+            &RegistryDefinitions::new(),
+        )
+        .unwrap();
+
+        assert_eq!(document.state_variables().count(), 2);
+        let configuration_names: Vec<_> = document
+            .runtime_configurations()
+            .map(|configuration| configuration.name())
+            .collect();
+        assert_eq!(configuration_names.len(), 7);
+        assert!(configuration_names.contains(&"unset_feature_default"));
+        assert!(configuration_names.contains(&"ghost_ifndef"));
+        assert!(!configuration_names.contains(&"parity_slice_opt"));
+    }
+
+    #[test]
+    fn reports_a_missing_include_file_with_its_candidates() {
+        let error = preprocess_error("malformed/registry_missing_include");
+
+        assert_eq!(error.location().line(), 2);
+        assert!(matches!(
+            error.kind(),
+            RegistryPreprocessErrorKind::MissingInclude { file_name, tried_paths }
+                if file_name == "registry.does_not_exist" && tried_paths.len() == 2
+        ));
+    }
+
+    #[test]
+    fn reports_a_self_include_as_cyclic() {
+        let error = preprocess_error("malformed/registry_self_include");
+
+        assert!(matches!(
+            error.kind(),
+            RegistryPreprocessErrorKind::CyclicInclude { .. }
+        ));
+    }
+
+    #[test]
+    fn reports_an_indirect_include_cycle_with_its_chain() {
+        let error = preprocess_error("malformed/registry_cycle_a");
+
+        assert_eq!(error.inclusion_chain().len(), 1);
+        assert!(error.location().source_name().ends_with("registry_cycle_b"));
+        assert!(matches!(
+            error.kind(),
+            RegistryPreprocessErrorKind::CyclicInclude { .. }
+        ));
+    }
+
+    #[test]
+    fn reports_an_unterminated_conditional_at_its_opening_line() {
+        let error = preprocess_error("malformed/registry_unterminated_conditional");
+
+        assert_eq!(error.location().line(), 3);
+        assert!(matches!(
+            error.kind(),
+            RegistryPreprocessErrorKind::UnterminatedConditional { symbol, .. }
+                if symbol == "PARITY_SLICE=1"
+        ));
+    }
+
+    #[test]
+    fn reports_an_unknown_else_directive() {
+        let error = preprocess_error("malformed/registry_unknown_directive");
+
+        assert_eq!(error.location().line(), 4);
+        assert!(matches!(
+            error.kind(),
+            RegistryPreprocessErrorKind::UnknownDirective { directive } if directive == "else"
+        ));
+    }
+
+    #[test]
+    fn reports_a_parse_failure_at_its_physical_nested_include_location() {
+        let error = RegistryParser::parse_file(
+            fixture_path("malformed/registry_bad_nested_entry"),
+            &parity_definitions(),
+        )
+        .unwrap_err();
+
+        let RegistrySourceError::Parse(error) = error else {
+            panic!("expected a parse error from the included source");
+        };
+        assert!(
+            error
+                .location()
+                .source_name()
+                .ends_with("registry_bad_nested_entry_child")
+        );
+        assert_eq!(error.location().line(), 2);
+        assert_eq!(error.kind(), &RegistryParseErrorKind::UnbalancedQuote);
+    }
+
+    #[test]
+    fn preprocessing_failures_leave_no_partial_document() {
+        // Failure atomicity: parse_file returns only Err, never a partially
+        // populated document, when any included file is malformed.
+        let result = RegistryParser::parse_file(
+            fixture_path("malformed/registry_missing_include"),
+            &parity_definitions(),
+        );
+
+        assert!(result.is_err());
     }
 
     #[test]

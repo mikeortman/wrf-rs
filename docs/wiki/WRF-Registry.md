@@ -64,7 +64,7 @@ The reachable v4.7.1 sources use these language families:
 
 | Family | Observed forms | First-slice status |
 |---|---|---|
-| preprocessing | `include`, `ifdef`, `endif`, definitions consumed through build flags, continuations, comments | continuations/comments only |
+| preprocessing | `include`, `ifdef`, `ifndef`, `endif`, `define`, definitions consumed through build flags, continuations, comments | includes, conditionals, definitions, continuations, and comments parsed; selected output generated |
 | dimensions | `dimspec`, standard/namelist/constant bounds, coordinate axes | parsed and selected output generated |
 | fields | `state`, `i1`, `typedef`, built-in and derived types | `state` plus built-in types parsed |
 | configuration | `rconfig`, scalar/expression entry counts, namelist/derived setting | parsed and selected output generated |
