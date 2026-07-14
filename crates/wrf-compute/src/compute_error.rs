@@ -31,6 +31,13 @@ pub enum ParallelExecutionError<KernelError> {
         /// Required number of values in each indivisible block.
         block_length: usize,
     },
+    /// Two paired output slices have different lengths.
+    PairedOutputLengthMismatch {
+        /// Number of values in the first output slice.
+        first_output_value_count: usize,
+        /// Number of values in the second output slice.
+        second_output_value_count: usize,
+    },
     /// A numerical kernel returned a recoverable typed error.
     Kernel(KernelError),
     /// A worker panicked rather than returning a recoverable error.
@@ -70,6 +77,13 @@ where
             } => write!(
                 formatter,
                 "{output_value_count} output values do not form complete blocks of length {block_length}"
+            ),
+            Self::PairedOutputLengthMismatch {
+                first_output_value_count,
+                second_output_value_count,
+            } => write!(
+                formatter,
+                "paired outputs contain {first_output_value_count} and {second_output_value_count} values"
             ),
             Self::Kernel(error) => write!(formatter, "numerical kernel failed: {error}"),
             Self::WorkerPanicked => formatter.write_str("a CPU execution worker panicked"),

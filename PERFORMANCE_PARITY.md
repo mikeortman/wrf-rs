@@ -67,6 +67,20 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
 | Periodic big-step column mass | 2,099,200 momentum-mass outputs | 0.347120 ms median `[0.293724, 0.412366]` | 0.35964 ms `[0.35356, 0.36571]` | 0.18110 ms (4 workers) | Rust serial 3.6% slower; Rust 4-worker 1.92× faster; stop tuning |
 | Momentum coupling | 7,950,336 momentum outputs | 1.152625 ms median `[1.025500, 1.276675]` | 1.3679 ms `[1.3523, 1.3840]` | 0.65495 ms (4 workers) | Rust serial 18.7% slower; Rust 4-worker 1.76× faster; stop tuning |
+| Dry-air omega diagnosis | 2,686,976 omega outputs | 1.832250 ms median `[1.743500, 1.881850]` | 5.0201 ms `[4.9991, 5.0425]` | 0.66690 ms (16 workers) | Rust serial 2.74× slower; Rust 4-worker 1.38× faster; Rust 16-worker 2.75× faster; stop tuning |
+| Moisture momentum coefficients | 7,819,264 coefficient outputs | 5.221150 ms median `[5.161350, 5.510350]` | 7.1239 ms `[7.0845, 7.1668]` | 2.0418 ms (4 workers) | Rust serial 36.4% slower; Rust 4-worker 2.56× faster; Rust 16-worker 1.52× faster; stop tuning |
+| Full inverse density | 2,621,440 mass-point outputs | 0.210880 ms median `[0.206400, 0.223980]` | 0.32594 ms `[0.32076, 0.33097]` | 0.12102 ms (4 workers) | Rust serial 54.6% slower; Rust 4-worker 1.74× faster; stop tuning |
+| Pressure-point geopotential | 2,621,440 mass-point outputs | 0.402140 ms median `[0.377740, 0.464480]` | 0.44482 ms `[0.44034, 0.44991]` | 0.14072 ms (4 workers) | Rust serial 10.6% slower; Rust 4-worker 2.86× faster; stop tuning |
+| Integrated RK preparation | seven diagnostics on 2,621,440 mass points | 6.067100 ms median `[5.997000, 6.636100]` | 10.092 ms `[10.023, 10.162]` | 3.3025 ms (4 workers) | Rust serial 66.3% slower; Rust 4-worker 1.84× faster; Rust 16-worker 1.33× faster; stop tuning pending trajectory profile |
+| Dry RK tendency assembly | 26,542,080 mutable values | 8.425600 ms median `[8.281500, 8.913450]` | 18.625 ms `[18.457, 18.845]` | 2.5235 ms (16 workers) | Rust serial 2.21× slower; Rust 4-worker 1.70× faster; Rust 16-worker 3.34× faster; stop tuning pending trajectory profile |
+| Acoustic small-step preparation | 45,543,936 mutable values | 5.877800 ms median `[5.731300, 7.147600]` | 26.123 ms `[25.869, 26.388]` | 6.5595 ms (16 workers) | Rust serial 4.44× slower; Rust 4-worker 26.1% slower; Rust 16-worker 11.6% slower; operationally close, stop tuning pending trajectory profile |
+| Acoustic pressure, nonhydrostatic | 2,621,440 mass points | 1.529500 ms median `[1.512550, 2.006750]` | 1.8319 ms `[1.8075, 1.8596]` | 0.81126 ms (4 workers) | Rust serial 19.8% slower; Rust 4-worker 1.89× faster; stop tuning pending trajectory profile |
+| Acoustic pressure, hydrostatic | 2,621,440 mass points | 1.602750 ms median `[1.563400, 1.765500]` | 2.0816 ms `[2.0569, 2.1137]` | 0.95950 ms (4 workers) | Rust serial 29.9% slower; Rust 4-worker 1.67× faster; stop tuning pending trajectory profile |
+| Vertical acoustic coefficients | 256 × 256 × 40 columns | 1.867500 ms median `[1.829250, 1.956000]` | 14.608 ms `[14.536, 14.686]` | 1.7109 ms (16 workers) | Rust serial 7.82× slower; Rust 16-worker 1.09× faster; stop tuning pending trajectory profile |
+| Acoustic horizontal momentum | 256 × 256 × 40 mass grid plus U/V staggers | 7.569 ms median | 71.852 ms | 7.802 ms (16 workers) | Rust 16-worker 3.1% slower; operationally close, stop tuning pending trajectory profile |
+| Acoustic mass, omega, and theta | 256 × 256 × 40 mass grid | 5.368 ms median | 29.960 ms | 4.241 ms (16 workers) | Rust 16-worker 1.27× faster; stop tuning pending trajectory profile |
+| Implicit acoustic vertical momentum | 256 × 256 × 40 mass grid plus top level | 16.745 ms median `[16.014, 26.746]` | 61.295 ms `[61.074, 61.480]` | 6.621 ms (16 workers) | Rust 4-worker 1.04× faster; Rust 16-worker 2.53× faster; stop tuning pending trajectory profile |
+| Acoustic flux accumulation | three substeps on 256 × 256 × 40 mass grid plus U/V/W staggers | 5.513750 ms median `[5.163000, 6.643500]` | 26.048 ms `[25.922, 26.187]` | 3.6192 ms (16 workers) | Rust 16-worker 1.52× faster; stop tuning pending trajectory profile |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -86,6 +100,19 @@ cargo bench -p wrf-dynamics --bench positive_definite -- --noplot
 cargo bench -p wrf-dynamics --bench held_suarez -- --noplot
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo bench -p wrf-dynamics --bench momentum_coupling -- --noplot
+cargo bench -p wrf-dynamics --bench omega_diagnosis -- --noplot
+cargo bench -p wrf-dynamics --bench moisture_coefficients -- --noplot
+cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
+cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
+cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
+cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
+cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_horizontal_momentum -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_flux_accumulation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -93,6 +120,19 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-column-mass-staggering-fortran.sh
 ./scripts/benchmark-periodic-column-mass-fortran.sh
 ./scripts/benchmark-momentum-coupling-fortran.sh
+./scripts/benchmark-omega-diagnosis-fortran.sh
+./scripts/benchmark-moisture-coefficients-fortran.sh
+./scripts/benchmark-inverse-density-fortran.sh
+./scripts/benchmark-pressure-point-geopotential-fortran.sh
+./scripts/benchmark-runge-kutta-preparation-fortran.sh
+./scripts/benchmark-dry-tendency-assembly-fortran.sh
+./scripts/benchmark-acoustic-step-preparation-fortran.sh
+./scripts/benchmark-acoustic-pressure-fortran.sh
+./scripts/benchmark-vertical-acoustic-coefficients-fortran.sh
+./scripts/benchmark-acoustic-horizontal-momentum-fortran.sh
+./scripts/benchmark-acoustic-mass-theta-fortran.sh
+./scripts/benchmark-acoustic-vertical-momentum-fortran.sh
+./scripts/benchmark-acoustic-flux-accumulation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -173,6 +213,158 @@ scientific oracle.
 - No explicit SIMD or target-specific tuning is justified without an
   end-to-end profile identifying this routine as a material hotspot.
 
+## Omega-diagnosis comparison notes
+
+- Both implementations diagnose 2,686,976 complete-column outputs on a
+  256 × 256 × 40 mass grid with identical halos, coefficients, map factors,
+  and grid spacing.
+- Fortran uses eleven samples of 20 calls after ten warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark. All fields are reused.
+- The first parity-correct column-strided Rust version measured 17.960 ms with
+  one worker. Validated equal-length west-east row views preserved all 1,960
+  oracle values and improved accepted serial time by about 72%.
+- One-worker Rust remains slower than serial Fortran, but the standard
+  multithreaded path is faster at both four and 16 workers. Settled execution
+  uses one 1,520-byte scheduler allocation per 100 calls and no numerical
+  scratch.
+- No explicit SIMD is justified until integrated profiling identifies this
+  routine as a material limiter.
+
+## Moisture-coefficient comparison notes
+
+- Both implementations process a 256 × 256 × 40 mass grid, six active
+  moisture species, and all three upper stagger points, producing 7,819,264
+  coefficients per call.
+- WRF's generated scalar padding slot is present and poisoned in Fortran but is
+  omitted from the Rust active-species view. Both sides accumulate the same six
+  physical fields in the same order.
+- Fortran uses eleven samples of 20 calls after ten warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark. Inputs and outputs are reused.
+- Rust uses each output row as the temporary species total, replacing WRF's
+  automatic `qtot` row without numerical scratch or reassociation.
+- Four-worker Rust is the fastest measured configuration. The all-16-worker
+  result is slower than four workers but remains 1.52× faster than
+  serial Fortran. Five 1,520-byte scheduler allocations occur per 100 calls at
+  every worker count, with no reallocations or numerical scratch.
+- The standard multithreaded path is competitive, so explicit SIMD and custom
+  scheduling are not justified without an integrated ARW profile.
+
+## Full inverse-density comparison notes
+
+- Both implementations add perturbation and base-state inverse density at
+  2,621,440 active points on a 256 × 256 × 40 mass grid. Inputs, output, halos,
+  and all three upper stagger points are allocated once and reused.
+- Fortran uses eleven samples of 50 calls after 20 warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark.
+- The Rust hot loop is a safe contiguous slice addition. This keeps the source
+  readable and exposes ordinary compiler autovectorization without an explicit
+  SIMD implementation.
+- Four-worker Rust is 1.74× faster than serial Fortran. Sixteen workers lose to
+  four because this small three-stream kernel is memory-bandwidth and dispatch
+  limited.
+- Settled execution records one 1,520-byte scheduler allocation per 100 calls,
+  no reallocations, and no numerical scratch. The standard multithreaded path
+  is competitive, so additional SIMD and scheduling work stops here.
+
+## Pressure-point geopotential comparison notes
+
+- Both implementations average base-state and perturbation geopotential from
+  adjacent full levels into 2,621,440 active pressure points on a
+  256 × 256 × 40 mass grid.
+- Fortran uses eleven samples of 50 calls after 20 warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark. All three fields are reused.
+- Rust preserves WRF's base-state-first four-term single-precision addition
+  order. The exact oracle includes a reassociation-sensitive overflow case.
+- One-worker Rust is 10.6% slower than optimized serial Fortran. Four-worker
+  Rust is 2.86× faster; 16 workers add overhead and are 1.6% slower than
+  Fortran.
+- Settled execution records one 1,520-byte scheduler allocation per 100 calls,
+  no reallocations, and no numerical scratch. The ordinary multithreaded path
+  clears the performance gate, so explicit SIMD work stops here.
+
+## Integrated Runge-Kutta preparation comparison notes
+
+- Both implementations run the exact seven-stage `rk_step_prep` diagnostic
+  sequence on a 256 × 256 × 40 mass grid with two active moisture species,
+  upper stagger storage, and reused inputs and outputs.
+- GNU Fortran 16.1.0 uses `-O3 -flto`, eleven samples of 20 calls, and ten
+  warm-up calls. Rust uses the workspace bench profile (`opt-level=3`, ThinLTO,
+  one codegen unit) and Criterion. Neither side enables fast-math or a native
+  CPU flag.
+- One-worker Rust is 66.3% slower than serial Fortran. Four-worker Rust is
+  1.84× faster, while the standard 16-worker host path is 1.33× faster. This is
+  accepted without cross-stage fusion or custom SIMD because normal parallel
+  execution clears the gate and no coupled trajectory profile identifies a
+  model-level bottleneck.
+- Every 100 settled calls records 19 scheduler allocations totaling 28,880
+  bytes, no reallocations, no numerical scratch, and no full-field clones.
+  Preflight validation only borrows existing descriptors and fields.
+
+## Dry Runge-Kutta tendency assembly comparison notes
+
+- Both implementations execute first-substep `rk_addtend_dry` on a 256 × 256 ×
+  40 mass grid, including the upper W/geopotential level and reused fields.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses portable optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or a native CPU flag.
+- One-worker Rust is 2.21× slower than serial Fortran. Four workers are 1.70×
+  faster, and the standard 16-worker host path is 3.34× faster.
+- The safe paired-output scheduler keeps each RK/persistent pair in one memory
+  pass. Every 100 settled calls records nine allocations totaling 13,680 bytes,
+  no reallocations, no numerical scratch, and no field clones.
+- FatLTO produced no statistically detectable improvement over ThinLTO in the
+  same Criterion run. Parallel Rust already clears the gate, so explicit SIMD,
+  target-specific flags, and a more complex fused scheduler stop here.
+
+## Acoustic small-step preparation comparison notes
+
+- Both implementations execute first-substep `small_step_prep` on a 256 × 256
+  × 40 mass grid with upper U/V staggers and the full upper W/geopotential
+  level, writing 45,543,936 values per call.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses portable optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or a native CPU flag.
+- One-worker Rust is 4.44× slower than serial Fortran. Four-worker Rust is
+  26.1% slower and the default 16-worker path is 11.6% slower.
+- Every 100 settled calls records 28 scheduler allocations totaling 42,560
+  bytes, no reallocations, no numerical scratch, and no field clones.
+- Ordinary parallel Rust is operationally close to optimized Fortran. Per the
+  project stopping rule, explicit SIMD and more complex pass fusion wait for a
+  coupled trajectory profile.
+
+## Acoustic pressure diagnosis comparison notes
+
+- Both implementations process 256 × 256 × 40 mass points and retain the upper
+  geopotential level. Nonhydrostatic and hydrostatic modes use the same reused
+  fields and pressure-history initialization phase.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses portable optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or a native CPU flag.
+- Four-worker Rust is 1.89× faster in nonhydrostatic mode and 1.67× faster in
+  hydrostatic mode than optimized serial Fortran.
+- Reordering the parity-correct hydrostatic recurrence from column-strided to
+  WRF-like level-major traversal improved serial Rust from 8.63 to 2.08 ms
+  without changing any oracle bit.
+- Settled 100-call phases record at most five allocations and 6,080 bytes, no
+  reallocations, no numerical scratch, and no field clones.
+- The normal multithreaded path clears the gate, so explicit SIMD, unsafe
+  fusion, and custom per-kernel worker selection wait for a coupled trajectory
+  profile.
+
+## Vertical acoustic coefficient comparison notes
+
+- Both implementations construct `a`, `alpha`, and `gamma` for 256 × 256
+  columns with 40 mass half levels and the additional top full level.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses portable optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or a native CPU flag.
+- One-worker Rust is 7.82× slower and four-worker Rust is 2.08× slower than
+  serial Fortran. The standard 16-worker host path is 1.09× faster.
+- Reordering the first parity-correct column-strided traversal to WRF-like
+  level-major contiguous-X traversal preserved all 3,024 oracle values and
+  improved serial Rust from 27.881 to 14.608 ms.
+- Every 100 settled calls records three scheduler allocations totaling 4,560
+  bytes, no reallocations, no numerical scratch, and no field clones.
+- The default path clears the gate. The remaining serial vectorization gap is
+  recorded for integrated profiling rather than addressed with speculative
+  SIMD during this port slice.
+
 ## Kessler microphysics comparison notes
 
 - Date, machine, and toolchains match the other 2026-07-13 comparisons.
@@ -187,3 +379,64 @@ scientific oracle.
 - The reusable Rust workspace holds about 2.62 MB for this domain. Settled
   execution records three 1,520-byte scheduler allocations per 100 calls and
   no numerical scratch allocation or reallocation.
+
+## Acoustic horizontal-momentum comparison notes
+
+- Both implementations run nonhydrostatic `advance_uv` over a 256 × 256 × 40
+  mass grid with upper U/V stagger points and guard storage.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or native-CPU flags.
+- Serial Fortran measured 7.569 ms median. Rust measured 71.852 ms with one
+  worker, 18.850 ms with four, and 7.802 ms with 16 workers.
+- The normal host-parallel path is 3.1% slower than optimized serial Fortran,
+  which is operationally close. Explicit SIMD and more complex fusion stop
+  here until a coupled profile identifies a material bottleneck.
+- Rust removes the tile-sized `dpn`, `dpxy`, and `mudf_xy` numerical scratch by
+  evaluating interpolation, pressure-gradient, and damping terms directly.
+
+## Acoustic mass, omega, and theta comparison notes
+
+- Both implementations run `advance_mu_t` over a 256 × 256 × 40 mass grid with
+  upper U/V/full-level storage and the same constant-valued numerical fixture.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or native-CPU flags.
+- Serial Fortran measured 5.368 ms median. Rust measured 29.960 ms with one
+  worker, 8.070 ms with four, and 4.241 ms with 16 workers.
+- The standard host-parallel path is 1.27× faster than optimized serial
+  Fortran. SIMD and more elaborate multi-output scheduling stop here.
+- Rust reuses required diagnostic outputs as short-lived divergence and prior-
+  mass scratch, then writes their specified final values. It allocates no
+  numerical scratch and clones no fields.
+
+## Implicit acoustic vertical-momentum comparison notes
+
+- Both implementations run `advance_w` over a 256 × 256 × 40 mass grid with
+  the full upper vertical-momentum level, gradient-first geopotential
+  advection, nonrigid top, terrain lower boundary, tridiagonal sweeps, and
+  upper damping.
+- GNU Fortran 16.1.0 uses `-O3 -flto -ffp-contract=off`; Rust uses optimization
+  level 3, ThinLTO, and one codegen unit. Neither enables fast-math or native-
+  CPU flags.
+- Serial Fortran measured 16.745 ms median. Rust measured 61.295 ms with one
+  worker, 16.084 ms with four, and 6.621 ms with 16 workers.
+- Four-worker Rust is 4.1% faster than serial Fortran, and the standard
+  16-worker path is 2.53× faster. SIMD and column-layout changes stop here.
+- The guarded workload's reusable RHS is 10.67 MiB. Every 100 settled calls
+  records four scheduler allocations totaling 6,080 bytes, four matching
+  deallocations, no reallocations, no field allocation, and no clones.
+
+## Complete local acoustic-trajectory estimate
+
+- The exact trajectory call count is one preparation, four nonhydrostatic
+  pressure diagnoses, one coefficient construction, three horizontal, mass,
+  and vertical advances, and one three-call flux sequence.
+- Summing the matched 256 × 256 × 40 stage medians gives 108.423 ms for
+  optimized serial Fortran, 563.428 ms for one-worker Rust, 150.770 ms for
+  four-worker Rust, and 73.949 ms for 16-worker Rust.
+- The standard host-parallel estimate is 1.47× faster than serial Fortran.
+- This is an arithmetic composition of measured stage medians, not a new fused
+  wall-clock benchmark. Both sides exclude communication and boundary work.
+  Optimization levels remain equivalent: Fortran `-O3 -flto`, Rust level 3
+  with ThinLTO and one codegen unit, no fast-math or native CPU flag.
+- The ordinary path clears the performance gate, so SIMD and fusion stop. A
+  direct integrated measurement waits for the communication/boundary driver.

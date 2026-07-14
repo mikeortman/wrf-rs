@@ -13,6 +13,37 @@ use crate::{
 impl ColumnMassStaggeringKernels for CpuBackend {
     type Field = CpuField<f32>;
 
+    fn calculate_full_column_mass(
+        &self,
+        full_mass: &mut Self::Field,
+        perturbation_mass: &Self::Field,
+        base_mass: &Self::Field,
+        region: &ColumnMassStaggeringRegion,
+    ) -> ColumnMassStaggeringResult<()> {
+        validate_full_mass_operation(full_mass, perturbation_mass, base_mass, region)?;
+
+        let row_length = region.shape().west_east_points();
+        let perturbation_values = perturbation_mass.values();
+        let base_values = base_mass.values();
+        let (west_east, south_north) = region.full_mass_ranges()?;
+        self.try_for_each_output_block(
+            full_mass.values_mut(),
+            row_length,
+            |south_north_index, output_row| {
+                if south_north.contains(&south_north_index) {
+                    let row_start = south_north_index * row_length;
+                    for west_east_index in west_east.clone() {
+                        let index = row_start + west_east_index;
+                        output_row[west_east_index] =
+                            base_values[index] + perturbation_values[index];
+                    }
+                }
+                Ok::<(), Infallible>(())
+            },
+        )
+        .map_err(map_parallel_error)
+    }
+
     fn stagger_column_mass(
         &self,
         perturbation_mass: &Self::Field,
@@ -176,6 +207,45 @@ impl ColumnMassStaggeringKernels for CpuBackend {
             },
         )
     }
+}
+
+pub(crate) fn validate_full_mass_operation(
+    full_mass: &CpuField<f32>,
+    perturbation_mass: &CpuField<f32>,
+    base_mass: &CpuField<f32>,
+    region: &ColumnMassStaggeringRegion,
+) -> ColumnMassStaggeringResult<()> {
+    validate_shape(full_mass, region, ColumnMassStaggeringField::FullMass)?;
+    validate_shape(
+        perturbation_mass,
+        region,
+        ColumnMassStaggeringField::PerturbationMass,
+    )?;
+    validate_shape(base_mass, region, ColumnMassStaggeringField::BaseMass)?;
+    region.full_mass_ranges()?;
+    Ok(())
+}
+
+pub(crate) fn validate_big_step_operation(
+    perturbation_mass: &CpuField<f32>,
+    base_mass: &CpuField<f32>,
+    west_east_momentum_mass: &CpuField<f32>,
+    south_north_momentum_mass: &CpuField<f32>,
+    region: &ColumnMassStaggeringRegion,
+    periodicity: ColumnMassStaggeringPeriodicity,
+) -> ColumnMassStaggeringResult<()> {
+    validate_shape(
+        perturbation_mass,
+        region,
+        ColumnMassStaggeringField::PerturbationMass,
+    )?;
+    validate_shape(base_mass, region, ColumnMassStaggeringField::BaseMass)?;
+    validate_big_step_outputs(
+        west_east_momentum_mass,
+        south_north_momentum_mass,
+        region,
+        periodicity,
+    )
 }
 
 fn validate_big_step_outputs(
@@ -458,7 +528,8 @@ fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> ColumnMassSt
         ParallelExecutionError::Kernel(never) => match never {},
         ParallelExecutionError::WorkerPanicked => ColumnMassStaggeringError::WorkerPanicked,
         ParallelExecutionError::ZeroBlockLength
-        | ParallelExecutionError::IncompleteOutputBlock { .. } => {
+        | ParallelExecutionError::IncompleteOutputBlock { .. }
+        | ParallelExecutionError::PairedOutputLengthMismatch { .. } => {
             unreachable!("validated field shapes produce complete non-empty rows")
         }
     }

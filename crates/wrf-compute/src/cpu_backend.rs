@@ -153,6 +153,58 @@ impl CpuBackend {
         }
     }
 
+    /// Runs a closure over matching disjoint blocks from two mutable outputs.
+    ///
+    /// This avoids numerical scratch and extra memory passes when one grid-point
+    /// operation must update two independently owned fields. Both outputs must
+    /// have the same length and form complete blocks.
+    pub fn try_for_each_output_pair_block<Value, KernelError, Operation>(
+        &self,
+        first_output_values: &mut [Value],
+        second_output_values: &mut [Value],
+        block_length: usize,
+        operation: Operation,
+    ) -> Result<(), ParallelExecutionError<KernelError>>
+    where
+        Value: Send,
+        KernelError: Send,
+        Operation: Fn(usize, &mut [Value], &mut [Value]) -> Result<(), KernelError> + Send + Sync,
+    {
+        if block_length == 0 {
+            return Err(ParallelExecutionError::ZeroBlockLength);
+        }
+        if first_output_values.len() != second_output_values.len() {
+            return Err(ParallelExecutionError::PairedOutputLengthMismatch {
+                first_output_value_count: first_output_values.len(),
+                second_output_value_count: second_output_values.len(),
+            });
+        }
+        if first_output_values.len() % block_length != 0 {
+            return Err(ParallelExecutionError::IncompleteOutputBlock {
+                output_value_count: first_output_values.len(),
+                block_length,
+            });
+        }
+
+        let parallel_result = catch_unwind(AssertUnwindSafe(|| {
+            self.thread_pool.install(|| {
+                first_output_values
+                    .par_chunks_mut(block_length)
+                    .zip(second_output_values.par_chunks_mut(block_length))
+                    .enumerate()
+                    .try_for_each(|(block_index, (first_block, second_block))| {
+                        operation(block_index, first_block, second_block)
+                    })
+            })
+        }));
+
+        match parallel_result {
+            Ok(Ok(())) => Ok(()),
+            Ok(Err(error)) => Err(ParallelExecutionError::Kernel(error)),
+            Err(_) => Err(ParallelExecutionError::WorkerPanicked),
+        }
+    }
+
     fn try_with_non_zero_worker_count(worker_count: NonZeroUsize) -> ComputeResult<Self> {
         let thread_pool = ThreadPoolBuilder::new()
             .num_threads(worker_count.get())
@@ -349,5 +401,48 @@ mod tests {
         );
 
         assert_eq!(result, Err(ParallelExecutionError::WorkerPanicked));
+    }
+
+    #[test]
+    fn try_for_each_output_pair_block_updates_matching_blocks() {
+        let backend = CpuBackend::try_with_worker_count(2).unwrap();
+        let mut first = vec![0_usize; 12];
+        let mut second = vec![0_usize; 12];
+
+        backend
+            .try_for_each_output_pair_block(
+                &mut first,
+                &mut second,
+                3,
+                |block_index, first_block, second_block| -> Result<(), Infallible> {
+                    first_block.fill(block_index);
+                    second_block.fill(block_index + 10);
+                    Ok(())
+                },
+            )
+            .unwrap();
+
+        assert_eq!(first, [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3]);
+        assert_eq!(second, [10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13]);
+    }
+
+    #[test]
+    fn try_for_each_output_pair_block_rejects_mismatched_lengths() {
+        let backend = CpuBackend::try_with_worker_count(2).unwrap();
+        let mut first = vec![0_u8; 4];
+        let mut second = vec![0_u8; 5];
+
+        assert_eq!(
+            backend.try_for_each_output_pair_block(
+                &mut first,
+                &mut second,
+                2,
+                |_, _, _| -> Result<(), Infallible> { Ok(()) },
+            ),
+            Err(ParallelExecutionError::PairedOutputLengthMismatch {
+                first_output_value_count: 4,
+                second_output_value_count: 5,
+            })
+        );
     }
 }

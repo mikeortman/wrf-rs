@@ -26,6 +26,18 @@ a measured regression until a representative benchmark exists.
 | WRF-012 | Confirmed latent bug | Source-confirmed; bounds-check reproducer recommended | Kessler microphysics | Several sedimentation loops index from literal level `1` despite accepting and allocating from `kts` |
 | WRF-013 | Test gap | Repository search | Kessler microphysics | No dedicated numerical regression for the exported Kessler scheme was found in the WRF tree |
 | WRF-014 | Test gap | Source and build-rule inventory | NetCDF I/O | The bundled `testWRFWrite.F90` and `testWRFRead.F90` are not build targets and call obsolete unprefixed external entry points absent from the current I/O library |
+| WRF-030 | Confirmed latent bug | Source-confirmed; Rust validation reproduces boundary | `calculate_full` | The loop unconditionally reads `its-1` and `jts-1` without checking those indices against memory bounds |
+| WRF-031 | Confirmed interface defect | Source-confirmed | `calculate_full` | A partially written array is declared `INTENT(OUT)`, leaving inactive storage undefined by the Fortran standard |
+| WRF-032 | Test gap | Repository search plus coupled differential fixture | `rk_step_prep` | No dedicated numerical regression checks the seven production diagnostics together or observes their intermediate fields |
+| WRF-033 | Performance/API opportunity | Source-confirmed, not independently benchmarked | `rk_step_prep` | The wrapper accepts several arguments that none of its seven diagnostic calls read |
+| WRF-034 | Interface defect/API opportunity | Source-confirmed | `rk_addtend_dry` | `mu_tendf` is declared `INTENT(INOUT)` but only read; three map arrays and all patch bounds are unused |
+| WRF-035 | Test gap | Repository search plus direct differential fixture | `rk_addtend_dry` | No dedicated production numerical regression checks first/later substeps, distinct stagger bounds, persistent fields, or inactive storage |
+| WRF-036 | Interface/performance opportunity | Source-confirmed | `small_step_prep` | Ten numerical dummy arguments and three lower domain bounds are not read; production full-column execution also performs boundary stores that are overwritten before return |
+| WRF-037 | Confirmed interface defect | Source-confirmed | `small_step_prep` | Twelve partially written arrays are declared `INTENT(OUT)`, making their inactive storage undefined on entry even though callers and differential tests may expect preserved halos |
+| WRF-038 | Test gap | Repository search plus direct differential fixture | `small_step_prep` | No focused production regression checks first/later time-level behavior, all staggered bounds, exceptional arithmetic, or inactive storage |
+| WRF-039 | Interface/API opportunity | Source-confirmed | `calc_p_rho` | Six coefficient/coordinate arrays and three lower domain bounds are accepted but never read |
+| WRF-040 | Confirmed interface defect | Source-confirmed | `calc_p_rho` | Partially written `al` and `p` arrays are declared `INTENT(OUT)`, making inactive tile and halo storage undefined on entry |
+| WRF-041 | Test gap | Repository search plus direct differential fixture | `calc_p_rho` | No focused production regression jointly checks both governing modes, damping phases, hydrostatic recurrence, partial tiles, or exceptional arithmetic |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -385,3 +397,687 @@ covers each upper stagger independently and together, negative/non-one memory
 origins, finite overflow, division by zero, and multiplication by a zero inverse
 factor. A useful upstream regression should add the same branch geometry and
 then exercise the operation through `rk_step_prep` in an idealized trajectory.
+
+## WRF-017: four unused map-factor arguments in `calc_ww_cp`
+
+Status: source-confirmed interface redundancy; no numerical defect.
+
+`calc_ww_cp` accepts and declares `msfty`, `msfux`, `msfvx`, and `msfvy` at
+`dyn_em/module_big_step_utilities_em.F:640-667`. The executable statements at
+lines 692-779 read `msftx`, `msfuy`, and `msfvx_inv`, but never reference the
+other four arrays. The sole production caller still passes all seven factors.
+
+The Rust capability carries only the three arrays read by the algorithm.
+Suggested upstream action: remove the four unused arguments in an
+interface-breaking cleanup, or document that they are retained for call-site
+compatibility. Enabling unused-dummy-argument warnings would identify similar
+signature drift.
+
+## WRF-018: `calc_ww_cp` has an implicit complete-column precondition
+
+Status: source-confirmed latent bounds/initialization defect. Normal ARW calls
+appear to provide the complete vertical column; impact outside that path is not
+established.
+
+The routine accepts `kts` and declares `divv(its:ite,kts:kte)`, but line 714
+writes `ww(i,1,j)` and the recurrence at line 767 starts from literal level
+`2`. If `kts > 1`, the recurrence reads `divv(i,k-1)` below its declared lower
+bound and uses output levels excluded from the tile. If `kte < kde`, the zero
+written at `kte` can be overwritten because `ktf = min(kte,kde-1)`.
+
+The derivation in the routine itself integrates over all levels and assumes
+zero vertical flux at the physical top and bottom, so a partial vertical tile
+is not merely an indexing variation. The Rust region rejects incomplete
+columns explicitly. Suggested upstream fix: document and assert
+`kts == kds == 1` and `kte == kde`, or redesign the interface and mathematics
+for partial columns. Add a bounds-checked regression for invalid `kts`/`kte`.
+
+## WRF-019: `calc_ww_cp` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`ww` is declared `INTENT(OUT)` at line 666. Fortran makes the whole dummy array
+undefined on entry, but the routine assigns only active horizontal points,
+bottom/top tile points, and internal active full levels. Horizontal halos,
+clipped rows, vertical storage outside the physical column, and most upper
+west-east stagger points are not assigned.
+
+Observed compilers leave those bytes unchanged, which is why the local oracle
+can verify sentinel preservation, but relying on their prior values is not
+standard-conforming. Suggested upstream action: change the declaration to
+`INTENT(INOUT)` if preservation is intended, or assign the complete declared
+array and document the value for inactive storage.
+
+## WRF-020: omega-diagnosis numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_ww_cp` routine,
+`rk_step_prep` call, and tangent-linear/adjoint variants, but no dedicated
+numerical regression. The routine combines staggered column-mass averaging,
+component-specific map factors, horizontal divergence, a vertical reduction,
+and a recurrence with fixed physical-boundary values.
+
+The local differential oracle extracts the exact production body and compares
+all 1,960 stored output and sentinel values. It covers interior and upper-edge
+tiles, combined boundaries, non-one/negative memory origins, finite overflow,
+zero map factors, and untouched storage. A useful upstream regression should
+add the same geometry, a full-column contract check, randomized finite inputs,
+and an integrated `rk_step_prep` trajectory.
+
+## WRF-021: `calc_cq` assumes west and south halo neighbors
+
+Status: source-confirmed latent bounds precondition. Normal ARW decomposition
+provides these halos; impact is limited to callers that violate the implicit
+tile contract.
+
+The `cqu` loop reads `moist(i-1,k,j,ispe)` beginning at `i=its`, and the `cqv`
+loop reads `moist(i,k,j-1,ispe)` beginning at `j=jts`. The routine accepts
+memory and tile bounds independently but does not document or check that
+`its > ims` and `jts > jms`. A tile beginning at its allocation lower bound
+therefore reads outside the declared dummy-array bounds when active species
+exist.
+
+The Rust region rejects missing west and south neighbors before mutation.
+Suggested upstream action: document and assert the halo precondition, or pass
+validated domain descriptors rather than independent integers. Add a
+`-fcheck=bounds` regression with each missing neighbor.
+
+## WRF-022: `calc_cq` partially defines three `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`cqu`, `cqv`, and `cqw` are all declared `INTENT(OUT)`, which makes each entire
+dummy array undefined on entry. The routine assigns only component-specific
+tile ranges: `cqu` retains the upper west-east stagger, `cqv` retains the upper
+south-north stagger, and `cqw` excludes the tile's first vertical level. Halos,
+clipped upper points, and other allocated levels are not assigned.
+
+Observed GNU Fortran builds leave inactive bytes unchanged, enabling the local
+oracle to check sentinels, but prior values are not standard-conforming after
+the call. Suggested upstream action: use `INTENT(INOUT)` when preservation is
+the contract, or initialize every declared element and document its dry value.
+
+## WRF-023: `calc_cq` carries avoidable row scratch
+
+Status: source-confirmed performance opportunity; model-level impact has not
+been measured.
+
+The routine declares automatic `qtot(its:ite)` storage, clears the complete row
+for every active `(j,k)` pair, accumulates species into it, then makes another
+pass to write the output. For `cqv` and `cqw`, `itf` may be clipped below `ite`,
+so `qtot = 0.` also clears values that cannot be read. Modern compilers may
+optimize some traffic, and this finding does not claim a measured WRF defect.
+
+The parity-equivalent Rust implementation uses each active output row as the
+temporary total and overwrites it with the final coefficient, removing
+numerical scratch while preserving per-point addition order. Suggested
+upstream experiment: accumulate directly into the corresponding output range,
+restrict initialization to `its:itf`, and benchmark with exact-output checks.
+
+## WRF-024: moisture-coefficient numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_cq` routine, its
+`rk_step_prep` call, downstream uses, and tangent-linear/adjoint variants, but
+no dedicated numerical regression for the production routine. Its zero-species
+branch, generated first-scalar index, three distinct staggers, lower-neighbor
+reads, and component-specific clipping are otherwise easy to regress.
+
+The local differential oracle extracts the exact production body and compares
+all 8,232 output and sentinel values across zero, one, and three active species,
+upper boundaries, non-one origins, vertical clipping, signed zero, and finite
+overflow. A useful upstream test should add the same geometry and then exercise
+the coefficients through `rk_step_prep` and a small-step trajectory.
+
+## WRF-025: `calc_alt` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`alt` is declared `INTENT(OUT)` at line 924, which makes the complete dummy
+array undefined on entry. The routine clips all three upper tile endpoints at
+lines 936–938 and writes only the resulting active mass points at line 943.
+Halos, upper stagger storage, and points outside a subdomain tile are not
+assigned.
+
+Observed GNU Fortran builds retain prior bytes in inactive storage, enabling
+sentinel verification, but those values are not standard-conforming after the
+call. Suggested upstream action: use `INTENT(INOUT)` if preservation is the
+contract, or assign the complete declared array and document inactive values.
+
+## WRF-026: full inverse-density numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_alt`, its `rk_step_prep`
+call, initialization equivalents, and many downstream `alt` consumers, but no
+dedicated numerical regression for the production routine. Although the
+arithmetic is one addition, independent tile/domain/memory bounds and partial
+`INTENT(OUT)` writes make boundary regressions observable.
+
+The local differential oracle extracts the exact routine body and compares all
+2,352 stored output and sentinel values across six cases. It covers each upper
+axis independently and together, negative/non-one memory origins, finite
+overflow, cancellation, signed zero, opposite infinities, untouched storage,
+and worker-count determinism. A useful upstream test should add the same
+geometry and exercise `alt` through an integrated `rk_step_prep` trajectory.
+
+## WRF-027: `calc_php` assumes a stored upper full level
+
+Status: source-confirmed latent bounds precondition. Normal ARW grids provide
+the required vertical stagger; impact is limited to invalid independent bounds.
+
+The loop clips `ktf` to `kde-1` at line 1256, then reads both `ph(i,k+1,j)` and
+`phb(i,k+1,j)` at line 1261. The routine accepts `kde` and `kme` independently
+but does not document or check that the memory allocation includes logical
+level `kde`. A caller with `kde > kme` can therefore read outside the declared
+dummy-array bounds.
+
+The Rust region rejects a missing upper full level before mutation. Suggested
+upstream action: document and assert `kde <= kme`, or replace independent
+integers with a validated grid descriptor. Add a `-fcheck=bounds` regression
+for the missing-neighbor case.
+
+## WRF-028: `calc_php` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`php` is declared `INTENT(OUT)` at line 1241, making the complete dummy array
+undefined on entry. The routine clips all upper tile endpoints at lines
+1254–1256 and writes only active mass points at line 1261. Halos, upper stagger
+storage, and points outside a subdomain tile are not assigned.
+
+Observed GNU Fortran builds retain prior bytes in inactive storage, enabling
+sentinel verification, but those values are not standard-conforming after the
+call. Suggested upstream action: change `php` to `INTENT(INOUT)` when
+preservation is intended, or assign the complete array and document inactive
+values.
+
+## WRF-029: pressure-point geopotential numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_php`, its `rk_step_prep`
+call, equivalent initialization expressions, and downstream pressure-gradient
+consumers, but no dedicated numerical regression for the production routine.
+Its apparent simplicity hides three-axis clipping, a vertical neighbor, partial
+output definition, and floating-point operation-order sensitivity.
+
+The local differential oracle extracts the exact routine body and compares all
+2,352 stored output and sentinel values across six cases. It covers independent
+and combined upper boundaries, negative/non-one memory origins, the required
+upper full level, source-order-sensitive overflow, signed zero, opposite
+infinities, untouched storage, and worker-count determinism. A useful upstream
+test should add the same geometry and then exercise all seven diagnostics in an
+integrated `rk_step_prep` trajectory.
+
+## WRF-030: `calculate_full` assumes two lower halo points
+
+Status: source-confirmed latent bounds precondition. Normal decomposed ARW
+patches communicate the required halos, but the routine accepts independent
+memory and tile bounds without checking the relationship.
+
+At lines 3618–3619, `calculate_full` sets `i_start=its-1` and
+`j_start=jts-1`. Its loop then reads and writes those indices. A caller with
+`its <= ims` or `jts <= jms` accesses outside the corresponding declared dummy
+array even though every supplied bound is individually valid.
+
+The Rust full-column-mass stage rejects either missing lower halo before
+mutation. Suggested upstream action: document and assert `its > ims` and
+`jts > jms`, or pass a validated bounds descriptor. Add a `-fcheck=bounds`
+case with the tile beginning at the memory lower bound.
+
+## WRF-031: `calculate_full` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect.
+
+`rfield` is declared `INTENT(OUT)` at line 3601, making its complete dummy
+array undefined on entry. The loop writes only `its-1:MIN(ite,ide-1)`, one
+vertical tile range, and `jts-1:MIN(jte,jde-1)`. Storage outside that rectangle
+is not assigned. GNU Fortran happens to retain previous inactive bytes, but a
+caller may not portably read them after return.
+
+Suggested upstream action: use `INTENT(INOUT)` if halo and off-tile preservation
+is the contract, or define every element. The coupled local oracle verifies all
+active values and observes sentinels in the current GNU build without treating
+that observation as a language guarantee.
+
+## WRF-032: no coupled numerical regression for `rk_step_prep`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The production wrapper calls seven diagnostics whose intermediate fields feed
+later stages, but a repository-wide search finds no dedicated regression that
+runs this sequence and compares `mut`, `muu`, `muv`, `ru`, `rv`, `rw`, `ww`,
+`cqu`, `cqv`, `cqw`, `alt`, and `php` together. Per-routine tests would still
+miss argument wiring and ordering errors at the wrapper boundary.
+
+The local coupled oracle extracts all seven exact routine bodies, executes them
+in production order, and compares every one of 1,728 stored values by raw bits.
+Suggested upstream action: add a small `rk_step_prep` fixture that observes both
+intermediate mass fields and final diagnostics, then extend it into an
+idealized short trajectory.
+
+## WRF-033: `rk_step_prep` carries dead wrapper arguments
+
+Status: source-confirmed API and maintenance opportunity; no independent speed
+claim is made.
+
+Within `rk_step_prep`, `rk_step`, `t`, `pb`, `p`, `fnm`, and `fnp` are not read
+or forwarded to any of the seven calls. The wrapper also forwards map-factor
+arrays already recorded as unused by `calc_ww_cp` in WRF-017. These arguments
+increase an already large positional interface and make call-site wiring harder
+to review.
+
+The Rust integration boundary retains only participating data and groups it by
+scientific role. Suggested upstream action: remove dead arguments in a planned
+interface change, or introduce a derived state/configuration object and enable
+unused-dummy-argument warnings to prevent further drift.
+
+## WRF-034: `rk_addtend_dry` has misleading and dead dummy arguments
+
+Status: source-confirmed interface defect and API maintenance opportunity.
+
+`mu_tendf` is declared `INTENT(INOUT)` but is only read by
+`mu_tend = mu_tend + mu_tendf`. The routine also accepts `msftx`, `msfux`, and
+`msfvy` without reading them. All six patch bounds are unused, as are the lower
+domain bounds and vertical domain bounds in the executable body. Memory bounds
+remain necessary for the explicit-shape dummy arrays.
+
+The mutable declaration overstates the routine's write set and prevents a
+compiler or caller from expressing the actual read-only contract. The Rust API
+borrows forward column-mass tendency immutably and omits unused map factors and
+patch bounds. Suggested upstream action: change `mu_tendf` to `INTENT(IN)` and
+remove dead arguments in a planned interface revision, or enable unused-dummy
+warnings to keep the positional interface from drifting further.
+
+## WRF-035: no focused numerical regression for `rk_addtend_dry`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production, tangent-linear, and adjoint variants but
+no dedicated numerical regression for the production routine. This leaves the
+first-substep mutation of persistent tendencies, later-substep reuse, diabatic
+heating, all twelve observable mutable fields, and inactive storage unchecked.
+The stagger bounds are particularly easy to mis-port: U and V have different
+horizontal upper points, while W/geopotential use `kts:kte` and temperature and
+horizontal momentum use `kts:kte-1`. Full-domain clipping can hide the latter
+difference; an interior-tile oracle exposed it during this port.
+
+The local fixture extracts the exact pinned body and compares 5,616 complete
+values across first, later, and exceptional cases. Suggested upstream action:
+add a compact fixture covering both RK phases, an interior vertical tile, all
+upper staggers, persistent fields, and untouched halos, then include it in a
+short prognostic trajectory.
+
+## WRF-036: `small_step_prep` carries dead arguments and overwritten stores
+
+Status: source-confirmed interface and performance opportunity; no independent
+whole-model speed claim is made.
+
+The executable body never reads `c3h`, `c4h`, `c3f`, `c4f`, `msfux`, `msfvx`,
+`msfvy`, `msftx`, `rdx`, or `rdy`. The lower domain bounds `ids`, `jds`, and
+`kds` are also unused. Memory bounds remain necessary for the explicit-shape
+dummy arrays, while upper domain bounds participate in clipping.
+
+The routine stores zero into `ww_save(i,kde,j)` and `ww_save(i,1,j)` at lines
+133–134 and again at 225–226. Its production full-column path subsequently
+copies `ww(i,k,j)` for every `k=1:kde` at lines 281–287, so none of those zero
+stores is observable. The Rust routine requires the same full-column contract
+and omits only these overwritten stores; its complete output oracle remains
+exact.
+
+Suggested upstream action: remove dead dummy arguments during a planned
+interface revision, enable unused-dummy warnings, and remove the boundary zero
+stores if full-column execution is an explicit invariant. If partial vertical
+tiles are meant to be supported, document and test that different contract
+before changing the stores.
+
+## WRF-037: `small_step_prep` partially defines `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect.
+
+`u_save`, `v_save`, `w_save`, `t_save`, `ph_save`, `c2a`, `ww_save`, `muus`,
+`muvs`, `muts`, `mudf`, and `mu_save` are declared `INTENT(OUT)` at lines
+52–65 and 86–91. The routine writes only each active tile and its
+component-specific stagger or vertical range. Under the Fortran standard,
+association with an `INTENT(OUT)` dummy makes the complete actual argument
+undefined on entry; inactive halo and off-tile storage therefore cannot
+portably retain its prior value.
+
+GNU Fortran currently leaves those inactive bytes unchanged, which permits the
+local oracle to observe sentinels, but that is not a language guarantee. The
+Rust API models these fields as mutable caller-owned storage and deliberately
+preserves inactive values.
+
+Suggested upstream action: use `INTENT(INOUT)` if halo/off-tile preservation is
+the contract, or explicitly initialize the complete arrays before returning.
+Add a regression that checks both active values and the chosen inactive-storage
+policy.
+
+## WRF-038: no focused numerical regression for `small_step_prep`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds the production calls but no dedicated numerical
+fixture for this routine. The missing coverage includes first-substep time-level
+replacement, later-substep differences, four distinct stagger ranges,
+west/south neighbor averages, the complete W/geopotential column, saved state,
+pressure-coefficient arithmetic, exceptional IEEE behavior, and inactive
+storage.
+
+The local fixture extracts the exact pinned body and compares all 9,936 mutable
+and sentinel values across first, later-interior, and exceptional cases.
+Suggested upstream action: adopt a similarly small routine-level fixture, then
+extend it into an acoustic trajectory that observes state after every small
+step.
+
+## WRF-039: `calc_p_rho` carries nine dead dummy arguments
+
+Status: source-confirmed API maintenance opportunity; no independent
+whole-model speed claim is made.
+
+The executable body never reads full-level coefficient arrays `c1f`, `c2f`,
+`c3f`, and `c4f`, half-level array `c4h`, or vertical coordinate `znu`. Lower
+domain bounds `ids`, `jds`, and `kds` are also unused. The memory bounds remain
+necessary for explicit-shape dummy arrays, while upper domain and tile bounds
+participate in clipping.
+
+These arguments make a large positional call harder to audit and imply
+dependencies that do not exist. The Rust capability keeps only `c1h`, `c2h`,
+`c3h`, `rdnw`, and `dnw`, grouped by scientific role. Suggested upstream
+action: remove dead dummies during a planned interface revision or enable
+unused-dummy warnings to prevent further drift.
+
+## WRF-040: `calc_p_rho` partially defines `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect.
+
+`al` and `p` are declared `INTENT(OUT)` at lines 460–461, but the routine only
+writes `its:min(ite,ide-1)`, `jts:min(jte,jde-1)`, and
+`kts:min(kte,kde-1)`. Under the Fortran standard, association with an
+`INTENT(OUT)` dummy makes the complete actual argument undefined on entry, so
+inactive tile and halo storage cannot portably retain its prior value.
+
+GNU Fortran currently preserves those inactive bytes, enabling the local
+fixture to observe sentinels, but this is not a language guarantee. Rust uses
+mutable caller-owned storage and explicitly leaves inactive values unchanged.
+Suggested upstream action: use `INTENT(INOUT)` if preservation is the intended
+contract, or define the complete arrays and test that policy.
+
+## WRF-041: no focused numerical regression for `calc_p_rho`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The routine is called before and during every acoustic loop, yet a repository
+search finds no dedicated production numerical fixture. Missing branch
+coverage includes nonhydrostatic geopotential-gradient diagnosis, hydrostatic
+pressure and upward geopotential recurrence, initialization versus forward
+pressure damping, partial vertical tiles, inactive storage, and zero/infinite
+denominators.
+
+The local oracle extracts the exact pinned routine and compares all 3,456
+stored values across both governing modes and both damping phases, including
+partial and exceptional cases. Suggested upstream action: adopt a compact
+routine fixture and include pressure, inverse density, geopotential, and
+pressure history in a per-substep acoustic trajectory comparison.
+
+## WRF-042: `calc_coef_w` carries dead arguments and misleading vertical tile plumbing
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable body never reads `c3h`, `c4h`, `c3f`, or `c4f`. Lower domain
+bounds `ids`, `jds`, and `kds` are also unused. The routine assigns `kts` and
+`kte-1` to local `k_start` and `k_end`, but never reads either local afterward;
+it always constructs the complete column using literal lower indices and
+`kde`. Locals `ij`, `ijp`, and `ijm` are declared but unused as well.
+
+The full-column behavior is consistent with the implicit vertical solve, but
+the accepted vertical tile arguments imply a capability that does not exist.
+The Rust region omits a vertical tile and requires the complete half-level
+domain plus the top full level. Suggested upstream action: remove dead
+arguments and locals during a planned interface revision, or document and
+assert the complete-column invariant at the call boundary.
+
+## WRF-043: `calc_coef_w` allocates an unnecessary horizontal `cof` array
+
+Status: source-confirmed local memory and clarity opportunity; no independent
+whole-model speed claim is made.
+
+`cof(i)` is assigned the same expression,
+`(.5*dts*g*(1.+epssm))**2`, for every active west–east point. The value has no
+`i` dependency, so the automatic `ims:ime` array and initialization loop are
+unnecessary. The Rust implementation calculates one scalar per call and
+preserves exact output bits.
+
+Suggested upstream action: replace `cof(:)` with a scalar calculated once
+outside the horizontal loops. This removes stack storage and makes the actual
+dependency explicit.
+
+## WRF-044: rigid-lid multiplication does not guarantee a zero exceptional coefficient
+
+Status: source-confirmed exceptional-value robustness issue.
+
+When `top_lid` is true, `lid_flag` becomes zero and is multiplied into the top
+lower-diagonal numerator only after inverse spacing and pressure terms have
+already been evaluated. Consequently, an infinite intermediate produces
+`0 * Inf = NaN`, and a zero denominator can produce `0 / 0 = NaN`, instead of
+the mathematically intended zero rigid-lid coupling. The local oracle confirms
+this IEEE behavior, and Rust preserves it for parity.
+
+Suggested upstream action: if rigid-lid decoupling must hold even after an
+upstream numerical failure, branch explicitly and assign `a(i,kde,j)=0.`.
+Changing this behavior should be accompanied by a documented exceptional-value
+policy because it alters current observable results.
+
+## WRF-045: no focused numerical regression for `calc_coef_w`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production use of the factors but no dedicated
+numerical fixture for lower/interior/top coefficients, rigid versus nonrigid
+upper boundaries, forward elimination, partial horizontal tiles, complete
+vertical columns, inactive storage, or exceptional denominators.
+
+The local fixture extracts the exact pinned routine and compares all 3,024
+`a`, `alpha`, `gamma`, and sentinel values across four cases. Suggested
+upstream action: adopt a compact coefficient fixture and then validate the
+factorization through the subsequent forward and backward `advance_w` sweeps.
+
+## WRF-046: partial nonhydrostatic `advance_uv` can read uninitialized `dpn`
+
+Status: source-confirmed correctness defect.
+
+The routine initializes `dpn(:,1)` and `dpn(:,kde)`, then fills only
+`k_start+1:k_end`. Its pressure-gradient loop reads `dpn(:,k_start)`. When a
+vertical tile begins above level 1, that value was never defined and the result
+depends on automatic-array stack contents. Suggested upstream action: fill
+`dpn(:,k_start)` with the ordinary `fnm/fnp` interpolation when `k_start > 1`
+and add a partial-tile regression.
+
+## WRF-047: `advance_uv` carries dead coefficient and bound plumbing
+
+Status: source-confirmed interface maintenance opportunity.
+
+`c1f`, `c2f`, `c3h`, `c4h`, `c3f`, and `c4f` occur only in the dummy interface.
+`kds` is not read, while `k_endw` is assigned in both bound branches but never
+consumed. Suggested upstream action: remove these during an interface revision
+or enable unused-dummy/local diagnostics in focused builds.
+
+## WRF-048: `advance_uv` tile scratch is avoidable and lacks a focused test
+
+Status: confirmed test gap and local-memory opportunity.
+
+Automatic `dpn`, `dpxy`, and `mudf_xy` arrays do not escape and their values
+can be computed directly in the final U/V update. WRF's test tree has no
+dedicated fixture spanning governing mode, top lid, relaxation, open,
+symmetric, periodic, and polar branches. The safe Rust kernel uses no numerical
+scratch and checks raw bits against the extracted routine. Suggested upstream
+action: add a branch fixture before changing scratch lifetime or loop fusion.
+
+## WRF-049: `advance_mu_t` carries fourteen dead arguments and two dead locals
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable body never reads `c1f`, `c2f`, `c3h`, `c4h`, `c3f`, `c4f`,
+`msfux`, `msfvx`, or `msfvy`. It never reads or writes the declared `INOUT`
+arrays `uam`, `vam`, and `wwam`, and it does not read `step` or `kds`.
+Locals `i_endu` and `j_endv` are assigned but never consumed. The Rust
+capability omits all of them. Suggested upstream action: remove dead plumbing
+during an interface revision and enable unused-dummy/local warnings.
+
+## WRF-050: `advance_mu_t` partially defines three `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect.
+
+`muave`, `muts`, and `mudf` are declared `INTENT(OUT)` but only active tile
+points are assigned. Fortran makes the complete actual arrays undefined on
+entry, so inactive halo/tile values cannot portably retain their contents even
+though GNU Fortran currently leaves their bytes intact. Suggested upstream
+action: use `INTENT(INOUT)` when inactive preservation is intended, or define
+the complete arrays and test that policy.
+
+## WRF-051: `advance_mu_t` accepts partial vertical tiles but requires a complete column
+
+Status: source-confirmed correctness and contract defect.
+
+The divergence loop honors `k_start`, but omega and theta loops restart from
+literal levels 1 or 2. They then read `dvdxi` and `wdtn` values whose
+initialization depends on a complete column ending at `kde`. A partial vertical
+tile can therefore read uninitialized automatic-array elements. The Rust region
+requires the complete half-level column plus its upper full level. Suggested
+upstream action: document/assert that invariant or make every loop and boundary
+initialization consistently honor the supplied tile.
+
+## WRF-052: `advance_mu_t` scratch arrays are avoidable and lack focused regression
+
+Status: confirmed local-memory opportunity and repository-level test gap.
+
+The routine allocates tile-sized `wdtn` and `dvdxi` arrays plus horizontal
+`dmdt`. Rust stores divergence briefly in the required `t_ave` output and prior
+mass in `muts`, computes vertical theta transport locally, then writes the
+specified final values. This removes numerical scratch while matching all
+3,168 oracle values. WRF has no dedicated fixture spanning global, nested,
+periodic-X, partial horizontal, complete-column, and inactive-storage behavior.
+Suggested upstream action: add that fixture before refactoring scratch or loops.
+
+## WRF-053: `advance_w` carries seven dead arguments and four dead locals
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable body never reads `mu1`, `c3h`, `c4h`, `c3f`, `c4f`, `dnw`, or
+`alb`. Local array `mut_inv` and scalars `muthk` and `muthkm1` are declared but
+never used. `k_start` is assigned from `kts` but never read. The Rust capability
+omits these roles. Suggested upstream action: remove the dead plumbing during a
+planned interface revision and enable unused-dummy/local diagnostics in a
+focused build.
+
+## WRF-054: `advance_w` accepts vertical tiles but requires a complete column
+
+Status: source-confirmed correctness and contract defect.
+
+The routine declares automatic `rhs` and `wdwn` with `kts:kte` bounds, but its
+executable loops use literal level 1, level 2, `kte-1`, and the upper `kte`
+point. The assigned `k_start = kts` is ignored. A tile beginning above the
+surface can write outside those automatic arrays, and a tile ending below the
+physical top cannot represent the required forward/back recurrence. The lower
+boundary also unconditionally reads the first three velocity levels.
+
+The Rust region requires the complete mass column, its upper full level, and
+at least three mass levels. Suggested upstream action: document and assert the
+complete-column contract at the call boundary, or consistently reformulate
+every boundary and recurrence around supplied vertical bounds.
+
+## WRF-055: `advance_w` uses avoidable automatic scratch around one required RHS
+
+Status: source-confirmed local-memory opportunity; no independent whole-model
+speed claim is made.
+
+The geopotential `rhs` must coexist with old vertical momentum and
+geopotential, so one complete tile workspace is justified. The additional
+`wdwn` tile array can be evaluated from adjacent levels at its two consumption
+sites. `msft_inv` and `dampwt` are arrays even though each value is consumed as
+a scalar within its current row or level iteration. Rust retains one explicit,
+caller-owned RHS field and evaluates the other quantities locally, matching all
+2,592 state bits.
+
+Suggested upstream action: after adding a direct regression, evaluate removing
+the three auxiliary arrays and measure stack use plus end-to-end acoustic-step
+performance before accepting the change.
+
+## WRF-056: `advance_w` contains unresolved map-factor and surface-condition warnings
+
+Status: source-commented scientific-review item, not yet proven as an output
+defect.
+
+The routine header says the use of `msfty` as an inverse map factor was not
+fully worked through and describes a suspected surface vertical-velocity
+error. Those warnings remain in v4.7.1 while the routine sets the terrain-
+following lower boundary used by every nonhydrostatic acoustic step.
+
+Suggested upstream action: resolve the comments against the governing mapped-
+coordinate equations, document the intended discrete map-factor convention,
+and add an analytic sloping-terrain fixture before changing current behavior.
+Rust preserves the pinned result until that scientific decision is made.
+
+## WRF-057: no focused numerical regression covers `advance_w`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production, tangent-linear, and adjoint call sites
+but no dedicated nonlinear numerical fixture spanning both `phi_adv_z`
+formulations, rigid and nonrigid tops, `damp_opt = 3`, terrain reconstruction,
+specified/nested clipping, periodic X, partial horizontal tiles, inactive
+storage, and the forward/back tridiagonal sweeps.
+
+The local oracle extracts the exact pinned nonlinear routine and compares all
+2,592 stored `w`, `ph`, and `t_2ave` values across four cases. Suggested
+upstream action: adopt a compact routine fixture, then add a per-substep
+trajectory containing `calc_coef_w`, `advance_uv`, `advance_mu_t`, and
+`advance_w` together.
+
+## WRF-058: `sumflux` carries ten dead arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable routine never reads `c1f`, `c2f`, `c3h`, `c4h`, `c3f`, `c4f`,
+`epssm`, `msfux`, `msfvx`, or `msfvy`. The Rust capability exposes only the
+two coefficients and two map factors that affect output. Suggested upstream
+action: remove the dead plumbing during a planned interface revision and
+enable unused-dummy diagnostics for this focused source file.
+
+## WRF-059: no focused regression covers `sumflux` stagger clearing and finalization
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The first iteration clears the entire tile for all three outputs, while later
+accumulation and finalization use distinct U, V, and W stagger ranges. A test
+that inspects only active mass points misses observable zero stores on the
+other upper stagger locations. The local oracle executes three substeps and
+compares all 375 stored values, including halos and stagger-only points.
+
+Suggested upstream action: add a compact complete-storage regression before
+changing loop fusion or initialization behavior, then include `sumflux` in a
+coupled acoustic trajectory fixture.
+
+## WRF-060: no coupled numerical regression covers a complete local acoustic sequence
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The seven nonlinear routines used by one local nonhydrostatic acoustic
+trajectory are exercised through production drivers, but the repository has no
+focused fixture that runs their exact `solve_em.F` order and compares the
+prognostic state after multiple substeps. Routine-only tests cannot detect
+cross-stage argument swaps such as confusing `fnm` and `fnp`, stale pressure
+diagnostics, or an incorrectly placed flux finalization.
+
+The local oracle extracts all seven exact routine bodies, executes preparation,
+initial pressure and coefficient diagnosis, then three complete substeps, and
+compares 2,196 selected final values by raw IEEE bits. Suggested upstream
+action: add a small serial fixture with intermediate checkpoints, then reuse it
+around halo and physical-boundary insertion in a multi-patch regression.

@@ -24,6 +24,28 @@ src/
 │   ├── coefficients.rs
 │   ├── region.rs
 │   └── ...
+├── omega_diagnosis/
+│   ├── mod.rs
+│   ├── cpu.rs
+│   ├── kernels.rs
+│   ├── region.rs
+│   ├── row/
+│   │   ├── mod.rs
+│   │   ├── mass_rows.rs
+│   │   ├── velocity_rows.rs
+│   │   └── ...
+│   └── ...
+├── moisture_coefficients/
+│   ├── mod.rs
+│   ├── kernels.rs
+│   ├── region.rs
+│   ├── species.rs
+│   ├── cpu/
+│   │   ├── mod.rs
+│   │   ├── west_east.rs
+│   │   ├── south_north.rs
+│   │   └── vertical.rs
+│   └── ...
 └── positive_definite/
     ├── mod.rs
     ├── cpu.rs

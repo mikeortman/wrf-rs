@@ -37,6 +37,48 @@ implemented system; proposed work is explicitly labeled.
 - [Momentum coupling](Momentum-Coupling.md) — mass/map-factor equations,
   stagger-specific clipping, typed field ownership, safe vector-friendly rows,
   and exact-bit evidence.
+- [Dry-air omega diagnosis](Omega-Diagnosis.md) — continuity integration,
+  complete-column contract, map-factor fluxes, scratch-free parallel rows, and
+  exact-bit evidence.
+- [Moisture momentum coefficients](Moisture-Momentum-Coefficients.md) — moist
+  mass correction, species ordering, C-grid averaging, stagger clipping,
+  scratch-free parallel rows, and exact-bit evidence.
+- [Full inverse density](Full-Inverse-Density.md) — base-state reconstruction,
+  mass-grid clipping, typed field roles, contiguous parallel rows, and exact-bit
+  evidence.
+- [Pressure-point geopotential](Pressure-Point-Geopotential.md) — vertical
+  full-level averaging, source operation order, upper-neighbor validation,
+  parallel rows, and exact-bit evidence.
+- [Runge-Kutta diagnostic preparation](Runge-Kutta-Preparation.md) — the
+  seven-stage dependency chain, failure-atomic ownership boundary, coupled
+  exact-bit oracle, and integrated performance.
+- [Dry Runge-Kutta tendency assembly](Dry-Tendency-Assembly.md) — persistent
+  physics/boundary tendencies, map-factor coupling, staggered ranges, safe
+  paired-output scheduling, and exact-bit evidence.
+- [Acoustic small-step preparation](Acoustic-Step-Preparation.md) — time-level
+  switching, mass-coupled perturbations, C-grid/full-level contracts, and exact
+  first/later-substep evidence.
+- [Acoustic pressure and inverse-density diagnosis](Acoustic-Pressure-Diagnosis.md)
+  — nonhydrostatic/hydrostatic equations, pressure-history damping, vertical
+  geopotential recurrence, and exact mode/phase evidence.
+- [Vertical acoustic solve coefficients](Vertical-Acoustic-Coefficients.md) —
+  tridiagonal factorization, complete-column and top-boundary contracts,
+  parallel XZY traversal, and exact coefficient evidence.
+- [Acoustic horizontal momentum](Acoustic-Horizontal-Momentum.md) — split U/V
+  pressure gradients, C-grid boundaries, scratch-free parallel execution, and
+  exact pinned-source evidence.
+- [Acoustic mass, omega, and potential temperature](Acoustic-Mass-Omega-and-Theta.md)
+  — continuity integration, vertical mass flux, theta transport, complete-column
+  contracts, output reuse, and exact pinned-source evidence.
+- [Implicit acoustic vertical momentum and geopotential](Implicit-Acoustic-Vertical-Momentum-and-Geopotential.md)
+  — geopotential transport, terrain reconstruction, tridiagonal vertical solve,
+  upper damping, reusable workspace, and exact pinned-source evidence.
+- [Acoustic flux accumulation](Acoustic-Flux-Accumulation.md) — staggered
+  running sums, final linear recoupling, first-step clearing, parallel storage,
+  and exact three-substep evidence.
+- [Complete local acoustic trajectory](Complete-Local-Acoustic-Trajectory.md) —
+  the seven-kernel execution order, failure-atomic ownership boundary,
+  interpolation roles, and exact coupled three-substep evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -52,6 +94,42 @@ implemented system; proposed work is explicitly labeled.
 - [Momentum-coupling performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/momentum-coupling-2026-07-13.md)
   — matched C-grid workload, bounds-check optimization, scaling, and allocation
   evidence.
+- [Omega-diagnosis performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/omega-diagnosis-2026-07-13.md)
+  — matched complete-column workload, row-layout correction, CPU scaling, and
+  allocation evidence.
+- [Moisture-coefficient performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/moisture-coefficients-2026-07-13.md)
+  — matched six-species workload, CPU scaling, output-as-scratch design, and
+  allocation evidence.
+- [Full inverse-density performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/inverse-density-2026-07-14.md)
+  — matched mass-grid workload, CPU scaling, allocation evidence, and the SIMD
+  stopping decision.
+- [Pressure-point geopotential performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/pressure-point-geopotential-2026-07-14.md)
+  — matched vertical-average workload, CPU scaling, allocation evidence, and
+  the source-order SIMD stopping decision.
+- [Runge-Kutta preparation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/runge-kutta-preparation-2026-07-14.md)
+  — matched seven-diagnostic workload, CPU scaling, allocation evidence, and
+  the cross-stage optimization stopping decision.
+- [Dry-tendency assembly performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/dry-tendency-assembly-2026-07-14.md)
+  — matched first-substep workload, CPU scaling, paired-output allocation
+  evidence, and the SIMD stopping decision.
+- [Acoustic-step preparation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-step-preparation-2026-07-14.md)
+  — matched first-substep workload, CPU scaling, allocation evidence, and the
+  complexity stopping decision.
+- [Acoustic-pressure performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-pressure-2026-07-14.md)
+  — matched governing modes, hydrostatic layout correction, CPU scaling,
+  allocations, and the SIMD stopping decision.
+- [Vertical-acoustic coefficient performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/vertical-acoustic-coefficients-2026-07-14.md)
+  — matched tridiagonal construction, layout correction, CPU scaling,
+  allocations, and the deferred SIMD opportunity.
+- [Implicit acoustic vertical-momentum performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-vertical-momentum-2026-07-14.md)
+  — matched complete-column solve, CPU scaling, reusable workspace accounting,
+  and the SIMD stopping decision.
+- [Acoustic flux-accumulation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-flux-accumulation-2026-07-14.md)
+  — matched three-substep workload, staggered output scaling, allocation
+  evidence, and the SIMD stopping decision.
+- [Complete local acoustic-trajectory performance estimate](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-trajectory-2026-07-14.md)
+  — exact stage counts, equivalent optimization levels, aggregate timing, and
+  the direct-integrated-benchmark boundary.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

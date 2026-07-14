@@ -32,3 +32,55 @@ harness = false
 [[bench]]
 name = "momentum_coupling"
 harness = false
+
+[[bench]]
+name = "omega_diagnosis"
+harness = false
+
+[[bench]]
+name = "moisture_coefficients"
+harness = false
+
+[[bench]]
+name = "inverse_density"
+harness = false
+
+[[bench]]
+name = "pressure_point_geopotential"
+harness = false
+
+[[bench]]
+name = "runge_kutta_preparation"
+harness = false
+
+[[bench]]
+name = "dry_tendency_assembly"
+harness = false
+
+[[bench]]
+name = "acoustic_step_preparation"
+harness = false
+
+[[bench]]
+name = "acoustic_pressure"
+harness = false
+
+[[bench]]
+name = "vertical_acoustic_coefficients"
+harness = false
+
+[[bench]]
+name = "acoustic_horizontal_momentum"
+harness = false
+
+[[bench]]
+name = "acoustic_mass_theta"
+harness = false
+
+[[bench]]
+name = "acoustic_vertical_momentum"
+harness = false
+
+[[bench]]
+name = "acoustic_flux_accumulation"
+harness = false

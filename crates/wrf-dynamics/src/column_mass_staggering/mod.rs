@@ -15,3 +15,5 @@ pub use field::ColumnMassStaggeringField;
 pub use kernels::ColumnMassStaggeringKernels;
 pub use periodicity::ColumnMassStaggeringPeriodicity;
 pub use region::ColumnMassStaggeringRegion;
+
+pub(crate) use cpu::{validate_big_step_operation, validate_full_mass_operation};
