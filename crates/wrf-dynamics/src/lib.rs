@@ -12,6 +12,8 @@
 //! staggered mass fluxes consumed by conservative scalar transport.
 //! [`SpecifiedBoundaryZeroGradientKernels`] applies WRF's nearest-interior
 //! copy rule to specified nonhydrostatic vertical-momentum boundaries.
+//! [`SpecifiedBoundaryFlowKernels`] classifies scalar boundaries from coupled
+//! U/V signs, copying outflow and clearing inflow.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -165,7 +167,9 @@ pub use runge_kutta_preparation::{
     RungeKuttaPreparationVelocities,
 };
 pub use specified_boundary_update::{
-    SpecifiedBoundaryFieldLocation, SpecifiedBoundaryGeopotentialError,
+    SpecifiedBoundaryFieldLocation, SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField,
+    SpecifiedBoundaryFlowInputs, SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters,
+    SpecifiedBoundaryFlowRegion, SpecifiedBoundaryFlowResult, SpecifiedBoundaryGeopotentialError,
     SpecifiedBoundaryGeopotentialInputs, SpecifiedBoundaryGeopotentialKernels,
     SpecifiedBoundaryGeopotentialResult, SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateError,
     SpecifiedBoundaryUpdateKernels, SpecifiedBoundaryUpdateParameters,

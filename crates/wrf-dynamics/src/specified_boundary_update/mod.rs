@@ -1,12 +1,14 @@
-//! Specified-zone tendency updates for ARW prognostic fields.
+//! Specified-zone updates and finalization for ARW prognostic fields.
 //!
-//! This module translates WRF v4.7.1 `spec_bdyupdate`. Typed field locations
-//! replace the source character selector, and the validated region owns the
-//! resulting staggered execution ranges.
+//! This module translates WRF v4.7.1 tendency, geopotential, zero-gradient,
+//! and flow-dependent boundary routines. Typed field locations and flow roles
+//! replace source selectors, while validated regions own staggered execution
+//! ranges and neighbor contracts.
 
 mod cpu;
 mod error;
 mod field_location;
+mod flow_dependent;
 pub(crate) mod geometry;
 mod geopotential;
 mod kernels;
@@ -17,6 +19,11 @@ mod zero_gradient;
 
 pub use error::{SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateResult};
 pub use field_location::SpecifiedBoundaryFieldLocation;
+pub use flow_dependent::{
+    SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField, SpecifiedBoundaryFlowInputs,
+    SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters, SpecifiedBoundaryFlowRegion,
+    SpecifiedBoundaryFlowResult,
+};
 pub use geopotential::{
     SpecifiedBoundaryGeopotentialError, SpecifiedBoundaryGeopotentialInputs,
     SpecifiedBoundaryGeopotentialKernels, SpecifiedBoundaryGeopotentialResult,
