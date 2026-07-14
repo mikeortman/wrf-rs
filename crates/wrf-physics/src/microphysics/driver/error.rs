@@ -22,6 +22,16 @@ pub enum MicrophysicsDriverError {
         /// Species listed more than once.
         species: MoistureSpecies,
     },
+    /// A Registry layout names a scalar array other than `moist`.
+    UnexpectedMoistureScalarArray {
+        /// Scalar-array name supplied by Registry resolution.
+        actual: String,
+    },
+    /// A resolved `moist` member has no typed physics species role.
+    UnsupportedMoistureSpecies {
+        /// Unsupported Registry member name.
+        name: String,
+    },
     /// The selected scheme requires a species the package does not carry.
     MissingMoistureSpecies {
         /// Species the scheme requires.
@@ -84,6 +94,14 @@ impl fmt::Display for MicrophysicsDriverError {
             Self::DuplicateMoistureSpecies { species } => write!(
                 formatter,
                 "moisture species package names {species} more than once"
+            ),
+            Self::UnexpectedMoistureScalarArray { actual } => write!(
+                formatter,
+                "Registry scalar array `{actual}` cannot be used as the `moist` species package"
+            ),
+            Self::UnsupportedMoistureSpecies { name } => write!(
+                formatter,
+                "Registry moisture member `{name}` has no supported physics species role"
             ),
             Self::MissingMoistureSpecies { species } => write!(
                 formatter,

@@ -1,0 +1,27 @@
+# Dependency-closed projection of WRF v4.7.1 Registry.EM_COMMON.
+# The scalar declarations retain the reserved first moist slot and the
+# qv/qc/qr entries used by passive and Kessler microphysics packages.
+dimspec i 1 standard_domain x west_east
+dimspec k 2 standard_domain z bottom_top
+dimspec j 3 standard_domain y south_north
+
+rconfig real dt derived max_domains 2. h "dt" "temporal resolution" "seconds"
+rconfig integer mp_physics namelist,physics max_domains -1 irh "mp_physics" "microphysics selection" "option"
+
+state real - ikjftb moist 1 - - - - -
+state real qv ikjftb moist 1 - i0rh01usdf=(bdy_interp:dt) "QVAPOR" "Water vapor mixing ratio" "kg kg-1"
+state real qc ikjftb moist 1 - i0rhusdf=(bdy_interp:dt) "QCLOUD" "Cloud water mixing ratio" "kg kg-1"
+state real qr ikjftb moist 1 - i0rhusdf=(bdy_interp:dt) "QRAIN" "Rain water mixing ratio" "kg kg-1"
+
+# The first three packages mirror WRF. The remaining packages isolate
+# reordered activation, source-order deduplication, omitted fields, explicit
+# absent fields, and a legal trailing group separator.
+package passiveqv mp_physics==0 - moist:qv
+package kesslerscheme mp_physics==1 - moist:qv,qc,qr
+package reorderedkessler mp_physics==2 - moist:qr,qv,qc
+package repeatbase mp_physics==4 - moist:qv,qc
+package repeatmore mp_physics==4 - moist:qv,qr
+package omittedfields mp_physics==-3
+package explicitstateabsent mp_physics==-5 -
+package allfieldsabsent mp_physics==-4 - -
+package trailingseparator mp_physics==5 - moist:qv,qc,qr;

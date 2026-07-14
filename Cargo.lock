@@ -1103,6 +1103,7 @@ dependencies = [
  "rayon",
  "stats_alloc",
  "wrf-compute",
+ "wrf-registry",
 ]
 
 [[package]]

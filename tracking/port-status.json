@@ -29,8 +29,8 @@
       "id": "registry",
       "area": "Registry and configuration",
       "state": "in-progress",
-      "evidence": "Typed dimspec, state, and rconfig parsing now includes nested source expansion, conditional definitions, physical source locations, and six exact generated-artifact goldens.",
-      "next_gate": "Packages, typedefs, communication entries, and remaining generators.",
+      "evidence": "Typed dimspec, state, rconfig, and package parsing includes nested source expansion, physical source locations, signed package conditions, ordered scalar groups, reserved-slot-aware PARAM/P/dense indices, source-order activation and deduplication, six exact artifact goldens, and a direct executable WRF package oracle.",
+      "next_gate": "Typedefs, communication entries, generalized four-dimensional scalar metadata, and complete scalar-index artifact generation.",
       "tracking_issue": 85
     },
     {
@@ -53,8 +53,8 @@
       "id": "physics",
       "area": "Physics drivers and schemes",
       "state": "in-progress",
-      "evidence": "Kessler warm-rain microphysics matches all 660 mutable oracle values, and the typed microphysics driver (disabled/Kessler dispatch, Registry moisture-species order, specified/channel tile clipping, multi-call precipitation accumulation) matches 8,624 driver-branch oracle values across seven pinned cases with deterministic worker counts.",
-      "next_gate": "Registry-parsed moisture packages, then a coupled precipitation trajectory.",
+      "evidence": "Kessler warm-rain microphysics matches all 660 mutable oracle values; the typed driver matches 8,624 values across seven branches; canonical and reordered Registry layouts bind directly into typed physics packages; and inactive plus deduplicated layouts retain exact generated-index parity in the Registry layer.",
+      "next_gate": "Couple Registry-selected Kessler precipitation through the ARW tendency trajectory.",
       "tracking_issue": 87
     },
     {

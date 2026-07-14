@@ -1,0 +1,2 @@
+rconfig integer mp_physics namelist,physics 1 -1 - mp_physics "" ""
+package broken mp_physics=1 - moist:qv

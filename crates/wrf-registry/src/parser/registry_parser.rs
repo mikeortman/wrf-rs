@@ -5,8 +5,9 @@ use std::sync::Arc;
 
 use crate::model::{
     ConfigurationEntryCount, CoordinateAxis, DimensionLength, DimensionSpecification,
-    ProcessorOrientation, RegistryDocument, RegistryEntry, RegistryValueType, RuntimeConfiguration,
-    StateDimensions, StateStaggering, StateVariable,
+    PackageCondition, PackageVariableGroup, ProcessorOrientation, RegistryDocument, RegistryEntry,
+    RegistryPackage, RegistryValueType, RuntimeConfiguration, StateDimensions, StateStaggering,
+    StateVariable,
 };
 use crate::parser::logical_line::{LogicalLine, LogicalLineReader};
 use crate::parser::tokenizer::RegistryTokenizer;
@@ -75,6 +76,7 @@ impl RegistryParser {
         logical_lines: &[LogicalLine],
     ) -> RegistryResult<RegistryDocument> {
         let mut dimension_names = HashSet::new();
+        let mut package_names = HashSet::new();
         let mut entries = Vec::new();
 
         for logical_line in logical_lines {
@@ -83,7 +85,12 @@ impl RegistryParser {
                 continue;
             }
 
-            let entry = Self::parse_entry(&tokens, logical_line, &mut dimension_names)?;
+            let entry = Self::parse_entry(
+                &tokens,
+                logical_line,
+                &mut dimension_names,
+                &mut package_names,
+            )?;
             entries.push(entry);
         }
 
@@ -97,6 +104,7 @@ impl RegistryParser {
         tokens: &[String],
         line: &LogicalLine,
         dimension_names: &mut HashSet<String>,
+        package_names: &mut HashSet<String>,
     ) -> RegistryResult<RegistryEntry> {
         let location = line.location.clone();
         match tokens[0].as_str() {
@@ -107,6 +115,9 @@ impl RegistryParser {
             }
             "rconfig" => Self::parse_runtime_configuration(tokens, location)
                 .map(RegistryEntry::RuntimeConfiguration),
+            "package" => {
+                Self::parse_package(tokens, location, package_names).map(RegistryEntry::Package)
+            }
             entry_kind => Err(RegistryParseError::new(
                 location,
                 RegistryParseErrorKind::UnsupportedEntry {
@@ -229,6 +240,163 @@ impl RegistryParser {
             description: Self::optional_token(&tokens[8]),
             units: Self::optional_token(&tokens[9]),
         })
+    }
+
+    fn parse_package(
+        tokens: &[String],
+        location: SourceLocation,
+        package_names: &mut HashSet<String>,
+    ) -> RegistryResult<RegistryPackage> {
+        if !(3..=5).contains(&tokens.len()) {
+            return Err(RegistryParseError::new(
+                location,
+                RegistryParseErrorKind::UnexpectedPackageTokenCount {
+                    actual: tokens.len(),
+                },
+            ));
+        }
+
+        let name = tokens[1].clone();
+        if name.is_empty() || name == "-" {
+            return Err(RegistryParseError::new(
+                location,
+                RegistryParseErrorKind::InvalidPackageName,
+            ));
+        }
+        if !package_names.insert(name.clone()) {
+            return Err(RegistryParseError::new(
+                location,
+                RegistryParseErrorKind::DuplicatePackage { name },
+            ));
+        }
+
+        let condition = Self::parse_package_condition(&tokens[2], &location)?;
+        let state_variables = tokens.get(3).map_or("-", String::as_str);
+        if state_variables != "-" {
+            return Err(RegistryParseError::new(
+                location,
+                RegistryParseErrorKind::UnsupportedPackageStateVariables {
+                    value: state_variables.to_owned(),
+                },
+            ));
+        }
+        let groups = tokens.get(4).map_or("-", String::as_str);
+        let variable_groups = Self::parse_package_variable_groups(groups, &location)?;
+
+        Ok(RegistryPackage {
+            location,
+            name,
+            condition,
+            variable_groups,
+        })
+    }
+
+    fn parse_package_condition(
+        token: &str,
+        location: &SourceLocation,
+    ) -> RegistryResult<PackageCondition> {
+        let Some((configuration_name, choice_text)) = token.split_once("==") else {
+            return Err(RegistryParseError::new(
+                location.clone(),
+                RegistryParseErrorKind::InvalidPackageCondition {
+                    value: token.to_owned(),
+                },
+            ));
+        };
+        if configuration_name.is_empty()
+            || choice_text.is_empty()
+            || configuration_name.contains('=')
+            || choice_text.contains('=')
+        {
+            return Err(RegistryParseError::new(
+                location.clone(),
+                RegistryParseErrorKind::InvalidPackageCondition {
+                    value: token.to_owned(),
+                },
+            ));
+        }
+        let choice = choice_text.parse::<i32>().map_err(|_| {
+            RegistryParseError::new(
+                location.clone(),
+                RegistryParseErrorKind::InvalidPackageChoice {
+                    value: choice_text.to_owned(),
+                },
+            )
+        })?;
+
+        Ok(PackageCondition {
+            location: location.clone(),
+            configuration_name: configuration_name.to_owned(),
+            choice,
+        })
+    }
+
+    fn parse_package_variable_groups(
+        token: &str,
+        location: &SourceLocation,
+    ) -> RegistryResult<Vec<PackageVariableGroup>> {
+        if token == "-" {
+            return Ok(Vec::new());
+        }
+
+        let mut variable_groups = Vec::new();
+        let mut seen_members = HashSet::new();
+        let groups: Vec<_> = token.split(';').collect();
+        for (position, group) in groups.iter().enumerate() {
+            if group.is_empty() && position + 1 == groups.len() && position > 0 {
+                continue;
+            }
+            let Some((scalar_array_name, member_text)) = group.split_once(':') else {
+                return Err(RegistryParseError::new(
+                    location.clone(),
+                    RegistryParseErrorKind::InvalidPackageVariableGroup {
+                        value: (*group).to_owned(),
+                    },
+                ));
+            };
+            if scalar_array_name.is_empty() {
+                return Err(RegistryParseError::new(
+                    location.clone(),
+                    RegistryParseErrorKind::EmptyPackageVariableGroupName,
+                ));
+            }
+            if member_text.contains(':') {
+                return Err(RegistryParseError::new(
+                    location.clone(),
+                    RegistryParseErrorKind::InvalidPackageVariableGroup {
+                        value: (*group).to_owned(),
+                    },
+                ));
+            }
+            let mut members = Vec::new();
+            for member_name in member_text.split(',') {
+                if member_name.is_empty() {
+                    return Err(RegistryParseError::new(
+                        location.clone(),
+                        RegistryParseErrorKind::EmptyPackageVariableGroupMember {
+                            scalar_array_name: scalar_array_name.to_owned(),
+                        },
+                    ));
+                }
+                if !seen_members.insert((scalar_array_name.to_owned(), member_name.to_owned())) {
+                    return Err(RegistryParseError::new(
+                        location.clone(),
+                        RegistryParseErrorKind::DuplicatePackageVariableGroupMember {
+                            scalar_array_name: scalar_array_name.to_owned(),
+                            member_name: member_name.to_owned(),
+                        },
+                    ));
+                }
+                members.push(member_name.to_owned());
+            }
+            variable_groups.push(PackageVariableGroup {
+                location: location.clone(),
+                scalar_array_name: scalar_array_name.to_owned(),
+                members,
+            });
+        }
+
+        Ok(variable_groups)
     }
 
     fn parse_dimension_order(token: &str, location: &SourceLocation) -> RegistryResult<Option<u8>> {
@@ -668,6 +836,30 @@ mod tests {
     }
 
     #[test]
+    fn reports_a_package_failure_at_its_physical_nested_include_location() {
+        let error = RegistryParser::parse_file(
+            fixture_path("malformed/registry_bad_nested_package"),
+            &parity_definitions(),
+        )
+        .unwrap_err();
+
+        let RegistrySourceError::Parse(error) = error else {
+            panic!("expected a parse error from the included package source");
+        };
+        assert!(
+            error
+                .location()
+                .source_name()
+                .ends_with("registry_bad_nested_package_child")
+        );
+        assert_eq!(error.location().line(), 2);
+        assert!(matches!(
+            error.kind(),
+            RegistryParseErrorKind::InvalidPackageCondition { .. }
+        ));
+    }
+
+    #[test]
     fn preprocessing_failures_leave_no_partial_document() {
         // Failure atomicity: parse_file returns only Err, never a partially
         // populated document, when any included file is malformed.
@@ -746,14 +938,137 @@ dimspec i 1 standard_domain x west_east\n";
 
     #[test]
     fn rejects_unsupported_entry_categories_explicitly() {
-        let error = RegistryParser::parse("Registry.bad", "package dyn_em - - -\n").unwrap_err();
+        let error = RegistryParser::parse("Registry.bad", "typedef dyn_em - - -\n").unwrap_err();
 
         assert_eq!(
             error.kind(),
             &RegistryParseErrorKind::UnsupportedEntry {
-                entry_kind: "package".to_owned()
+                entry_kind: "typedef".to_owned()
             }
         );
+    }
+
+    #[test]
+    fn parses_package_defaults_signed_conditions_groups_and_trailing_separator() {
+        let source = "\
+package omittedfields mp_physics==-3
+package allfieldsabsent mp_physics==-4 - -
+package kessler mp_physics==1 - moist:qv,qc,qr;state:rainnc;
+";
+        let document = RegistryParser::parse("Registry.packages", source).unwrap();
+        let packages: Vec<_> = document.packages().collect();
+
+        assert_eq!(packages.len(), 3);
+        assert_eq!(packages[0].condition().configuration_name(), "mp_physics");
+        assert_eq!(packages[0].condition().choice(), -3);
+        assert!(packages[0].variable_groups().is_empty());
+        assert!(packages[1].variable_groups().is_empty());
+        assert_eq!(packages[2].variable_groups().len(), 2);
+        assert_eq!(
+            packages[2].variable_groups()[0].scalar_array_name(),
+            "moist"
+        );
+        assert_eq!(
+            packages[2].variable_groups()[0].members(),
+            ["qv", "qc", "qr"]
+        );
+        assert_eq!(packages[2].variable_groups()[1].members(), ["rainnc"]);
+    }
+
+    #[test]
+    fn rejects_malformed_package_shapes_with_typed_diagnostics() {
+        let cases = [
+            (
+                "package p mp_physics=1 - moist:qv\n",
+                RegistryParseErrorKind::InvalidPackageCondition {
+                    value: "mp_physics=1".to_owned(),
+                },
+            ),
+            (
+                "package p mp_physics==invalid - moist:qv\n",
+                RegistryParseErrorKind::InvalidPackageChoice {
+                    value: "invalid".to_owned(),
+                },
+            ),
+            (
+                "package p mp_physics==1 state:qv\n",
+                RegistryParseErrorKind::UnsupportedPackageStateVariables {
+                    value: "state:qv".to_owned(),
+                },
+            ),
+            (
+                "package p mp_physics==1 - moist\n",
+                RegistryParseErrorKind::InvalidPackageVariableGroup {
+                    value: "moist".to_owned(),
+                },
+            ),
+            (
+                "package p mp_physics==1 - :qv\n",
+                RegistryParseErrorKind::EmptyPackageVariableGroupName,
+            ),
+            (
+                "package p mp_physics==1 - moist:qv,,qc\n",
+                RegistryParseErrorKind::EmptyPackageVariableGroupMember {
+                    scalar_array_name: "moist".to_owned(),
+                },
+            ),
+            (
+                "package p mp_physics==1 - moist:qv,qv\n",
+                RegistryParseErrorKind::DuplicatePackageVariableGroupMember {
+                    scalar_array_name: "moist".to_owned(),
+                    member_name: "qv".to_owned(),
+                },
+            ),
+            (
+                "package p mp_physics==1 - moist:qv;;state:rain\n",
+                RegistryParseErrorKind::InvalidPackageVariableGroup {
+                    value: String::new(),
+                },
+            ),
+            (
+                "package p mp_physics==1 - \"\"\n",
+                RegistryParseErrorKind::InvalidPackageVariableGroup {
+                    value: String::new(),
+                },
+            ),
+            (
+                "package p mp_physics==1 - moist:qv surplus\n",
+                RegistryParseErrorKind::UnexpectedPackageTokenCount { actual: 6 },
+            ),
+        ];
+
+        for (source, expected_kind) in cases {
+            let error = RegistryParser::parse("Registry.bad-package", source).unwrap_err();
+            assert_eq!(error.location().line(), 1);
+            assert_eq!(error.kind(), &expected_kind);
+        }
+    }
+
+    #[test]
+    fn rejects_duplicate_and_empty_package_names() {
+        let duplicate = "package same mp_physics==0\npackage same mp_physics==1\n";
+        let error = RegistryParser::parse("Registry.duplicate", duplicate).unwrap_err();
+        assert_eq!(error.location().line(), 2);
+        assert_eq!(
+            error.kind(),
+            &RegistryParseErrorKind::DuplicatePackage {
+                name: "same".to_owned()
+            }
+        );
+
+        let error =
+            RegistryParser::parse("Registry.empty", "package \"\" mp_physics==1\n").unwrap_err();
+        assert_eq!(error.kind(), &RegistryParseErrorKind::InvalidPackageName);
+    }
+
+    #[test]
+    fn malformed_final_package_publishes_no_partial_document() {
+        let result = RegistryParser::parse(
+            "Registry.atomic",
+            "package valid mp_physics==0 - moist:qv\npackage bad mp_physics==x\n",
+        );
+
+        assert!(result.is_err());
     }
 
     #[test]

@@ -51,7 +51,9 @@ impl RegistryArtifactGenerator {
                 RegistryEntry::State(state) if state.dimensions().names().is_empty() => {
                     Self::write_state_declarations(&mut body, state);
                 }
-                RegistryEntry::Dimension(_) | RegistryEntry::State(_) => {}
+                RegistryEntry::Dimension(_)
+                | RegistryEntry::State(_)
+                | RegistryEntry::Package(_) => {}
             }
         }
 

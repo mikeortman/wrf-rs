@@ -2,20 +2,22 @@
 //!
 //! The compatibility reference is the Registry parser and generators bundled
 //! with WRF v4.7.1 under `tools/`. This crate supports dimension
-//! specifications, state variables, and runtime-configuration entries, plus
-//! the `pre_parse` preprocessing layer: `include` expansion and
+//! specifications, state variables, runtime-configuration entries, and typed
+//! package-selected scalar layouts, plus the `pre_parse` preprocessing layer:
+//! `include` expansion and
 //! `ifdef`/`ifndef`/`endif`/`define` conditional selection. It deliberately
 //! keeps Registry code generation separate from future runtime domain
 //! ownership.
 //!
 //! # Supported source
 //!
-//! [`RegistryParser`] accepts dependency-closed `dimspec`, `state`, and
-//! `rconfig` entries, including WRF-compatible quotes, comments, case folding,
-//! and backslash continuations. Entry locations refer to the first physical
-//! line of the file that actually holds the entry, across nested includes.
-//! Unsupported Registry categories return a typed [`RegistryParseError`]
-//! instead of being silently discarded.
+//! [`RegistryParser`] accepts dependency-closed `dimspec`, `state`, `rconfig`,
+//! and `package` entries, including WRF-compatible quotes, comments, case
+//! folding, and backslash continuations. Package scalar groups are resolved in
+//! source order with distinct definition, packed-WRF, and dense-Rust indices.
+//! Entry locations refer to the first physical line of the file that actually
+//! holds the entry, across nested includes. Unsupported Registry categories
+//! return a typed [`RegistryParseError`] instead of being silently discarded.
 //!
 //! [`RegistryParser::parse_file`] preprocesses `include` and conditional
 //! directives with [`RegistryPreprocessor`] before parsing; symbols come from
@@ -53,6 +55,7 @@ mod model;
 mod parser;
 mod preprocessor;
 mod registry_source_error;
+mod scalar_layout;
 mod source_location;
 
 pub use generated_state::{
@@ -61,7 +64,8 @@ pub use generated_state::{
 };
 pub use model::{
     ConfigurationEntryCount, CoordinateAxis, DimensionLength, DimensionSpecification,
-    ProcessorOrientation, RegistryDocument, RegistryEntry, RegistryValueType, RuntimeConfiguration,
+    PackageCondition, PackageVariableGroup, ProcessorOrientation, RegistryDocument, RegistryEntry,
+    RegistryPackage, RegistryValueType, RuntimeConfiguration, RuntimeConfigurationChoice,
     StateDimensions, StateStaggering, StateVariable,
 };
 pub use parser::{RegistryParseError, RegistryParseErrorKind, RegistryParser, RegistryResult};
@@ -71,4 +75,9 @@ pub use preprocessor::{
     RegistryPreprocessResult, RegistryPreprocessor, RegistrySourceProvider,
 };
 pub use registry_source_error::RegistrySourceError;
+pub use scalar_layout::{
+    DefinitionParameterIndex, RegistryResolutionError, RegistryResolutionErrorKind,
+    RegistryResolutionResult, ResolvedScalarArrayLayout, ResolvedScalarArrayMember,
+    RustDenseScalarIndex, WrfPackedScalarIndex,
+};
 pub use source_location::SourceLocation;
