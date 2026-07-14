@@ -520,3 +520,36 @@ all 8,232 output and sentinel values across zero, one, and three active species,
 upper boundaries, non-one origins, vertical clipping, signed zero, and finite
 overflow. A useful upstream test should add the same geometry and then exercise
 the coefficients through `rk_step_prep` and a small-step trajectory.
+
+## WRF-025: `calc_alt` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`alt` is declared `INTENT(OUT)` at line 924, which makes the complete dummy
+array undefined on entry. The routine clips all three upper tile endpoints at
+lines 936–938 and writes only the resulting active mass points at line 943.
+Halos, upper stagger storage, and points outside a subdomain tile are not
+assigned.
+
+Observed GNU Fortran builds retain prior bytes in inactive storage, enabling
+sentinel verification, but those values are not standard-conforming after the
+call. Suggested upstream action: use `INTENT(INOUT)` if preservation is the
+contract, or assign the complete declared array and document inactive values.
+
+## WRF-026: full inverse-density numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_alt`, its `rk_step_prep`
+call, initialization equivalents, and many downstream `alt` consumers, but no
+dedicated numerical regression for the production routine. Although the
+arithmetic is one addition, independent tile/domain/memory bounds and partial
+`INTENT(OUT)` writes make boundary regressions observable.
+
+The local differential oracle extracts the exact routine body and compares all
+2,352 stored output and sentinel values across six cases. It covers each upper
+axis independently and together, negative/non-one memory origins, finite
+overflow, cancellation, signed zero, opposite infinities, untouched storage,
+and worker-count determinism. A useful upstream test should add the same
+geometry and exercise `alt` through an integrated `rk_step_prep` trajectory.

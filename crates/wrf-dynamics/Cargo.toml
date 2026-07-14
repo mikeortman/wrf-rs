@@ -40,3 +40,7 @@ harness = false
 [[bench]]
 name = "moisture_coefficients"
 harness = false
+
+[[bench]]
+name = "inverse_density"
+harness = false

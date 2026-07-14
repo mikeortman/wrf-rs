@@ -17,6 +17,7 @@
 
 mod column_mass_staggering;
 mod held_suarez;
+mod inverse_density;
 mod moisture_coefficients;
 mod momentum_coupling;
 mod omega_diagnosis;
@@ -32,6 +33,10 @@ pub use column_mass_staggering::{
 pub use held_suarez::{
     HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,
     HeldSuarezDampingKernels, HeldSuarezDampingRegion, HeldSuarezDampingResult,
+};
+pub use inverse_density::{
+    InverseDensityAxis, InverseDensityError, InverseDensityField, InverseDensityKernels,
+    InverseDensityRegion, InverseDensityResult,
 };
 pub use moisture_coefficients::{
     MoistureCoefficientAxis, MoistureCoefficientError, MoistureCoefficientField,

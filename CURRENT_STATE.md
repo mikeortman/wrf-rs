@@ -219,6 +219,14 @@ Implemented:
 - an 8,232-value direct Fortran oracle covering zero, one, and three active
   species, upper staggers, non-one/negative origins, untouched storage, signed
   zero, and finite overflow;
+- WRF `calc_alt` behind a focused `InverseDensityKernels` capability with typed
+  mass-domain/tile validation and explicit perturbation, base-state, and full
+  inverse-density roles;
+- a safe row-parallel, scratch-free CPU implementation whose contiguous slices
+  preserve WRF's addition order and future device-storage boundary;
+- a 2,352-value direct Fortran oracle covering independent and combined upper
+  clipping, non-one/negative origins, untouched storage, overflow, cancellation,
+  signed zero, and opposite infinities;
 - a versioned SplitMix64 corpus generator, shared raw-bit input files, and
   pinned Fortran drivers for 68 seeded cases and 39,588 complete outputs across
   all four translated routines;
@@ -264,6 +272,13 @@ active. `MoistureSpecies`
 contains only Registry slots 2 through `n_moist`; an empty view selects the dry
 `1, 1, 0` defaults. All 8,232 focused output and sentinel values match pinned
 Fortran, and one/four-worker results are identical.
+
+Full inverse density now completes the sixth `rk_step_prep` diagnostic stage.
+`InverseDensityRegion` clips every upper stagger to the mass grid and validates
+all field shapes before mutation. All 2,352 focused output and sentinel values
+match pinned Fortran, including exceptional classes, and one/four-worker
+results are identical. Inactive storage is preserved explicitly rather than
+depending on WRF's partial `INTENT(OUT)` definition.
 
 ### `wrf-io`
 
@@ -438,6 +453,20 @@ multithreaded path is already faster than Fortran, so explicit SIMD and custom
 worker selection are not justified. See
 `docs/performance/moisture-coefficients-2026-07-13.md`.
 
+## Full inverse-density performance baseline
+
+For 2,621,440 outputs on a 256 × 256 × 40 mass-grid workload, safe Rust measured
+325.94 µs with one worker, 121.02 µs with four, and 397.32 µs with 16. Matched
+GNU Fortran 16.1.0 `-O3 -flto` measured a 210.880 µs median. Rust is 54.6%
+slower serially and 1.74× faster with four workers than serial Fortran.
+
+The safe hot loop adds equal-length contiguous slices without numerical
+scratch. First and settled 100-call phases recorded at most two and one
+1,520-byte scheduler allocations respectively, with no reallocations. The
+standard four-worker path is competitive, so explicit SIMD and custom
+scheduling are not justified. See
+`docs/performance/inverse-density-2026-07-14.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -510,6 +539,7 @@ cargo test --workspace --release
 ./scripts/run-momentum-coupling-oracle.sh
 ./scripts/run-omega-diagnosis-oracle.sh
 ./scripts/run-moisture-coefficient-oracle.sh
+./scripts/run-inverse-density-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -525,24 +555,27 @@ cargo test --workspace --release
 ./scripts/benchmark-momentum-coupling-fortran.sh
 ./scripts/benchmark-omega-diagnosis-fortran.sh
 ./scripts/benchmark-moisture-coefficients-fortran.sh
+./scripts/benchmark-inverse-density-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo bench -p wrf-dynamics --bench momentum_coupling -- --noplot
 cargo bench -p wrf-dynamics --bench omega_diagnosis -- --noplot
 cargo bench -p wrf-dynamics --bench moisture_coefficients -- --noplot
+cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
 cargo run -p wrf-dynamics --release --example measure_momentum_coupling_allocations
 cargo run -p wrf-dynamics --release --example measure_omega_diagnosis_allocations
 cargo run -p wrf-dynamics --release --example measure_moisture_coefficient_allocations
+cargo run -p wrf-dynamics --release --example measure_inverse_density_allocations
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 139 unit tests and eight doctests passed in debug and release modes (one
+Result: 144 unit tests and nine doctests passed in debug and release modes (one
 corpus-generator test, 13 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 54 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 59 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -559,7 +592,9 @@ are recorded. Omega diagnosis matches all 1,960 focused values; its
 complete-column contract, row-layout correction, matched timing, and allocation
 evidence are recorded. Moisture coefficients match all 8,232 focused values;
 their generated-species boundary, three stagger ranges, matched timing, and
-allocation evidence are recorded. The WRF Registry oracle matches five generated includes
+allocation evidence are recorded. Full inverse density matches all 2,352
+focused values; its three-axis clipping, matched timing, and allocation evidence
+are recorded. The WRF Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
 tiles match pinned WRF routines, periodic destinations match `period.c`
 exactly, and complete four-rank MPI patch memory matches the local executor.
@@ -615,8 +650,9 @@ also pass typed schema, metadata, and raw-bit comparison.
 2. Add Registry-generated asymmetric halo descriptors and multi-field message
    aggregation to the domain transport.
 3. Extend Registry preprocessing with includes and conditional definitions.
-4. Continue Runge-Kutta preparation with `calc_alt`, then integrate the
-   translated mass, momentum, omega-diagnosis, and moisture-coefficient routines.
+4. Continue Runge-Kutta preparation with `calc_php`, then integrate the
+   translated mass, momentum, omega-diagnosis, moisture-coefficient, and
+   inverse-density routines.
 5. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
 6. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

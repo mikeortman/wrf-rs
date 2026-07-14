@@ -43,6 +43,9 @@ implemented system; proposed work is explicitly labeled.
 - [Moisture momentum coefficients](Moisture-Momentum-Coefficients.md) — moist
   mass correction, species ordering, C-grid averaging, stagger clipping,
   scratch-free parallel rows, and exact-bit evidence.
+- [Full inverse density](Full-Inverse-Density.md) — base-state reconstruction,
+  mass-grid clipping, typed field roles, contiguous parallel rows, and exact-bit
+  evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -64,6 +67,9 @@ implemented system; proposed work is explicitly labeled.
 - [Moisture-coefficient performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/moisture-coefficients-2026-07-13.md)
   — matched six-species workload, CPU scaling, output-as-scratch design, and
   allocation evidence.
+- [Full inverse-density performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/inverse-density-2026-07-14.md)
+  — matched mass-grid workload, CPU scaling, allocation evidence, and the SIMD
+  stopping decision.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.
