@@ -376,6 +376,15 @@ failure-atomic and one/four-worker results are bit-identical. The Rust API
 omits the unused coefficient arrays and ignored vertical tile inputs, and the
 implementation removes the redundant horizontal scalar array.
 
+Acoustic flux accumulation now ports `sumflux`, the stage between vertical
+momentum and the closing pressure diagnosis. The region derives distinct U, V,
+and W stagger ranges, while the first substep preserves WRF's full-tile zeroing
+for every output. Finalization divides each nonlinear sum by the substep count
+and restores the saved linear flux in source operation order. All 375 stored
+bits match the extracted routine after three substeps; invalid phases, field
+shapes, and coefficient lengths fail before mutation. The Rust API omits ten
+unused source arguments and allocates no numerical scratch.
+
 ### `wrf-io`
 
 Implemented:
@@ -649,6 +658,19 @@ the remaining serial vectorization gap waits for an integrated trajectory
 profile. See
 `docs/performance/vertical-acoustic-coefficients-2026-07-14.md`.
 
+## Acoustic flux accumulation performance baseline
+
+On a matched three-substep 256 × 256 × 40 workload, serial GNU Fortran 16.1.0
+`-O3 -flto -ffp-contract=off` measured a 5.513750 ms median. Portable release
+Rust measured 26.048 ms with one worker, 7.2084 ms with four, and 3.6192 ms
+with 16. The standard 16-worker path is 1.52× faster than serial Fortran.
+
+Every settled 100-sequence phase records 19 scheduler allocations totaling
+28,880 bytes, no reallocations, no numerical scratch, and no field clones.
+Explicit SIMD and additional pass fusion stop pending the coupled acoustic
+trajectory profile. See
+`docs/performance/acoustic-flux-accumulation-2026-07-14.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -731,6 +753,7 @@ cargo test --workspace --release
 ./scripts/run-acoustic-horizontal-momentum-oracle.sh
 ./scripts/run-acoustic-mass-theta-oracle.sh
 ./scripts/run-acoustic-vertical-momentum-oracle.sh
+./scripts/run-acoustic-flux-accumulation-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -756,6 +779,7 @@ cargo test --workspace --release
 ./scripts/benchmark-acoustic-horizontal-momentum-fortran.sh
 ./scripts/benchmark-acoustic-mass-theta-fortran.sh
 ./scripts/benchmark-acoustic-vertical-momentum-fortran.sh
+./scripts/benchmark-acoustic-flux-accumulation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -772,6 +796,7 @@ cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_horizontal_momentum -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_flux_accumulation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -785,12 +810,13 @@ cargo run -p wrf-dynamics --release --example measure_dry_tendency_assembly_allo
 cargo run -p wrf-dynamics --release --example measure_acoustic_step_preparation_allocations
 cargo run -p wrf-dynamics --release --example measure_acoustic_pressure_allocations
 cargo run -p wrf-dynamics --release --example measure_vertical_acoustic_coefficient_allocations
+cargo run -p wrf-dynamics --release --example measure_acoustic_flux_accumulation_allocations
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 177 unit tests and 15 doctests passed in debug and release modes (one
+Result: 200 unit tests and 16 doctests passed in debug and release modes (one
 corpus-generator test, 15 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 90 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 113 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -845,6 +871,12 @@ state values match exactly. The complete-column contract and reusable 10.67 MiB
 RHS workspace are explicit. On the matched workload, four-worker Rust is 4.1%
 faster and 16-worker Rust is 2.53× faster than optimized serial Fortran, so
 SIMD tuning stops.
+Acoustic flux accumulation implements `sumflux` in nested field, region, and
+CPU modules. A direct three-substep oracle matches all 375 complete-storage
+bits, including first-step zeros at stagger-only tile points. On the matched
+workload, 16-worker Rust is 1.52× faster than optimized serial Fortran, uses no
+numerical scratch, and records 28,880 bytes of scheduler allocation per 100
+settled sequences, so further SIMD tuning stops.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -899,7 +931,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 1. Compare a complete acoustic small-step trajectory through preparation,
    pressure diagnosis, coefficient construction, horizontal momentum,
-   mass/theta, and vertical momentum.
+   mass/theta, vertical momentum, flux accumulation, and closing pressure
+   diagnosis.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

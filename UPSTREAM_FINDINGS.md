@@ -1040,3 +1040,27 @@ The local oracle extracts the exact pinned nonlinear routine and compares all
 upstream action: adopt a compact routine fixture, then add a per-substep
 trajectory containing `calc_coef_w`, `advance_uv`, `advance_mu_t`, and
 `advance_w` together.
+
+## WRF-058: `sumflux` carries ten dead arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable routine never reads `c1f`, `c2f`, `c3h`, `c4h`, `c3f`, `c4f`,
+`epssm`, `msfux`, `msfvx`, or `msfvy`. The Rust capability exposes only the
+two coefficients and two map factors that affect output. Suggested upstream
+action: remove the dead plumbing during a planned interface revision and
+enable unused-dummy diagnostics for this focused source file.
+
+## WRF-059: no focused regression covers `sumflux` stagger clearing and finalization
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The first iteration clears the entire tile for all three outputs, while later
+accumulation and finalization use distinct U, V, and W stagger ranges. A test
+that inspects only active mass points misses observable zero stores on the
+other upper stagger locations. The local oracle executes three substeps and
+compares all 375 stored values, including halos and stagger-only points.
+
+Suggested upstream action: add a compact complete-storage regression before
+changing loop fusion or initialization behavior, then include `sumflux` in a
+coupled acoustic trajectory fixture.
