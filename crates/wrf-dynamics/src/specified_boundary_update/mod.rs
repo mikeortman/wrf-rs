@@ -17,6 +17,7 @@ mod kernels;
 mod parameters;
 mod periodicity;
 mod region;
+mod relaxation;
 mod tendency_assignment;
 mod zero_gradient;
 
@@ -41,6 +42,12 @@ pub use kernels::SpecifiedBoundaryUpdateKernels;
 pub use parameters::SpecifiedBoundaryUpdateParameters;
 pub use periodicity::SpecifiedBoundaryWestEastPeriodicity;
 pub use region::{SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateRegion};
+pub use relaxation::{
+    SpecifiedBoundaryRelaxationBoundaryValues, SpecifiedBoundaryRelaxationCoefficients,
+    SpecifiedBoundaryRelaxationError, SpecifiedBoundaryRelaxationField,
+    SpecifiedBoundaryRelaxationInputs, SpecifiedBoundaryRelaxationKernels,
+    SpecifiedBoundaryRelaxationParameters, SpecifiedBoundaryRelaxationResult,
+};
 pub use tendency_assignment::{
     SpecifiedBoundaryTendencies, SpecifiedBoundaryTendencyError, SpecifiedBoundaryTendencyKernels,
     SpecifiedBoundaryTendencyParameters, SpecifiedBoundaryTendencyResult,

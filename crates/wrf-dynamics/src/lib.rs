@@ -16,6 +16,8 @@
 //! U/V signs, copying outflow and clearing inflow.
 //! [`SpecifiedBoundaryTendencyKernels`] assigns boundary-file tendencies before
 //! relaxation and acoustic advancement.
+//! [`SpecifiedBoundaryRelaxationKernels`] then applies WRF's five-point
+//! specified-zone relaxation forcing.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -178,6 +180,10 @@ pub use specified_boundary_update::{
     SpecifiedBoundaryFlowRegion, SpecifiedBoundaryFlowResult, SpecifiedBoundaryGeopotentialError,
     SpecifiedBoundaryGeopotentialInputs, SpecifiedBoundaryGeopotentialKernels,
     SpecifiedBoundaryGeopotentialResult, SpecifiedBoundaryInflowPolicy,
+    SpecifiedBoundaryRelaxationBoundaryValues, SpecifiedBoundaryRelaxationCoefficients,
+    SpecifiedBoundaryRelaxationError, SpecifiedBoundaryRelaxationField,
+    SpecifiedBoundaryRelaxationInputs, SpecifiedBoundaryRelaxationKernels,
+    SpecifiedBoundaryRelaxationParameters, SpecifiedBoundaryRelaxationResult,
     SpecifiedBoundaryTendencies, SpecifiedBoundaryTendencyError, SpecifiedBoundaryTendencyKernels,
     SpecifiedBoundaryTendencyParameters, SpecifiedBoundaryTendencyResult,
     SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateKernels,
