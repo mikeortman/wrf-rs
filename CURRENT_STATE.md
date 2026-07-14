@@ -763,6 +763,7 @@ cargo test --workspace --release
 ./scripts/run-acoustic-mass-theta-oracle.sh
 ./scripts/run-acoustic-vertical-momentum-oracle.sh
 ./scripts/run-acoustic-flux-accumulation-oracle.sh
+./scripts/run-specified-boundary-relaxation-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -789,6 +790,7 @@ cargo test --workspace --release
 ./scripts/benchmark-acoustic-mass-theta-fortran.sh
 ./scripts/benchmark-acoustic-vertical-momentum-fortran.sh
 ./scripts/benchmark-acoustic-flux-accumulation-fortran.sh
+./scripts/benchmark-specified-boundary-relaxation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -806,6 +808,7 @@ cargo bench -p wrf-dynamics --bench acoustic_horizontal_momentum -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_flux_accumulation -- --noplot
+cargo bench -p wrf-dynamics --bench specified_boundary_relaxation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -823,9 +826,9 @@ cargo run -p wrf-dynamics --release --example measure_acoustic_flux_accumulation
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 200 unit tests and 16 doctests passed in debug and release modes (one
+Result: 252 unit tests and 23 doctests passed in debug and release modes (one
 corpus-generator test, 15 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 113 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 165 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -951,6 +954,20 @@ faster and four-worker Rust is 2.91× faster than optimized serial Fortran; the
 default 16-worker path is within 3.2%, so tuning stops. The kernel uses no
 numerical scratch or field clones and records one 1,520-byte scheduler
 allocation per 100 warmed calls.
+Specified-boundary relaxation implements both `relax_bdytend` wrappers and the
+shared five-point core behind a focused typed capability. Ten direct cases
+cover mass-half, U, V, full-level, and horizontal-mass fields; full and halo-
+extended tile allocations; periodic X; opposite partial tiles; inactive and
+empty relaxation bands; and exceptional values. All 5,500 stored tendencies
+match the pinned Fortran oracle by raw bits. Typed validation enforces the
+source's previously implicit boundary-neighbor width and field-view coverage
+contracts before mutation. Hoisting side and slice selection outside the hot
+point loop reduced one-worker Rust from 3.193886 to 1.355342 ms. Four-worker
+and default 16-worker Rust measure 0.468761 and 0.465916 ms versus optimized
+serial Fortran's 0.407650 ms median, within 15%, so SIMD and further duplicated
+side specialization stop pending the integrated boundary driver. The kernel
+uses no numerical scratch or field clones and records one 1,520-byte scheduler
+allocation per 100 warmed calls.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -1003,7 +1020,7 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port `relax_bdytend`, then insert it, `spec_bdytend`, and boundary/halo
+1. Insert `spec_bdytend`, `relax_bdytend`, specified updates, and boundary/halo
    operations around the verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.

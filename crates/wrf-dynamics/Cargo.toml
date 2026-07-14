@@ -112,3 +112,7 @@ harness = false
 [[bench]]
 name = "specified_boundary_tendencies"
 harness = false
+
+[[bench]]
+name = "specified_boundary_relaxation"
+harness = false

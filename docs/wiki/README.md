@@ -82,6 +82,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary updates](Specified-Boundary-Tendency-Updates.md) — C-grid
   field locations, trapezoidal corners, periodic-X behavior, mass-normalized
   geopotential, direct parallel ranges, and exact pinned-source evidence.
+- [Specified-boundary relaxation](Specified-Boundary-Relaxation.md) — external
+  state mismatch, five-point smoothing, fixed/relaxed zones, halo-extended tile
+  views, and exact pinned-source evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -154,6 +157,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary tendency-assignment performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-tendencies-2026-07-14.md)
   — matched boundary-file copies, CPU scaling, allocation evidence, and the
   thin-perimeter tuning stop.
+- [Specified-boundary relaxation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-relaxation-2026-07-14.md)
+  — matched five-point forcing, CPU scaling, allocation evidence, and the
+  operational-parity tuning stop.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

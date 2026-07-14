@@ -1334,3 +1334,53 @@ The local oracle extracts the exact pinned routine and compares all 2,592
 stored values across twelve cases by raw IEEE bits. Suggested upstream action:
 adopt the fixture after correcting the `INTENT` contract and include the stage
 before boundary relaxation in a specified-domain acoustic trajectory.
+
+## WRF-078: `relax_bdytend_core` relies on unchecked boundary-neighbor widths
+
+Status: source-confirmed correctness and memory-safety risk under invalid
+configuration.
+
+Every relaxed point reads boundary distances `b_dist`, `b_dist+1`, and
+`b_dist+2` from arrays declared with a `1:spec_bdy_width` normal dimension. A
+nonempty band with `spec_zone=0` reads index zero. A band reaching
+`relax_zone=spec_bdy_width` reads one past the upper bound. The same zero-zone
+case also reads a model-field neighbor outside the physical boundary. The
+routine does not validate these relationships, so builds without bounds checks
+can silently access unrelated memory if configuration plumbing violates the
+implicit contract.
+
+Suggested upstream action: reject a nonempty band unless `spec_zone >= 1` and
+`relax_zone + 1 <= spec_bdy_width`, document the invariant at the public
+wrappers, and retain a bounds-checked regression. The Rust capability returns a
+typed error before mutation for each invalid relationship.
+
+## WRF-079: boundary-relaxation wrappers carry unused patch arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+`relax_bdytend`, `relax_bdytend_tile`, and the shared core never read `ips`,
+`ipe`, `jps`, `jpe`, `kps`, or `kpe`. The tile wrapper needs separate first-
+argument bounds, but the six patch arguments do not affect geometry or output.
+They increase every dynamics call site's plumbing and obscure the actual field,
+domain, tile, and boundary-array dependencies.
+
+Suggested upstream action: remove the dead arguments during a planned
+interface revision or route public compatibility wrappers through a smaller
+internal core after numerical coverage is established.
+
+## WRF-080: no focused numerical regression covers boundary relaxation
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production calls for momentum, thermodynamic,
+geopotential, column-mass, vertical-momentum, and scalar fields, plus tangent-
+linear and adjoint counterparts, but no compact nonlinear complete-storage
+fixture. In particular, no focused test covers the five-point mismatch order,
+fixed-zone exclusion, periodic-X corners, staggered tops, partial tiles, or the
+smaller `relax_bdytend_tile` field allocation.
+
+The local oracle extracts all three exact nonlinear routines and compares all
+5,500 stored values across ten cases by raw IEEE bits. Suggested upstream
+action: adopt that fixture, add bounds-checked invalid-width cases, and then
+place the routine after `spec_bdytend` in a multi-tile specified-domain acoustic
+trajectory.

@@ -63,8 +63,10 @@ vertical tiles; and an inactive interior tile. Added tests cover zero-width
 zones, shape failure atomicity, and one/four-worker complete-output
 determinism.
 
-The next integration gate ports `relax_bdytend` and inserts both tendency
-stages plus boundary and halo operations around the local acoustic trajectory.
+The five-point relaxation stage is now documented separately in
+[Specified-boundary relaxation](Specified-Boundary-Relaxation.md). The next
+integration gate inserts both tendency stages plus boundary and halo operations
+around the local acoustic trajectory.
 
 ## Boundary-file tendency assignment
 

@@ -105,6 +105,8 @@ jobs:
         run: ./scripts/run-specified-boundary-finalization-oracle.sh
       - name: Verify specified-boundary tendency assignment
         run: ./scripts/run-specified-boundary-tendencies-oracle.sh
+      - name: Verify specified-boundary relaxation forcing
+        run: ./scripts/run-specified-boundary-relaxation-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation
