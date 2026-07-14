@@ -8,6 +8,7 @@
 mod cpu;
 mod error;
 mod field_location;
+mod finalization;
 mod flow_dependent;
 pub(crate) mod geometry;
 mod geopotential;
@@ -19,6 +20,12 @@ mod zero_gradient;
 
 pub use error::{SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateResult};
 pub use field_location::SpecifiedBoundaryFieldLocation;
+pub use finalization::{
+    SpecifiedBoundaryFinalizationBoundaryFields, SpecifiedBoundaryFinalizationError,
+    SpecifiedBoundaryFinalizationFieldLocation, SpecifiedBoundaryFinalizationInputs,
+    SpecifiedBoundaryFinalizationKernels, SpecifiedBoundaryFinalizationParameters,
+    SpecifiedBoundaryFinalizationRegion, SpecifiedBoundaryFinalizationResult,
+};
 pub use flow_dependent::{
     SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField, SpecifiedBoundaryFlowInputs,
     SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters, SpecifiedBoundaryFlowRegion,

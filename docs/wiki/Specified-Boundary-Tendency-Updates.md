@@ -183,3 +183,40 @@ optimized serial Fortran for constant inflow and 2.6% faster for preserve.
 Serial Rust is 15.0% and 22.4% slower, respectively. Since the normal
 four-worker path is already competitive, specialization and explicit SIMD are
 deferred in favor of one readable traversal.
+
+## Final state reconstruction
+
+At the end of the acoustic work, `spec_bdy_final` forces prognostic state back
+to the time-interpolated boundary-file value. This prevents round-off drift
+that would accumulate if WRF relied only on applied tendencies. For boundary
+value `b`, boundary tendency `b_t`, and interpolation interval `dtbc`, it first
+evaluates
+
+```text
+b_interpolated = b + dtbc * b_t
+```
+
+The field location then selects normalization:
+
+| Field location | WRF selector | Final value |
+|---|---|---|
+| horizontal mass | `m` | `b_interpolated` |
+| scalar half level | `t` or default | `b_interpolated / (c1 * mu + c2)` |
+| full level | `h` | `b_interpolated / (c1 * mu + c2)` |
+| U, V, or W momentum | `u`, `v`, `w` | `map_factor * b_interpolated / (c1 * mu + c2)` |
+
+The Rust region replaces the selector with six typed locations and reuses the
+verified trapezoidal corner geometry. It also records a non-obvious source
+contract: every location starts at the tile's lower vertical bound but ignores
+the upper bound, continuing to the applicable physical half- or full-level
+top.
+
+Eleven direct cases compare all 5,184 stored values by raw bits across every
+location, periodic X, partial and inactive tiles, signed zero, and infinities.
+All eight oriented boundary value/tendency arrays, both normalization fields,
+both coefficient vectors, and invalid widths fail before mutation.
+
+On the matched 256 × 256 × 41 vertical-momentum workload, four-worker Rust is
+1.50× faster and default 16-worker Rust is 1.36× faster than optimized serial
+Fortran. The kernel has no numerical scratch or field clones; further SIMD or
+scheduler specialization waits for an integrated boundary-driver profile.
