@@ -37,23 +37,23 @@ use super::arguments::{
     VerticalMomentumArguments,
 };
 
-pub(super) struct AcousticTrajectoryExecution<'backend, 'fields, 'coefficients, 'regions> {
-    pub(super) backend: &'backend CpuBackend,
-    pub(super) time_levels: AcousticTrajectoryTimeLevels<'fields, CpuField<f32>>,
-    pub(super) saved_state: AcousticTrajectorySavedState<'fields, CpuField<f32>>,
-    pub(super) diagnostics: AcousticTrajectoryDiagnostics<'fields, CpuField<f32>>,
-    pub(super) workspace: AcousticTrajectoryWorkspace<'fields, CpuField<f32>>,
-    pub(super) inputs: AcousticTrajectoryInputs<'fields, CpuField<f32>>,
-    pub(super) coefficients: AcousticTrajectoryCoefficients<'coefficients>,
-    pub(super) controls: AcousticTrajectoryControls,
-    pub(super) regions: AcousticTrajectoryRegions<'regions>,
+pub(crate) struct AcousticTrajectoryExecution<'backend, 'fields, 'coefficients, 'regions> {
+    pub(crate) backend: &'backend CpuBackend,
+    pub(crate) time_levels: AcousticTrajectoryTimeLevels<'fields, CpuField<f32>>,
+    pub(crate) saved_state: AcousticTrajectorySavedState<'fields, CpuField<f32>>,
+    pub(crate) diagnostics: AcousticTrajectoryDiagnostics<'fields, CpuField<f32>>,
+    pub(crate) workspace: AcousticTrajectoryWorkspace<'fields, CpuField<f32>>,
+    pub(crate) inputs: AcousticTrajectoryInputs<'fields, CpuField<f32>>,
+    pub(crate) coefficients: AcousticTrajectoryCoefficients<'coefficients>,
+    pub(crate) controls: AcousticTrajectoryControls,
+    pub(crate) regions: AcousticTrajectoryRegions<'regions>,
 }
 
 impl<'backend, 'fields, 'coefficients, 'regions>
     AcousticTrajectoryExecution<'backend, 'fields, 'coefficients, 'regions>
 {
     #[allow(clippy::too_many_arguments)]
-    pub(super) fn new(
+    pub(crate) fn new(
         backend: &'backend CpuBackend,
         time_levels: AcousticTrajectoryTimeLevels<'fields, CpuField<f32>>,
         saved_state: AcousticTrajectorySavedState<'fields, CpuField<f32>>,
@@ -77,7 +77,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         }
     }
 
-    pub(super) fn run(&mut self) -> AcousticTrajectoryResult<()> {
+    pub(crate) fn run(&mut self) -> AcousticTrajectoryResult<()> {
         self.prepare()?;
         self.update_pressure(AcousticPressureDampingPhase::Initialize)?;
         self.calculate_vertical_coefficients()?;
@@ -91,7 +91,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         Ok(())
     }
 
-    fn prepare(&mut self) -> AcousticTrajectoryResult<()> {
+    pub(crate) fn prepare(&mut self) -> AcousticTrajectoryResult<()> {
         let backend = self.backend;
         let arguments = self.preparation_arguments();
         backend.prepare_acoustic_step(
@@ -109,7 +109,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         Ok(())
     }
 
-    fn update_pressure(
+    pub(crate) fn update_pressure(
         &mut self,
         damping_phase: AcousticPressureDampingPhase,
     ) -> AcousticTrajectoryResult<()> {
@@ -129,7 +129,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         Ok(())
     }
 
-    fn calculate_vertical_coefficients(&mut self) -> AcousticTrajectoryResult<()> {
+    pub(crate) fn calculate_vertical_coefficients(&mut self) -> AcousticTrajectoryResult<()> {
         let backend = self.backend;
         let arguments = self.vertical_coefficient_arguments();
         backend.calculate_vertical_acoustic_coefficients(
@@ -143,7 +143,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         Ok(())
     }
 
-    fn advance_horizontal_momentum(&mut self) -> AcousticTrajectoryResult<()> {
+    pub(crate) fn advance_horizontal_momentum(&mut self) -> AcousticTrajectoryResult<()> {
         let backend = self.backend;
         let arguments = self.horizontal_momentum_arguments();
         backend.advance_acoustic_horizontal_momentum(
@@ -156,7 +156,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         Ok(())
     }
 
-    fn advance_mass_and_theta(&mut self) -> AcousticTrajectoryResult<()> {
+    pub(crate) fn advance_mass_and_theta(&mut self) -> AcousticTrajectoryResult<()> {
         let backend = self.backend;
         let arguments = self.mass_theta_arguments();
         backend.advance_acoustic_mass_and_theta(
@@ -170,7 +170,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         Ok(())
     }
 
-    fn advance_vertical_momentum(&mut self) -> AcousticTrajectoryResult<()> {
+    pub(crate) fn advance_vertical_momentum(&mut self) -> AcousticTrajectoryResult<()> {
         let backend = self.backend;
         let arguments = self.vertical_momentum_arguments();
         backend.advance_acoustic_vertical_momentum(
@@ -187,7 +187,7 @@ impl<'backend, 'fields, 'coefficients, 'regions>
         Ok(())
     }
 
-    fn accumulate_fluxes(&mut self, iteration: usize) -> AcousticTrajectoryResult<()> {
+    pub(crate) fn accumulate_fluxes(&mut self, iteration: usize) -> AcousticTrajectoryResult<()> {
         let backend = self.backend;
         let arguments = self.flux_accumulation_arguments(iteration)?;
         backend.accumulate_acoustic_fluxes(
@@ -352,8 +352,8 @@ impl<'backend, 'fields, 'coefficients, 'regions>
             ),
             inputs: AcousticHorizontalMomentumInputs::new(
                 AcousticHorizontalMomentumTendencies::new(
-                    self.inputs.tendencies.west_east_momentum,
-                    self.inputs.tendencies.south_north_momentum,
+                    &*self.inputs.tendencies.west_east_momentum,
+                    &*self.inputs.tendencies.south_north_momentum,
                 ),
                 AcousticHorizontalPressureFields::new(
                     &*self.diagnostics.pressure_perturbation,

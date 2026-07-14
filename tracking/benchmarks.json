@@ -274,6 +274,30 @@
       "watch": ["crates/wrf-dynamics/src/acoustic_flux_accumulation/**", "crates/wrf-dynamics/benches/acoustic_flux_accumulation.rs", "parity/acoustic-flux-accumulation/**", "scripts/benchmark-acoustic-flux-accumulation-fortran.sh"]
     },
     {
+      "id": "physical-boundary",
+      "label": "Physical boundary-zone assignment",
+      "package": "wrf-dynamics",
+      "rust_bench": "physical_boundary",
+      "criterion_group": "physical_boundary",
+      "rust_case": "specified_mass_full_tile",
+      "fortran_case": "default",
+      "fortran_script": "scripts/benchmark-physical-boundary-fortran.sh",
+      "parity_oracle": "scripts/run-physical-boundary-oracle.sh",
+      "watch": ["crates/wrf-dynamics/src/physical_boundary/**", "crates/wrf-dynamics/benches/physical_boundary.rs", "parity/physical-boundary/**", "scripts/benchmark-physical-boundary-fortran.sh"]
+    },
+    {
+      "id": "acoustic-boundary-stage",
+      "label": "Complete acoustic boundary stage",
+      "package": "wrf-dynamics",
+      "rust_bench": "acoustic_boundary_stage",
+      "criterion_group": "acoustic_boundary_stage",
+      "rust_case": "specified_three_substeps",
+      "fortran_case": "default",
+      "fortran_script": "scripts/benchmark-acoustic-boundary-stage-fortran.sh",
+      "parity_oracle": "scripts/run-acoustic-boundary-stage-oracle.sh",
+      "watch": ["crates/wrf-dynamics/src/acoustic_boundary_stage/**", "crates/wrf-dynamics/src/physical_boundary/**", "crates/wrf-dynamics/benches/acoustic_boundary_stage.rs", "crates/wrf-dynamics/benches/support/acoustic_boundary_stage_fixture.rs", "parity/acoustic-boundary-stage/**", "scripts/benchmark-acoustic-boundary-stage-fortran.sh"]
+    },
+    {
       "id": "specified-boundary-update",
       "label": "Specified-boundary tendency update",
       "package": "wrf-dynamics",

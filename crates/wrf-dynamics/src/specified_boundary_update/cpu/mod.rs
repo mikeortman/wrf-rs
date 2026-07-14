@@ -12,6 +12,14 @@ mod validation;
 
 use crate::specified_boundary_update::geometry::SpecifiedBoundaryRanges;
 
+pub(crate) fn validate_specified_boundary_update(
+    field: &CpuField<f32>,
+    tendency: &CpuField<f32>,
+    region: &SpecifiedBoundaryUpdateRegion,
+) -> SpecifiedBoundaryUpdateResult<()> {
+    validation::validate(field, tendency, region)
+}
+
 impl SpecifiedBoundaryUpdateKernels for CpuBackend {
     type Field = CpuField<f32>;
 

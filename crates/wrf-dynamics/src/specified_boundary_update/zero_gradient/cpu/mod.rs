@@ -10,6 +10,21 @@ use crate::{
     SpecifiedBoundaryZeroGradientResult,
 };
 
+pub(crate) fn validate_zero_gradient_specified_boundary(
+    field: &mut CpuField<f32>,
+    parameters: SpecifiedBoundaryZeroGradientParameters,
+    west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
+    region: &SpecifiedBoundaryUpdateRegion,
+) -> SpecifiedBoundaryZeroGradientResult<()> {
+    let _kernel = SpecifiedBoundaryZeroGradientCpuKernel::try_new(
+        field,
+        parameters,
+        west_east_periodicity,
+        region,
+    )?;
+    Ok(())
+}
+
 impl SpecifiedBoundaryZeroGradientKernels for CpuBackend {
     type Field = CpuField<f32>;
 
