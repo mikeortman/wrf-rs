@@ -920,7 +920,7 @@ symmetric, periodic, and polar branches. The safe Rust kernel uses no numerical
 scratch and checks raw bits against the extracted routine. Suggested upstream
 action: add a branch fixture before changing scratch lifetime or loop fusion.
 
-## WRF-049: `advance_mu_t` carries thirteen dead arguments and two dead bounds
+## WRF-049: `advance_mu_t` carries fourteen dead arguments and two dead locals
 
 Status: source-confirmed interface maintenance opportunity.
 
