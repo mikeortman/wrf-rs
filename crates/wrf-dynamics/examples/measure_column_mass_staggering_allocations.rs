@@ -4,7 +4,9 @@ use std::alloc::System;
 
 use stats_alloc::{INSTRUMENTED_SYSTEM, Region, Stats, StatsAlloc};
 use wrf_compute::{ComputeBackend, CpuBackend, CpuField, FieldStorage, GridShape};
-use wrf_dynamics::{ColumnMassStaggeringKernels, ColumnMassStaggeringRegion};
+use wrf_dynamics::{
+    ColumnMassStaggeringKernels, ColumnMassStaggeringPeriodicity, ColumnMassStaggeringRegion,
+};
 
 #[global_allocator]
 static GLOBAL_ALLOCATOR: &StatsAlloc<System> = &INSTRUMENTED_SYSTEM;
@@ -16,12 +18,32 @@ const MEASURED_DISPATCHES: usize = 100;
 
 fn main() {
     println!("kernel,phase,workers,dispatches,allocations,reallocations,bytes_allocated");
-    for worker_count in worker_counts() {
-        let (first, settled) = measure_worker_count(worker_count);
-        print_stats("first", worker_count, first);
-        print_stats("settled", worker_count, settled);
-        assert_allocation_budget(first);
-        assert_allocation_budget(settled);
+    for kernel in [
+        ColumnMassKernel::Staggered,
+        ColumnMassKernel::PeriodicBigStep,
+    ] {
+        for worker_count in worker_counts() {
+            let (first, settled) = measure_worker_count(kernel, worker_count);
+            print_stats(kernel, "first", worker_count, first);
+            print_stats(kernel, "settled", worker_count, settled);
+            assert_allocation_budget(first);
+            assert_allocation_budget(settled);
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+enum ColumnMassKernel {
+    Staggered,
+    PeriodicBigStep,
+}
+
+impl ColumnMassKernel {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::Staggered => "column_mass_staggering",
+            Self::PeriodicBigStep => "periodic_big_step_column_mass",
+        }
     }
 }
 
@@ -33,36 +55,46 @@ fn worker_counts() -> Vec<usize> {
     counts
 }
 
-fn measure_worker_count(worker_count: usize) -> (Stats, Stats) {
+fn measure_worker_count(kernel: ColumnMassKernel, worker_count: usize) -> (Stats, Stats) {
     let backend = CpuBackend::try_with_worker_count(worker_count).unwrap();
     let (mut fields, region) = create_fields(&backend);
 
-    run_dispatches(&backend, &mut fields, &region, WARMUP_DISPATCHES);
+    run_dispatches(kernel, &backend, &mut fields, &region, WARMUP_DISPATCHES);
     let first_allocations = Region::new(GLOBAL_ALLOCATOR);
-    run_dispatches(&backend, &mut fields, &region, MEASURED_DISPATCHES);
+    run_dispatches(kernel, &backend, &mut fields, &region, MEASURED_DISPATCHES);
     let first = first_allocations.change();
     let settled_allocations = Region::new(GLOBAL_ALLOCATOR);
-    run_dispatches(&backend, &mut fields, &region, MEASURED_DISPATCHES);
+    run_dispatches(kernel, &backend, &mut fields, &region, MEASURED_DISPATCHES);
     let settled = settled_allocations.change();
     (first, settled)
 }
 
 fn run_dispatches(
+    kernel: ColumnMassKernel,
     backend: &CpuBackend,
     fields: &mut ColumnMassStaggeringAllocationFields,
     region: &ColumnMassStaggeringRegion,
     dispatch_count: usize,
 ) {
     for _ in 0..dispatch_count {
-        backend
-            .stagger_column_mass(
+        match kernel {
+            ColumnMassKernel::Staggered => backend.stagger_column_mass(
                 &fields.perturbation_mass,
                 &fields.base_mass,
                 &mut fields.west_east_momentum_mass,
                 &mut fields.south_north_momentum_mass,
                 region,
-            )
-            .unwrap();
+            ),
+            ColumnMassKernel::PeriodicBigStep => backend.stagger_column_mass_for_big_step(
+                &fields.perturbation_mass,
+                &fields.base_mass,
+                &mut fields.west_east_momentum_mass,
+                &mut fields.south_north_momentum_mass,
+                region,
+                ColumnMassStaggeringPeriodicity::Both,
+            ),
+        }
+        .unwrap();
     }
 }
 
@@ -119,10 +151,13 @@ fn initialize_mass_fields(perturbation_mass: &mut CpuField<f32>, base_mass: &mut
     }
 }
 
-fn print_stats(phase: &str, worker_count: usize, stats: Stats) {
+fn print_stats(kernel: ColumnMassKernel, phase: &str, worker_count: usize, stats: Stats) {
     println!(
-        "column_mass_staggering,{phase},{worker_count},{MEASURED_DISPATCHES},{},{},{}",
-        stats.allocations, stats.reallocations, stats.bytes_allocated
+        "{},{phase},{worker_count},{MEASURED_DISPATCHES},{},{},{}",
+        kernel.name(),
+        stats.allocations,
+        stats.reallocations,
+        stats.bytes_allocated
     );
 }
 

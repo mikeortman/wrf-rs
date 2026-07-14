@@ -42,6 +42,11 @@ pub enum ColumnMassStaggeringError {
         /// Axis on which the tile leaves the domain.
         axis: ColumnMassStaggeringAxis,
     },
+    /// A periodic lower boundary has no preceding halo mass point.
+    PeriodicLowerHaloMissing {
+        /// Axis whose lower periodic halo is absent.
+        axis: ColumnMassStaggeringAxis,
+    },
     /// A field does not match the shape validated by the region.
     FieldShapeMismatch {
         /// Role of the mismatched field.
@@ -82,6 +87,10 @@ impl fmt::Display for ColumnMassStaggeringError {
             Self::TileOutsideMassDomain { axis } => {
                 write!(formatter, "{axis} tile extends outside its mass domain")
             }
+            Self::PeriodicLowerHaloMissing { axis } => write!(
+                formatter,
+                "{axis} periodic lower boundary requires one preceding halo mass point"
+            ),
             Self::FieldShapeMismatch { field } => {
                 write!(
                     formatter,

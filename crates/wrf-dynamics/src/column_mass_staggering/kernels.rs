@@ -1,6 +1,8 @@
 use wrf_compute::FieldStorage;
 
-use crate::{ColumnMassStaggeringRegion, ColumnMassStaggeringResult};
+use crate::{
+    ColumnMassStaggeringPeriodicity, ColumnMassStaggeringRegion, ColumnMassStaggeringResult,
+};
 
 /// Backend capability for interpolating full column mass to momentum points.
 ///
@@ -63,5 +65,46 @@ pub trait ColumnMassStaggeringKernels {
         west_east_momentum_mass: &mut Self::Field,
         south_north_momentum_mass: &mut Self::Field,
         region: &ColumnMassStaggeringRegion,
+    ) -> ColumnMassStaggeringResult<()>;
+
+    /// Reproduces WRF `calc_mu_uv` for big-step perturbation and base mass.
+    ///
+    /// Unlike [`Self::stagger_column_mass`], physical endpoints retain WRF's
+    /// duplicate-value averaging expression. This distinction matters for
+    /// exceptional finite values because the intermediate addition can
+    /// overflow. Periodic endpoints average the boundary mass with its halo.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed error if any field shape differs from `region`, a
+    /// periodic lower endpoint lacks its preceding halo, or a CPU worker
+    /// panics. Shape and halo validation finishes before either output changes.
+    fn stagger_column_mass_for_big_step(
+        &self,
+        perturbation_mass: &Self::Field,
+        base_mass: &Self::Field,
+        west_east_momentum_mass: &mut Self::Field,
+        south_north_momentum_mass: &mut Self::Field,
+        region: &ColumnMassStaggeringRegion,
+        periodicity: ColumnMassStaggeringPeriodicity,
+    ) -> ColumnMassStaggeringResult<()>;
+
+    /// Reproduces WRF `calc_mu_uv_1` for already-combined full column mass.
+    ///
+    /// Physical and periodic endpoints retain WRF's two-addition expression
+    /// order rather than simplifying duplicate operands to a copy.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed error if any field shape differs from `region`, a
+    /// periodic lower endpoint lacks its preceding halo, or a CPU worker
+    /// panics. Shape and halo validation finishes before either output changes.
+    fn stagger_full_column_mass_for_big_step(
+        &self,
+        full_mass: &Self::Field,
+        west_east_momentum_mass: &mut Self::Field,
+        south_north_momentum_mass: &mut Self::Field,
+        region: &ColumnMassStaggeringRegion,
+        periodicity: ColumnMassStaggeringPeriodicity,
     ) -> ColumnMassStaggeringResult<()>;
 }

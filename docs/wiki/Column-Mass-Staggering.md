@@ -3,8 +3,9 @@
 WRF's ARW dynamical core stores dry-air column mass at scalar, or mass-grid,
 points. Horizontal momentum components live on an Arakawa C grid: west-east
 momentum lies between adjacent mass points in the west-east direction, while
-south-north momentum lies between adjacent rows. `calc_mu_staggered` constructs
-the full dry-air mass factors used at those two momentum locations.
+south-north momentum lies between adjacent rows. `calc_mu_staggered`,
+`calc_mu_uv`, and `calc_mu_uv_1` construct the full dry-air mass factors used at
+those two momentum locations in different ARW calling contexts.
 
 ## Interior algorithm
 
@@ -42,6 +43,36 @@ nearest full mass; there is no mass point beyond the physical edge.
 WRF evaluates these four paths independently for west-east and south-north
 momentum. The Rust port derives the same state for each axis and does not ask a
 caller to supply boolean boundary flags.
+
+## Big-step and periodic variants
+
+`calc_mu_uv` accepts perturbation and base mass separately. `calc_mu_uv_1`
+accepts an already-combined full-mass field. Rust exposes both operations while
+sharing the validated region and parallel traversal. The separate-input form
+retains WRF's four-addition order; the combined form retains its two-addition
+order.
+
+The big-step routines differ subtly from `calc_mu_staggered` at a non-periodic
+physical endpoint. They evaluate a duplicate-value average instead of directly
+copying full mass:
+
+```text
+split: 0.5 * (mu + mu + mub + mub)
+full:  0.5 * (full_mass + full_mass)
+```
+
+Ordinary atmospheric values produce the same mathematical result as a copy,
+but the floating-point program is not equivalent. A finite value near
+`f32::MAX` overflows during the duplicate addition. Rust preserves this
+behavior because output parity includes exceptional finite inputs.
+
+At a periodic physical endpoint, the second operand instead comes from the
+adjacent stored halo. Lower periodic boundaries require a preceding halo;
+upper periodic boundaries require the already-validated mass point beyond the
+domain endpoint. `ColumnMassStaggeringPeriodicity` names the four possible axis
+states (`None`, `WestEast`, `SouthNorth`, and `Both`) without a boolean-heavy
+public interface. A missing lower halo returns a typed error before either
+output is mutated.
 
 ## Domain, tile, and memory
 
@@ -101,9 +132,17 @@ The exact extracted WRF routine, compiled with GNU Fortran 14.2.0 using
 2.49× faster with four workers than serial Fortran. This is an isolated routine
 comparison, not a whole-model speedup claim.
 
+For the doubly periodic `calc_mu_uv` workload, one-worker Rust measured
+359.64 µs and matched GNU Fortran 16.1.0 `-O3 -flto` measured a 347.120 µs
+median: a 3.6% difference, which is close enough to retain the readable scalar
+implementation. Four-worker Rust measured 181.10 µs, or 1.92× faster than the
+serial Fortran routine. Sixteen workers measured 400.40 µs and are not useful
+for this memory-bound isolated kernel.
+
 After pool and field warm-up, every 100-call phase uses three small scheduler
 allocations totaling 4,560 bytes and no reallocations. There is no field-sized
-or per-row numerical scratch.
+or per-row numerical scratch. The periodic big-step path has the same measured
+allocation profile.
 
 Fortran's averaging loops are vectorized. Rust's retained loops are scalar, so
 a safe `pulp` prototype was tested. It preserved every tested scalar and
@@ -135,6 +174,15 @@ signed zero, large finite cancellation, and active NaN/infinity inputs. All
 raw bits, NaN by class. Failures identify the seed, output staggering, and first
 divergent linear index.
 
-This evidence completes randomized non-periodic `calc_mu_staggered`
-routine-level coverage. It does not cover the periodic `calc_mu_uv` variants or
-an end-to-end ARW trajectory; those remain explicit later gates.
+`scripts/run-periodic-column-mass-oracle.sh` separately extracts the exact
+`calc_mu_uv` and `calc_mu_uv_1` bodies. Eight cases per routine cover interior,
+lower, upper, and both physical-boundary paths; west-east, south-north, and
+doubly periodic paths; and the overflow-sensitive physical endpoint. Rust
+matches all 960 complete-field output and sentinel values by raw bits. Added
+tests cover missing periodic halos, validation before mutation, untouched
+storage, and bitwise equality between one and four workers.
+
+This evidence completes focused routine-level coverage for all three column-
+mass staggering entry points and randomized coverage for non-periodic
+`calc_mu_staggered`. A randomized big-step corpus and an end-to-end ARW
+trajectory remain explicit later gates.
