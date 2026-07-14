@@ -367,3 +367,17 @@ scientific oracle.
 - The reusable Rust workspace holds about 2.62 MB for this domain. Settled
   execution records three 1,520-byte scheduler allocations per 100 calls and
   no numerical scratch allocation or reallocation.
+
+## Acoustic horizontal-momentum comparison notes
+
+- Both implementations run nonhydrostatic `advance_uv` over a 256 × 256 × 40
+  mass grid with upper U/V stagger points and guard storage.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or native-CPU flags.
+- Serial Fortran measured 7.569 ms median. Rust measured 71.852 ms with one
+  worker, 18.850 ms with four, and 7.802 ms with 16 workers.
+- The normal host-parallel path is 3.1% slower than optimized serial Fortran,
+  which is operationally close. Explicit SIMD and more complex fusion stop
+  here until a coupled profile identifies a material bottleneck.
+- Rust removes the tile-sized `dpn`, `dpxy`, and `mudf_xy` numerical scratch by
+  evaluating interpolation, pressure-gradient, and damping terms directly.

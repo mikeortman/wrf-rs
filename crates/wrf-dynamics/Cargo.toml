@@ -68,3 +68,7 @@ harness = false
 [[bench]]
 name = "vertical_acoustic_coefficients"
 harness = false
+
+[[bench]]
+name = "acoustic_horizontal_momentum"
+harness = false

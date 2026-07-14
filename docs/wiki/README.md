@@ -64,6 +64,9 @@ implemented system; proposed work is explicitly labeled.
 - [Vertical acoustic solve coefficients](Vertical-Acoustic-Coefficients.md) —
   tridiagonal factorization, complete-column and top-boundary contracts,
   parallel XZY traversal, and exact coefficient evidence.
+- [Acoustic horizontal momentum](Acoustic-Horizontal-Momentum.md) — split U/V
+  pressure gradients, C-grid boundaries, scratch-free parallel execution, and
+  exact pinned-source evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.

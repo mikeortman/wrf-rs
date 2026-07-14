@@ -19,6 +19,7 @@
 
 #![forbid(unsafe_code)]
 
+mod acoustic_horizontal_momentum;
 mod acoustic_pressure;
 mod acoustic_step_preparation;
 mod column_mass_staggering;
@@ -35,6 +36,18 @@ mod runge_kutta_preparation;
 mod test_support;
 mod vertical_acoustic_coefficients;
 
+pub use acoustic_horizontal_momentum::{
+    AcousticHorizontalBoundaryPolicy, AcousticHorizontalMapFactors, AcousticHorizontalMassFields,
+    AcousticHorizontalMoistureCoefficients, AcousticHorizontalMomentumAxis,
+    AcousticHorizontalMomentumCoefficient, AcousticHorizontalMomentumError,
+    AcousticHorizontalMomentumField, AcousticHorizontalMomentumInputs,
+    AcousticHorizontalMomentumKernels, AcousticHorizontalMomentumParameters,
+    AcousticHorizontalMomentumRegion, AcousticHorizontalMomentumResult,
+    AcousticHorizontalMomentumState, AcousticHorizontalMomentumTendencies,
+    AcousticHorizontalPressureFields, AcousticHorizontalVerticalCoefficients,
+    AcousticRelaxationZone, AcousticSouthNorthBoundary, AcousticWestEastBoundary,
+    AcousticWestEastPeriodicity,
+};
 pub use acoustic_pressure::{
     AcousticPressureAxis, AcousticPressureCoefficient, AcousticPressureCoefficients,
     AcousticPressureDampingPhase, AcousticPressureError, AcousticPressureField,

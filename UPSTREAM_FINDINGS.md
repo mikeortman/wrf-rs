@@ -888,3 +888,34 @@ The local fixture extracts the exact pinned routine and compares all 3,024
 `a`, `alpha`, `gamma`, and sentinel values across four cases. Suggested
 upstream action: adopt a compact coefficient fixture and then validate the
 factorization through the subsequent forward and backward `advance_w` sweeps.
+
+## WRF-046: partial nonhydrostatic `advance_uv` can read uninitialized `dpn`
+
+Status: source-confirmed correctness defect.
+
+The routine initializes `dpn(:,1)` and `dpn(:,kde)`, then fills only
+`k_start+1:k_end`. Its pressure-gradient loop reads `dpn(:,k_start)`. When a
+vertical tile begins above level 1, that value was never defined and the result
+depends on automatic-array stack contents. Suggested upstream action: fill
+`dpn(:,k_start)` with the ordinary `fnm/fnp` interpolation when `k_start > 1`
+and add a partial-tile regression.
+
+## WRF-047: `advance_uv` carries dead coefficient and bound plumbing
+
+Status: source-confirmed interface maintenance opportunity.
+
+`c1f`, `c2f`, `c3h`, `c4h`, `c3f`, and `c4f` occur only in the dummy interface.
+`kds` is not read, while `k_endw` is assigned in both bound branches but never
+consumed. Suggested upstream action: remove these during an interface revision
+or enable unused-dummy/local diagnostics in focused builds.
+
+## WRF-048: `advance_uv` tile scratch is avoidable and lacks a focused test
+
+Status: confirmed test gap and local-memory opportunity.
+
+Automatic `dpn`, `dpxy`, and `mudf_xy` arrays do not escape and their values
+can be computed directly in the final U/V update. WRF's test tree has no
+dedicated fixture spanning governing mode, top lid, relaxation, open,
+symmetric, periodic, and polar branches. The safe Rust kernel uses no numerical
+scratch and checks raw bits against the extracted routine. Suggested upstream
+action: add a branch fixture before changing scratch lifetime or loop fusion.
