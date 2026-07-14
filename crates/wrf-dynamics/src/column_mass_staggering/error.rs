@@ -9,23 +9,37 @@ pub type ColumnMassStaggeringResult<Value> = Result<Value, ColumnMassStaggeringE
 /// Validation or execution failure from column-mass staggering.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ColumnMassStaggeringError {
-    /// A range contains no output points.
-    EmptyRange {
-        /// Axis whose range is empty.
+    /// A mass-domain range contains no mass points.
+    EmptyMassDomainRange {
+        /// Axis whose domain range is empty.
         axis: ColumnMassStaggeringAxis,
     },
-    /// A range extends beyond field storage.
-    RangeOutOfBounds {
-        /// Axis whose range is invalid.
+    /// A mass-domain upper boundary does not fit in field storage.
+    MassDomainBoundaryOutOfBounds {
+        /// Axis whose physical boundary is invalid.
+        axis: ColumnMassStaggeringAxis,
+        /// Momentum-point index at the upper physical boundary.
+        boundary_index: usize,
+        /// Available field extent.
+        field_extent: usize,
+    },
+    /// An active tile range contains no momentum points.
+    EmptyTileRange {
+        /// Axis whose tile range is empty.
+        axis: ColumnMassStaggeringAxis,
+    },
+    /// An active tile range extends beyond field storage.
+    TileRangeOutOfBounds {
+        /// Axis whose tile range is invalid.
         axis: ColumnMassStaggeringAxis,
         /// Exclusive range end.
         range_end: usize,
         /// Available field extent.
         field_extent: usize,
     },
-    /// An interpolation range lacks its required preceding mass point.
-    MissingPrecedingNeighbor {
-        /// Axis on which the neighbor is missing.
+    /// An active tile extends outside its physical mass domain.
+    TileOutsideMassDomain {
+        /// Axis on which the tile leaves the domain.
         axis: ColumnMassStaggeringAxis,
     },
     /// A field does not match the shape validated by the region.
@@ -45,20 +59,28 @@ pub enum ColumnMassStaggeringError {
 impl fmt::Display for ColumnMassStaggeringError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::EmptyRange { axis } => write!(formatter, "{axis} output range is empty"),
-            Self::RangeOutOfBounds {
+            Self::EmptyMassDomainRange { axis } => {
+                write!(formatter, "{axis} mass-domain range is empty")
+            }
+            Self::MassDomainBoundaryOutOfBounds {
+                axis,
+                boundary_index,
+                field_extent,
+            } => write!(
+                formatter,
+                "{axis} mass-domain boundary index {boundary_index} is outside field extent {field_extent}"
+            ),
+            Self::EmptyTileRange { axis } => write!(formatter, "{axis} tile range is empty"),
+            Self::TileRangeOutOfBounds {
                 axis,
                 range_end,
                 field_extent,
             } => write!(
                 formatter,
-                "{axis} output range ends at {range_end}, beyond field extent {field_extent}"
+                "{axis} tile range ends at {range_end}, beyond field extent {field_extent}"
             ),
-            Self::MissingPrecedingNeighbor { axis } => {
-                write!(
-                    formatter,
-                    "{axis} output range requires a preceding mass point"
-                )
+            Self::TileOutsideMassDomain { axis } => {
+                write!(formatter, "{axis} tile extends outside its mass domain")
             }
             Self::FieldShapeMismatch { field } => {
                 write!(
