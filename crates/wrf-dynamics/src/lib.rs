@@ -10,6 +10,8 @@
 //! momentum, geopotential, and normalized time-averaged thermodynamics.
 //! [`AcousticFluxAccumulationKernels`] then accumulates and finalizes the
 //! staggered mass fluxes consumed by conservative scalar transport.
+//! [`SpecifiedBoundaryZeroGradientKernels`] applies WRF's nearest-interior
+//! copy rule to specified nonhydrostatic vertical-momentum boundaries.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -168,7 +170,9 @@ pub use specified_boundary_update::{
     SpecifiedBoundaryGeopotentialResult, SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateError,
     SpecifiedBoundaryUpdateKernels, SpecifiedBoundaryUpdateParameters,
     SpecifiedBoundaryUpdateRegion, SpecifiedBoundaryUpdateResult,
-    SpecifiedBoundaryWestEastPeriodicity,
+    SpecifiedBoundaryWestEastPeriodicity, SpecifiedBoundaryZeroGradientError,
+    SpecifiedBoundaryZeroGradientKernels, SpecifiedBoundaryZeroGradientParameters,
+    SpecifiedBoundaryZeroGradientResult,
 };
 pub use vertical_acoustic_coefficients::{
     VerticalAcousticCoefficient, VerticalAcousticCoefficientAxis, VerticalAcousticCoefficientError,

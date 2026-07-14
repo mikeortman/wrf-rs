@@ -1162,3 +1162,32 @@ The local oracle extracts the exact nonlinear routine and compares all 1,944
 stored values across nine cases by raw bits or NaN class. Suggested upstream
 action: adopt that coverage and then include the operation between flux
 accumulation and closing pressure diagnosis in a nested acoustic trajectory.
+
+## WRF-066: `zero_grad_bdy` carries eight dead dimension arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The routine never reads `kds`, `kte`, or any of `ips`, `ipe`, `jps`, `jpe`,
+`kps`, and `kpe`. Its vertical loop starts at `kts` but deliberately derives
+the upper bound from `kde`, including `kde` itself for W fields. The Rust
+capability exposes only the storage, domain, tile start, field location, zone,
+and periodicity that determine output.
+
+Suggested upstream action: remove the dead plumbing during a planned interface
+revision, or document the ignored `kte` contract explicitly because it differs
+from ordinary tile-loop expectations. Focused unused-dummy diagnostics would
+prevent further drift.
+
+## WRF-067: no focused numerical regression covers `zero_grad_bdy`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production call sites but no compact complete-storage
+fixture covering W/default/U/V location rules, periodic X, nearest-interior
+clamping, trapezoidal corners, partial tiles, inactive storage, and the ignored
+upper tile bound.
+
+The local oracle extracts the exact pinned routine and compares all 3,584
+stored values across seven such cases by raw IEEE bits. Suggested upstream
+action: adopt this fixture and include the operation after W boundary tendency
+updates in a specified-domain acoustic trajectory.

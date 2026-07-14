@@ -92,3 +92,7 @@ harness = false
 [[bench]]
 name = "specified_boundary_geopotential"
 harness = false
+
+[[bench]]
+name = "zero_gradient_boundary"
+harness = false

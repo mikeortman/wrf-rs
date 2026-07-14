@@ -28,6 +28,14 @@ impl SpecifiedBoundaryRanges {
         self.ranges.bottom_top.clone()
     }
 
+    pub(crate) fn west_east_domain(&self) -> Range<usize> {
+        self.ranges.effective_west_east_domain.clone()
+    }
+
+    pub(crate) fn south_north_domain(&self) -> Range<usize> {
+        self.ranges.effective_south_north_domain.clone()
+    }
+
     pub(crate) fn ranges_for_row(&self, south_north: usize) -> SpecifiedBoundaryRowRanges {
         if !self.ranges.south_north.contains(&south_north) {
             return SpecifiedBoundaryRowRanges::empty();

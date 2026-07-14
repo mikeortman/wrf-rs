@@ -139,6 +139,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary geopotential performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-geopotential-2026-07-14.md)
   — matched full-level geometry, mass normalization, CPU scaling, allocation
   evidence, and the SIMD stopping decision.
+- [Zero-gradient specified-boundary performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/zero-gradient-boundary-2026-07-14.md)
+  — matched nearest-interior copies, CPU scaling, allocation evidence, and the
+  readability-first tuning stop.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

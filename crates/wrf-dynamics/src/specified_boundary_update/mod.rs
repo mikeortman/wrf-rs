@@ -13,6 +13,7 @@ mod kernels;
 mod parameters;
 mod periodicity;
 mod region;
+mod zero_gradient;
 
 pub use error::{SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateResult};
 pub use field_location::SpecifiedBoundaryFieldLocation;
@@ -24,3 +25,7 @@ pub use kernels::SpecifiedBoundaryUpdateKernels;
 pub use parameters::SpecifiedBoundaryUpdateParameters;
 pub use periodicity::SpecifiedBoundaryWestEastPeriodicity;
 pub use region::{SpecifiedBoundaryUpdateAxis, SpecifiedBoundaryUpdateRegion};
+pub use zero_gradient::{
+    SpecifiedBoundaryZeroGradientError, SpecifiedBoundaryZeroGradientKernels,
+    SpecifiedBoundaryZeroGradientParameters, SpecifiedBoundaryZeroGradientResult,
+};
