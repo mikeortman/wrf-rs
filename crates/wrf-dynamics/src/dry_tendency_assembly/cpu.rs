@@ -24,7 +24,7 @@ impl DryTendencyAssemblyKernels for CpuBackend {
         phase: DryTendencyAssemblyPhase,
         region: &DryTendencyAssemblyRegion,
     ) -> DryTendencyAssemblyResult<()> {
-        validate_operation(
+        validate_cpu_dry_tendency_assembly(
             &runge_kutta,
             &forward,
             &saved,
@@ -104,7 +104,7 @@ impl DryTendencyAssemblyKernels for CpuBackend {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn validate_operation(
+pub(crate) fn validate_cpu_dry_tendency_assembly(
     runge_kutta: &DryTendencyAssemblyRungeKuttaTendencies<'_, CpuField<f32>>,
     forward: &DryTendencyAssemblyForwardTendencies<'_, CpuField<f32>>,
     saved: &DryTendencyAssemblySavedTendencies<'_, CpuField<f32>>,

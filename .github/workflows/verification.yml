@@ -85,6 +85,8 @@ jobs:
         run: ./scripts/run-runge-kutta-preparation-oracle.sh
       - name: Verify dry Runge-Kutta tendency assembly
         run: ./scripts/run-dry-tendency-assembly-oracle.sh
+      - name: Verify coupled dry tendency and boundary stage
+        run: ./scripts/run-dry-tendency-boundary-stage-oracle.sh
       - name: Verify acoustic small-step preparation
         run: ./scripts/run-acoustic-step-preparation-oracle.sh
       - name: Verify acoustic pressure diagnosis

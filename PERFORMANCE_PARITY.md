@@ -92,6 +92,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Specified-boundary relaxation | 238,080 five-point updates on 256 × 256 × 40 mass grid | 0.407650 ms median `[0.399020, 0.471110]` | 1.355342 ms | 0.465916 ms (16 workers) | Rust serial 3.33× slower; Rust 4-worker within 15.0%; default 16-worker within 14.3%; operationally close, stop tuning |
 | Complete dry boundary relaxation | 1,209,216 five-point updates plus 7,995,392 mass-weighted points on 256 × 256 × 40 mass grid | 4.1218 ms median `[3.9272, 4.4852]` | 20.101 ms | 4.1620 ms (16 workers) | Default 16-worker Rust within 1.0%; reusable workspace and no field clones; close enough, stop tuning |
 | Complete dry boundary-tendency assignment | 1,019,860 copied points across U/V/PH/T/MU/W on 256 × 256 × 40 mass grid | 0.485370 ms median `[0.448310, 0.504650]` | 0.48471 ms | 0.18404 ms (4 workers) | Serial effectively tied; Rust 4-worker 2.64× faster; default 16-worker within 3.3%; stop tuning |
+| Coupled dry tendency and boundary stage | `rk_addtend_dry` then nested `spec_bdy_dry` on 256 × 256 × 40 mass grid | 9.029150 ms median `[8.894750, 9.238400]` | 19.995 ms `[19.927, 20.068]` | 3.9960 ms (16 workers) | Rust 4-worker 1.55× faster; Rust 16-worker 2.26× faster; no extra SIMD or fusion |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -117,6 +118,7 @@ cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
 cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
 cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
+cargo bench -p wrf-dynamics --bench dry_tendency_boundary_stage -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
 cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
@@ -145,6 +147,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-pressure-point-geopotential-fortran.sh
 ./scripts/benchmark-runge-kutta-preparation-fortran.sh
 ./scripts/benchmark-dry-tendency-assembly-fortran.sh
+./scripts/benchmark-dry-tendency-boundary-stage-fortran.sh
 ./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-acoustic-pressure-fortran.sh
 ./scripts/benchmark-vertical-acoustic-coefficients-fortran.sh

@@ -17,6 +17,8 @@ mod oracle_tests;
 mod phase;
 mod region;
 
+pub(crate) use cpu::validate_cpu_dry_tendency_assembly;
+
 pub use axis::DryTendencyAssemblyAxis;
 pub use coefficient::DryTendencyAssemblyCoefficient;
 pub use coefficients::DryTendencyAssemblyCoefficients;

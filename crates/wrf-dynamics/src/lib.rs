@@ -22,6 +22,8 @@
 //! specified-zone relaxation forcing.
 //! [`DryBoundaryRelaxationKernels`] composes that stencil across mass-weighted
 //! dry prognostic fields in `relax_bdy_dry` order.
+//! [`DryTendencyBoundaryStageKernels`] joins `rk_addtend_dry` and
+//! `spec_bdy_dry` behind one cross-routine failure-atomic preflight.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -44,6 +46,7 @@ mod acoustic_trajectory;
 mod acoustic_vertical_momentum;
 mod column_mass_staggering;
 mod dry_tendency_assembly;
+mod dry_tendency_boundary_stage;
 mod held_suarez;
 mod inverse_density;
 mod moisture_coefficients;
@@ -130,6 +133,12 @@ pub use dry_tendency_assembly::{
     DryTendencyAssemblyKernels, DryTendencyAssemblyMapFactors, DryTendencyAssemblyPhase,
     DryTendencyAssemblyRegion, DryTendencyAssemblyResult, DryTendencyAssemblyRungeKuttaTendencies,
     DryTendencyAssemblySavedTendencies, DryTendencyAssemblyThermodynamics,
+};
+pub use dry_tendency_boundary_stage::{
+    DryTendencyBoundaryStageControls, DryTendencyBoundaryStageError,
+    DryTendencyBoundaryStageInputs, DryTendencyBoundaryStageKernels,
+    DryTendencyBoundaryStageRegions, DryTendencyBoundaryStageResult,
+    DryTendencyBoundaryStageVertical,
 };
 pub use held_suarez::{
     HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,
