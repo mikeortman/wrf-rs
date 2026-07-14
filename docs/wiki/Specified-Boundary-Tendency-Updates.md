@@ -100,3 +100,31 @@ On the matched 256 × 256 × 41 workload, serial Rust is 2.01× faster than
 optimized serial Fortran, four-worker Rust is 5.63× faster, and the default
 16-worker path is 3.25× faster. The kernel uses no numerical scratch or field
 clones, so explicit SIMD is not justified for this slice.
+
+## Zero-gradient vertical-momentum boundaries
+
+After applying specified tendencies to nonhydrostatic vertical momentum, WRF
+calls `zero_grad_bdy`. Each boundary destination receives the value at the
+nearest independent interior row or column. South and north copies clamp the
+source column to the interior core on nonperiodic domains; periodic X keeps the
+same column and suppresses west/east copies. West and east copies similarly
+clamp the source row.
+
+The vertical loop has a subtle source contract: it begins at the tile's lower
+vertical bound but ignores the tile's upper bound, continuing through the
+physical domain top. W fields include the extra upper full level. The Rust
+kernel encodes this behavior explicitly and validates that the specified zone
+leaves at least one independent interior source on every active axis before
+the first mutation.
+
+Seven direct cases compare all 3,584 stored values by raw bits across W,
+default, U, and V locations; periodic X; a partial south/west tile with a
+clipped vertical start; and an inactive interior tile. Added tests cover a
+zero-width no-op, missing-interior failure atomicity, shape failure atomicity,
+and one/four-worker determinism.
+
+On the matched 256 × 256 × 41 workload, one-worker Rust is 6.8% slower than
+optimized serial Fortran and four-worker Rust is 1.21× faster. The kernel has
+no numerical scratch or field clones. This is close enough to stop: explicit
+SIMD or special worker selection would add complexity without evidence of an
+end-to-end benefit.

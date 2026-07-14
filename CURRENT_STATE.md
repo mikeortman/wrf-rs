@@ -905,6 +905,14 @@ periodic X, partial/inactive tiles, and exceptional arithmetic; all 1,944
 stored values match by raw bits or NaN class. On the matched full-level
 workload, serial Rust is 2.01× faster and four-worker Rust is 5.63× faster than
 optimized serial Fortran, with no numerical scratch or field clones.
+Zero-gradient specified boundaries implement `zero_grad_bdy` behind a focused
+typed capability. Seven direct cases cover W/default/U/V locations, periodic
+X, partial and inactive tiles, and WRF's unusual `kts`-through-domain-top
+traversal; all 3,584 stored values match exactly. The safe implementation uses
+immutable interior planes for parallel south/north copies and direct west/east
+copies without numerical scratch or field clones. One-worker Rust is within
+6.8% of optimized serial Fortran, while four-worker Rust is 1.21× faster, so
+the ordinary readable implementation is accepted without SIMD tuning.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -957,7 +965,7 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port the remaining physical/specified boundary stages, then insert them and
+1. Port flow-dependent and remaining physical boundary stages, then insert them and
    halo/polar operations around the verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
