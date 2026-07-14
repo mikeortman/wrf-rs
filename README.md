@@ -39,6 +39,10 @@ upstream tests and differential fixtures pass.
 - `wrf-registry` parses the first typed WRF Registry subset and reproduces
   selected generated state, namelist, dimension-order, and metadata artifacts
   exactly from an ARW-shaped fixture.
+- `wrf-domain` provides typed domain, patch, memory, and tile bounds; exact
+  RSL_LITE decomposition; and deterministic Y-then-X halo plans.
+- `wrf-domain-mpi` applies the same plans with non-blocking MPI while storing
+  only the calling rank's patch.
 - `wrf-dynamics` contains line-parallel, scratch-free ports of WRF's
   positive-definite correction, Held-Suarez momentum damping, and non-periodic
   column-mass staggering, checked against upstream `REAL` bit patterns across
@@ -75,7 +79,7 @@ WRF initialization and match an upstream integration.
 | Source pin and license | Complete | `UPSTREAM.toml`, `scripts/fetch-wrf.sh` | Monitor upstream only by explicit retargeting |
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
-| Domain decomposition / halo exchange | Not started | — | Serial topology first, then MPI differential tests |
+| Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
 | ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and every `calc_mu_staggered` physical-boundary path have deterministic and seeded randomized Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Port periodic mass staggering and begin dependency-closed ARW integration |
 | Physics drivers and schemes | Not started | — | Inventory schemes and translate one dependency-closed column |
 | I/O and NetCDF metadata | Not started | — | Round-trip WRF files with exact schema parity |
@@ -109,6 +113,10 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
+./scripts/run-domain-topology-oracle.sh
+./scripts/run-clipped-tiles-oracle.sh
+./scripts/run-mpi-halo-parity.sh
+./scripts/run-periodic-halo-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh

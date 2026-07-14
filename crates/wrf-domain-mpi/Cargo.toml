@@ -1,0 +1,14 @@
+[package]
+name = "wrf-domain-mpi"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "MPI transport adapter for wrf-domain halo plans"
+
+[lints]
+workspace = true
+
+[dependencies]
+mpi = "0.8.2"
+wrf-domain = { path = "../wrf-domain" }

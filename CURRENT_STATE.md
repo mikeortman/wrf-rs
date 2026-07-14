@@ -109,6 +109,28 @@ communication entries, four-dimensional scalar-array generation, and the
 remaining generated files are explicitly not yet supported. See
 `docs/wiki/WRF-Registry.md`.
 
+### `wrf-domain` and `wrf-domain-mpi`
+
+Implemented:
+
+- signed zero-based half-open domain indices with checked Fortran conversion;
+- typed physical domain, horizontal, patch, memory, and tile bounds;
+- exact centered-remainder RSL_LITE decomposition and row-major patch IDs;
+- WRF guard-point memory bounds with explicit physical-boundary storage;
+- edge-tile halo extension followed by physical-domain clipping;
+- transport-neutral Y-then-X halo plans with internal corners, periodic
+  endpoints, and per-axis field staggering;
+- deterministic local execution using boundary-sized staged messages;
+- one-patch XZY storage for rank-local transport without field-sized clones;
+- a separate safe MPI adapter using receives-before-sends non-blocking phases;
+- direct pinned `task_for_point.c` and `period.c`/`f_pack.F90` differential
+  oracles; and
+- complete four-rank MPI versus local-memory parity for nonperiodic and doubly
+  periodic staggered cases.
+
+Topology is setup work and no misleading throughput ratio is recorded. A
+matched halo benchmark waits for WRF-compatible multi-field aggregation.
+
 ### `wrf-dynamics`
 
 Implemented:
@@ -306,6 +328,10 @@ cargo test --workspace --release
 ./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
+./scripts/run-domain-topology-oracle.sh
+./scripts/run-clipped-tiles-oracle.sh
+./scripts/run-mpi-halo-parity.sh
+./scripts/run-periodic-halo-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
@@ -314,10 +340,10 @@ cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
 ```
 
-Result: 72 unit tests and four doctests passed in debug and release modes (one
-corpus-generator test, 11 `wrf-compute`, 25 `wrf-dynamics`, 15 `wrf-registry`,
-and 20 `wrf-time`), including all-target benchmark smoke execution. Clippy and
-rustdoc are clean.
+Result: 89 unit tests and four doctests passed in debug and release modes (one
+corpus-generator test, 11 `wrf-compute`, 15 `wrf-domain`, two
+`wrf-domain-mpi`, 25 `wrf-dynamics`, 15 `wrf-registry`, and 20 `wrf-time`),
+including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
 Fortran time interfaces match `Test1.out.correct`, the focused numerical
 oracles remain exact, and all four randomized Fortran corpora pass their 39,588
@@ -325,7 +351,9 @@ complete-output comparisons. The column-mass matched benchmark,
 one/four/host-worker Criterion run, allocation budget, optimized assembly
 inspection, and rejected SIMD screen remain recorded in the performance ledger
 and detailed baseline. The WRF Registry oracle matches five generated includes
-and eight state-metadata records exactly.
+and eight state-metadata records exactly. Domain decomposition and clipped
+tiles match pinned WRF routines, periodic destinations match `period.c`
+exactly, and complete four-rank MPI patch memory matches the local executor.
 
 ## Maintained knowledge and quality ledgers
 
@@ -368,8 +396,10 @@ and eight state-metadata records exactly.
 
 ## Immediate next actions
 
-1. Extend Registry preprocessing with includes and conditional definitions.
-2. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
-3. Add Registry packages, typedefs, communication entries, and remaining
+1. Add Registry-generated asymmetric halo descriptors and multi-field message
+   aggregation to the domain transport.
+2. Extend Registry preprocessing with includes and conditional definitions.
+3. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
+4. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
-4. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
+5. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

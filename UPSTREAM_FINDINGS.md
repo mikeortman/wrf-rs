@@ -224,3 +224,31 @@ Suggested upstream fix: change both empty-directory branches to
 unbounded filename formatting in these functions with checked `snprintf`.
 Add a generator test that calls allocation and deallocation generation with
 both empty and non-empty output directories.
+
+## WRF-010: `task_for_point` assumes one-based domain origins
+
+Status: reproduced correctness bug outside WRF's normal one-based coarse-domain
+decomposition; two adjacent undefined-behavior defects are also compiler-confirmed.
+
+`external/RSL_LITE/task_for_point.c` converts inclusive inputs to zero-based
+indices, but the final centered-remainder branch mixes absolute indices with
+the offset-only values `a` and `b`. In both axes, expressions such as
+`(b-a-ids)` and `(i-b-ids)` subtract a nonzero domain origin from an already
+relative boundary. Direct calls with `ids != 1` or `jds != 1` therefore assign
+points to the wrong process or leave later process rows empty. The local
+differential fixture confirmed normal `ids = jds = 1` behavior and keeps
+offset-origin coverage as a Rust-only robustness test.
+
+The same function is declared to return `int` but reaches the closing brace
+without returning a value. Its MIC/HOST error path also calls `sprintf` with
+two `%d` conversions and no matching arguments:
+
+```c
+sprintf(tfpmess,"%d by %d decomp will not work for MIC/HOST splitting. Need even number of tasks\n") ;
+```
+
+Suggested upstream fix: express `a` and `b` consistently as offsets, remove
+the extra origin subtraction in the final branch, return an explicit status,
+and pass the intended process dimensions to bounded `snprintf`. Add direct
+tests with positive and negative non-one origins, odd remainders, and the
+MIC/HOST rejection path.
