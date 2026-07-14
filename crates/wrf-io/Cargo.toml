@@ -9,6 +9,7 @@ description = "Typed NetCDF compatibility surfaces for the WRF Rust port"
 [dependencies]
 netcdf = { version = "0.12.0", default-features = false }
 netcdf3 = "0.6.1"
+wrf-registry = { path = "../wrf-registry" }
 
 [dev-dependencies]
 tempfile = "3.20.0"

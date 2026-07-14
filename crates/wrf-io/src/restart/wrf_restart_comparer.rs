@@ -53,7 +53,7 @@ impl WrfRestartComparer {
                 left.schema()
                     .dimensions()
                     .iter()
-                    .find(|dimension| dimension.name() == *name)
+                    .find(|dimension| dimension.name() == name)
                     .map(|dimension| dimension.length())
                     .ok_or_else(|| WrfIoError::UnsupportedDimension {
                         name: name.as_str().to_owned(),

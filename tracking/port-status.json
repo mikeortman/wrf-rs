@@ -61,8 +61,8 @@
       "id": "io",
       "area": "I/O and NetCDF metadata",
       "state": "in-progress",
-      "evidence": "The minimum typed ARW schema writes independently comparable restart metadata and field bits.",
-      "next_gate": "Full Registry-selected state, alarms, NetCDF-4 policy, and resumed-trajectory parity.",
+      "evidence": "The typed classic-NetCDF restart schema is driven by borrowed Registry state metadata across scoped dimension forms, staggering, external ordering, field types, and time levels, with direct pinned-Fortran ordering plus byte-identical NetCDF-C and raw-bit differential parity.",
+      "next_gate": "Alarm metadata, Registry boundary/subgrid/4D scalar forms, NetCDF-4 policy, and resumed-trajectory parity.",
       "tracking_issue": 84
     },
     {
