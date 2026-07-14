@@ -1,18 +1,27 @@
 //! Typed parsing and selected artifact generation for the WRF Registry DSL.
 //!
 //! The compatibility reference is the Registry parser and generators bundled
-//! with WRF v4.7.1 under `tools/`. This first slice supports dimension
-//! specifications, state variables, and runtime-configuration entries. It
-//! deliberately keeps Registry code generation separate from future runtime
-//! domain ownership.
+//! with WRF v4.7.1 under `tools/`. This crate supports dimension
+//! specifications, state variables, and runtime-configuration entries, plus
+//! the `pre_parse` preprocessing layer: `include` expansion and
+//! `ifdef`/`ifndef`/`endif`/`define` conditional selection. It deliberately
+//! keeps Registry code generation separate from future runtime domain
+//! ownership.
 //!
 //! # Supported source
 //!
 //! [`RegistryParser`] accepts dependency-closed `dimspec`, `state`, and
 //! `rconfig` entries, including WRF-compatible quotes, comments, case folding,
 //! and backslash continuations. Entry locations refer to the first physical
-//! line. Unsupported Registry categories return a typed [`RegistryParseError`]
+//! line of the file that actually holds the entry, across nested includes.
+//! Unsupported Registry categories return a typed [`RegistryParseError`]
 //! instead of being silently discarded.
+//!
+//! [`RegistryParser::parse_file`] preprocesses `include` and conditional
+//! directives with [`RegistryPreprocessor`] before parsing; symbols come from
+//! a [`RegistryDefinitions`] table equivalent to upstream `-D` flags.
+//! Preprocessing failures return a typed [`RegistryPreprocessError`] carrying
+//! the offending physical location plus the include chain that reached it.
 //!
 //! # Example
 //!
@@ -42,6 +51,8 @@
 mod generated_state;
 mod model;
 mod parser;
+mod preprocessor;
+mod registry_source_error;
 mod source_location;
 
 pub use generated_state::{
@@ -54,4 +65,10 @@ pub use model::{
     StateDimensions, StateStaggering, StateVariable,
 };
 pub use parser::{RegistryParseError, RegistryParseErrorKind, RegistryParser, RegistryResult};
+pub use preprocessor::{
+    ConditionalDirective, FileSystemSourceProvider, PreprocessedRegistrySource,
+    RegistryDefinitions, RegistryPreprocessError, RegistryPreprocessErrorKind,
+    RegistryPreprocessResult, RegistryPreprocessor, RegistrySourceProvider,
+};
+pub use registry_source_error::RegistrySourceError;
 pub use source_location::SourceLocation;

@@ -9,4 +9,6 @@ start_year = 1993
 dt = 2.
 restart = .false.
 input_name = "wrfinput_d<domain>"
+parity_slice_opt = 1
+unset_feature_default = 7
 !ENDOFREGISTRYGENERATEDINCLUDE

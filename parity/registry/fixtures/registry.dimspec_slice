@@ -1,0 +1,10 @@
+# Dimension specifications shared by the included Registry fixture files.
+dimspec i 1 standard_domain x west_east
+dimspec k 2 standard_domain z bottom_top
+dimspec j 3 standard_domain y south_north
+dimspec l 2 namelist=bottom_top z configured_levels
+dimspec m 2 constant=12 z months_per_year
+dimspec z - constant=(-3:3) c -
+
+# Definitions share the global Registry symbol table across include returns.
+define INCLUDED_STATE=1

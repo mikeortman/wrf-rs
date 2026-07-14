@@ -35,6 +35,14 @@ impl SourceLocation {
     pub const fn column(&self) -> usize {
         self.column
     }
+
+    pub(crate) fn with_column(&self, column: usize) -> Self {
+        Self {
+            source_name: Arc::clone(&self.source_name),
+            line: self.line,
+            column,
+        }
+    }
 }
 
 impl fmt::Display for SourceLocation {

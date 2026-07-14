@@ -1,0 +1,2 @@
+# Second half of an indirect include cycle.
+include registry_cycle_a

@@ -6,3 +6,5 @@ VarName=mu_1|DataName=MU_1|Description=perturbation dry air mass in column|Units
 VarName=mu_2|DataName=MU_2|Description=perturbation dry air mass in column|Units=Pa|MemoryOrder=XY|Ntl=202|Ndim=2
 VarName=mu_b|DataName=MU_B|Description=bdy perturbation dry air mass in column|Units=Pa|MemoryOrder=C|Ntl=0|Ndim=2
 VarName=mu_bt|DataName=MU_BT|Description=bdy tend perturbation dry air mass in column|Units=(Pa)/dt|MemoryOrder=C|Ntl=0|Ndim=2
+VarName=qv_slice_1|DataName=QV_SLICE_1|Description=conditional moisture slice selected by -DPARITY_SLICE=1|Units=kg kg-1|MemoryOrder=XZY|Ntl=201|Ndim=3
+VarName=qv_slice_2|DataName=QV_SLICE_2|Description=conditional moisture slice selected by -DPARITY_SLICE=1|Units=kg kg-1|MemoryOrder=XZY|Ntl=202|Ndim=3

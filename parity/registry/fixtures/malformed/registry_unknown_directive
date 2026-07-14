@@ -1,0 +1,6 @@
+# The Registry language has no else directive.
+ifdef PARITY_SLICE=1
+dimspec i 1 standard_domain x west_east
+else
+dimspec j 3 standard_domain y south_north
+endif

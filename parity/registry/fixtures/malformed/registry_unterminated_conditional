@@ -1,0 +1,4 @@
+# The conditional block is never closed before end of file.
+dimspec i 1 standard_domain x west_east
+ifdef PARITY_SLICE=1
+state real t ikj dyn_em 2 - i0rh "T" "temperature" "K"

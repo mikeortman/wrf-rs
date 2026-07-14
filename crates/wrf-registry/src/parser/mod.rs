@@ -1,4 +1,4 @@
-mod logical_line;
+pub(crate) mod logical_line;
 mod registry_parse_error;
 mod registry_parser;
 mod tokenizer;

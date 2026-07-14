@@ -3,23 +3,28 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 WRF_TOOLS="$ROOT/upstream/WRF/tools"
-FIXTURE="$ROOT/parity/registry/fixtures/registry_arw_slice"
+FIXTURES="$ROOT/parity/registry/fixtures"
+FIXTURE="$FIXTURES/registry_arw_slice"
 GOLDEN="$ROOT/parity/registry/golden"
+# The fixture guards entries behind this whole -D symbol string and behind an
+# undefined UNSET_FEATURE=1 symbol whose entries must select nothing.
+DEFINE_FLAG="-DPARITY_SLICE=1"
 WORK=$(mktemp -d "${TMPDIR:-/tmp}/wrf-rs-registry.XXXXXX")
 trap 'rm -rf "$WORK"' EXIT
 
 make -C "$WRF_TOOLS" registry >/dev/null
 mkdir -p "$WORK/wrf/inc" "$WORK/wrf/frame" "$WORK/wrf/Registry" "$WORK/rust"
 cp "$FIXTURE" "$WORK/wrf/Registry/Registry.slice"
+cp "$FIXTURES"/registry.*_slice "$WORK/wrf/Registry/"
 
 (
     cd "$WORK/wrf"
-    "$WRF_TOOLS/registry" Registry/Registry.slice >/dev/null
+    "$WRF_TOOLS/registry" "$DEFINE_FLAG" Registry/Registry.slice >/dev/null 2>/dev/null
 )
 
 cargo run --quiet --release --manifest-path "$ROOT/Cargo.toml" \
     -p wrf-registry --bin wrf-registry-generate -- \
-    "$FIXTURE" "$WORK/rust"
+    "$DEFINE_FLAG" "$FIXTURE" "$WORK/rust"
 
 for artifact in \
     state_struct.inc \

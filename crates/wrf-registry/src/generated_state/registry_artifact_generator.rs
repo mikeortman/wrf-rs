@@ -311,11 +311,12 @@ impl RegistryArtifactGenerator {
 
 #[cfg(test)]
 mod tests {
-    use crate::RegistryParser;
+    use std::path::PathBuf;
+
+    use crate::{RegistryDefinitions, RegistryParser};
 
     use super::*;
 
-    const ARW_SLICE: &str = include_str!("../../../../parity/registry/fixtures/registry_arw_slice");
     const STATE_STRUCT: &str = include_str!("../../../../parity/registry/golden/state_struct.inc");
     const NAMELIST_DEFINES: &str =
         include_str!("../../../../parity/registry/golden/namelist_defines.inc");
@@ -330,7 +331,10 @@ mod tests {
 
     #[test]
     fn generates_selected_arw_artifacts() {
-        let document = RegistryParser::parse("Registry.slice", ARW_SLICE).unwrap();
+        let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../parity/registry/fixtures/registry_arw_slice");
+        let definitions = RegistryDefinitions::from_symbols(["PARITY_SLICE=1"]);
+        let document = RegistryParser::parse_file(fixture, &definitions).unwrap();
         let artifacts = RegistryArtifactGenerator::generate(&document).unwrap();
 
         assert_eq!(artifacts.state_struct(), STATE_STRUCT);

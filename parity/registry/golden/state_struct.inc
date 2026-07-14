@@ -9,6 +9,8 @@ integer                                  :: start_year
 real                                     :: dt
 logical                                  :: restart
 character*256                               :: input_name
+integer                                  :: parity_slice_opt
+integer                                  :: unset_feature_default
 real      ,DIMENSION(:,:,:)   ,POINTER   :: t_1
 real      ,DIMENSION(:,:,:)   ,POINTER   :: t_2
 real      ,DIMENSION(:,:,:,:) ,POINTER   :: t_b
@@ -17,4 +19,6 @@ real      ,DIMENSION(:,:)     ,POINTER   :: mu_1
 real      ,DIMENSION(:,:)     ,POINTER   :: mu_2
 real      ,DIMENSION(:,:,:,:) ,POINTER   :: mu_b
 real      ,DIMENSION(:,:,:,:) ,POINTER   :: mu_bt
+real      ,DIMENSION(:,:,:)   ,POINTER   :: qv_slice_1
+real      ,DIMENSION(:,:,:)   ,POINTER   :: qv_slice_2
 !ENDOFREGISTRYGENERATEDINCLUDE
