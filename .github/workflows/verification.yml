@@ -69,6 +69,8 @@ jobs:
         run: ./scripts/run-column-mass-staggering-oracle.sh
       - name: Verify periodic big-step column-mass staggering
         run: ./scripts/run-periodic-column-mass-oracle.sh
+      - name: Verify momentum coupling
+        run: ./scripts/run-momentum-coupling-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

@@ -16,6 +16,14 @@ src/
 │   ├── fields.rs
 │   ├── region.rs
 │   └── ...
+├── momentum_coupling/
+│   ├── mod.rs
+│   ├── cpu.rs
+│   ├── kernels.rs
+│   ├── fields.rs
+│   ├── coefficients.rs
+│   ├── region.rs
+│   └── ...
 └── positive_definite/
     ├── mod.rs
     ├── cpu.rs

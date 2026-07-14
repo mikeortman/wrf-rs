@@ -17,6 +17,7 @@
 
 mod column_mass_staggering;
 mod held_suarez;
+mod momentum_coupling;
 mod positive_definite;
 #[cfg(test)]
 mod test_support;
@@ -29,6 +30,12 @@ pub use column_mass_staggering::{
 pub use held_suarez::{
     HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,
     HeldSuarezDampingKernels, HeldSuarezDampingRegion, HeldSuarezDampingResult,
+};
+pub use momentum_coupling::{
+    MomentumCouplingAxis, MomentumCouplingCoefficient, MomentumCouplingCoefficients,
+    MomentumCouplingError, MomentumCouplingField, MomentumCouplingKernels,
+    MomentumCouplingMapFactors, MomentumCouplingMasses, MomentumCouplingOutputs,
+    MomentumCouplingRegion, MomentumCouplingResult, MomentumCouplingVelocities,
 };
 pub use positive_definite::{
     PositiveDefiniteError, PositiveDefiniteKernels, PositiveDefiniteResult,

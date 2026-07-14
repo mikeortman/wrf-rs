@@ -34,6 +34,9 @@ implemented system; proposed work is explicitly labeled.
 - [Column-mass staggering](Column-Mass-Staggering.md) — C-grid interpolation,
   physical-boundary copy rules, domain/tile/storage contracts, operation order,
   and exact-bit evidence.
+- [Momentum coupling](Momentum-Coupling.md) — mass/map-factor equations,
+  stagger-specific clipping, typed field ownership, safe vector-friendly rows,
+  and exact-bit evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -46,6 +49,9 @@ implemented system; proposed work is explicitly labeled.
 - [Column-mass staggering performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/column-mass-staggering-2026-07-13.md)
   — matched geometry, CPU scaling, allocation evidence, and the rejected SIMD
   screen.
+- [Momentum-coupling performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/momentum-coupling-2026-07-13.md)
+  — matched C-grid workload, bounds-check optimization, scaling, and allocation
+  evidence.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

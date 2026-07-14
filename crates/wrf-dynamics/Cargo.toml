@@ -28,3 +28,7 @@ harness = false
 [[bench]]
 name = "column_mass_staggering"
 harness = false
+
+[[bench]]
+name = "momentum_coupling"
+harness = false

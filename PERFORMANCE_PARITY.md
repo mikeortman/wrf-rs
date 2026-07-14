@@ -66,6 +66,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Held-Suarez damping | 2,097,152 momentum updates | 0.859712 ms median `[0.851224, 0.877004]` | 0.93459 ms `[0.92879, 0.94090]` | 0.29105 ms (4 workers) | Rust serial 8.7% slower; Rust 4-worker 2.95× faster |
 | Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
 | Periodic big-step column mass | 2,099,200 momentum-mass outputs | 0.347120 ms median `[0.293724, 0.412366]` | 0.35964 ms `[0.35356, 0.36571]` | 0.18110 ms (4 workers) | Rust serial 3.6% slower; Rust 4-worker 1.92× faster; stop tuning |
+| Momentum coupling | 7,950,336 momentum outputs | 1.152625 ms median `[1.025500, 1.276675]` | 1.3679 ms `[1.3523, 1.3840]` | 0.65495 ms (4 workers) | Rust serial 18.7% slower; Rust 4-worker 1.76× faster; stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -84,12 +85,14 @@ after multi-field aggregation lands.
 cargo bench -p wrf-dynamics --bench positive_definite -- --noplot
 cargo bench -p wrf-dynamics --bench held_suarez -- --noplot
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
+cargo bench -p wrf-dynamics --bench momentum_coupling -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
 ./scripts/benchmark-periodic-column-mass-fortran.sh
+./scripts/benchmark-momentum-coupling-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -154,6 +157,21 @@ scientific oracle.
 - Periodic one-worker Rust is within 3.6% of serial Fortran and four-worker Rust
   is faster. Its warmed allocation profile is unchanged, so readability wins
   and no additional SIMD experiment is justified for this slice.
+
+## Momentum-coupling comparison notes
+
+- Both implementations process a 256 × 256 mass grid with 40 half levels and
+  all three upper staggered boundaries, producing 7,950,336 outputs per call.
+- Fortran uses eleven samples of 40 calls after 20 warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark. Inputs and outputs are reused.
+- Replacing repeated global indexing with validated equal-length row slices
+  preserved all 3,780 oracle bits and improved representative Rust timings by
+  roughly 77%.
+- One-worker Rust is in the same practical class as optimized Fortran and the
+  default four-worker path is faster. Five 1,520-byte scheduler allocations per
+  100 calls are independent of field size; no numerical scratch is allocated.
+- No explicit SIMD or target-specific tuning is justified without an
+  end-to-end profile identifying this routine as a material hotspot.
 
 ## Kessler microphysics comparison notes
 
