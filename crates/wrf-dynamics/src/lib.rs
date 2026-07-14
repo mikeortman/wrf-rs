@@ -167,7 +167,11 @@ pub use runge_kutta_preparation::{
     RungeKuttaPreparationVelocities,
 };
 pub use specified_boundary_update::{
-    SpecifiedBoundaryFieldLocation, SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField,
+    SpecifiedBoundaryFieldLocation, SpecifiedBoundaryFinalizationBoundaryFields,
+    SpecifiedBoundaryFinalizationError, SpecifiedBoundaryFinalizationFieldLocation,
+    SpecifiedBoundaryFinalizationInputs, SpecifiedBoundaryFinalizationKernels,
+    SpecifiedBoundaryFinalizationParameters, SpecifiedBoundaryFinalizationRegion,
+    SpecifiedBoundaryFinalizationResult, SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField,
     SpecifiedBoundaryFlowInputs, SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters,
     SpecifiedBoundaryFlowRegion, SpecifiedBoundaryFlowResult, SpecifiedBoundaryGeopotentialError,
     SpecifiedBoundaryGeopotentialInputs, SpecifiedBoundaryGeopotentialKernels,

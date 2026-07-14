@@ -104,3 +104,7 @@ harness = false
 [[bench]]
 name = "flow_dependent_inflow_policies"
 harness = false
+
+[[bench]]
+name = "specified_boundary_finalization"
+harness = false

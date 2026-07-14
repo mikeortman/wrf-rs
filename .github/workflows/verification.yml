@@ -101,6 +101,8 @@ jobs:
         run: ./scripts/run-flow-dependent-boundary-oracle.sh
       - name: Verify flow-dependent inflow policies
         run: ./scripts/run-flow-dependent-inflow-policies-oracle.sh
+      - name: Verify specified-boundary finalization
+        run: ./scripts/run-specified-boundary-finalization-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

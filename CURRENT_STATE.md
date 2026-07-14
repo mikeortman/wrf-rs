@@ -928,6 +928,17 @@ opposite partial tiles, finite/negative-zero/infinite constants, and retained
 inflow. Four-worker Rust is 1.09× faster for constant inflow and 2.6% faster
 for preserve inflow than optimized serial Fortran; both policies use the same
 bounded scheduler allocation and no numerical scratch.
+Specified-boundary finalization implements `spec_bdy_final` behind a dedicated
+typed capability. Eleven direct cases cover mass-half, U, V, W,
+horizontal-mass, and full-level coupling; periodic X; partial and inactive
+tiles; signed zero; and infinities. All 5,184 stored values match by raw bits.
+The region explicitly preserves WRF's use of the physical vertical top instead
+of the tile's upper bound. On the matched vertical-momentum workload,
+four-worker Rust is 1.50× faster and default 16-worker Rust is 1.36× faster
+than optimized serial Fortran. One-worker Rust is 92.0% slower, but the normal
+multithreaded path is already competitive, so specialization and SIMD stop.
+The kernel uses no numerical scratch or field clones and records one scheduler
+allocation totaling 1,520 bytes per 100 warmed calls.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -980,8 +991,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port remaining relaxation stages, then insert them and boundary/halo operations around the verified acoustic trajectory.
-   halo/polar operations around the verified acoustic trajectory.
+1. Port `spec_bdytend` and `relax_bdytend`, then insert them and boundary/halo
+   operations around the verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

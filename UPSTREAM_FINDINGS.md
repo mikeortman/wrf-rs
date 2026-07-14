@@ -1259,3 +1259,33 @@ The local oracle extracts both exact pinned routines and compares all 3,072
 stored values across six cases by raw IEEE bits. Suggested upstream action:
 adopt this fixture beside a shared traversal refactor so every public policy
 entry point remains independently covered.
+
+## WRF-073: `spec_bdy_final` carries dead tile and patch arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The routine never reads the upper vertical tile bound `kte` or any of `ips`,
+`ipe`, `jps`, `jpe`, `kps`, and `kpe`. Every field location derives its upper
+vertical loop bound from `kde`; W and full-level fields include `kde`, while
+the other three-dimensional locations stop at `kde-1`. The declared locals
+`im1` and `ip1` are also unused.
+
+Suggested upstream action: remove the dead arguments and locals during a
+planned interface revision, or document the ignored `kte` contract because it
+differs from ordinary tile-loop expectations. Focused unused-dummy and
+unused-local diagnostics would prevent drift.
+
+## WRF-074: no focused numerical regression covers `spec_bdy_final`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+Production calls cover momentum, thermodynamic, geopotential, column-mass,
+moisture, chemistry, tracer, and scalar fields, but a repository search finds
+no compact complete-storage fixture covering all normalization policies,
+periodic X, trapezoidal corners, partial and inactive tiles, the ignored upper
+vertical tile bound, or IEEE signed-zero and infinity behavior.
+
+The local oracle extracts the exact pinned routine and compares all 5,184
+stored values across eleven cases by raw IEEE bits. Suggested upstream action:
+adopt the fixture and include finalization after a multi-substep specified or
+nested acoustic trajectory.

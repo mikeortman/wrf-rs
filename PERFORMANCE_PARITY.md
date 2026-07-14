@@ -87,6 +87,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Flow-dependent specified boundary | 200,800 classified points on 256 × 256 × 40 mass grid | 0.189720 ms median `[0.188190, 0.305730]` | 0.18688 ms `[0.18611, 0.18778]` | 0.15356 ms (4 workers) | Rust serial 1.5% faster; Rust 4-worker 1.24× faster; stop tuning |
 | Flow-dependent constant inflow | 200,800 classified points on 256 × 256 × 40 mass grid | 0.187580 ms median `[0.186440, 0.256330]` | 0.21569 ms `[0.21443, 0.21714]` | 0.17217 ms (4 workers) | Rust serial 15.0% slower; Rust 4-worker 1.09× faster; close enough, stop tuning |
 | Flow-dependent preserved inflow | 200,800 classified points on 256 × 256 × 40 mass grid | 0.177190 ms median `[0.170250, 0.186570]` | 0.21686 ms `[0.21578, 0.21814]` | 0.17267 ms (4 workers) | Rust serial 22.4% slower; Rust 4-worker 2.6% faster; close enough, stop tuning |
+| Specified-boundary finalization | 205,820 reconstructed points on 256 × 256 × 41 full-level grid | 0.157440 ms median `[0.153350, 0.287200]` | 0.30229 ms `[0.30036, 0.30439]` | 0.10483 ms (4 workers) | Rust serial 92.0% slower; Rust 4-worker 1.50× faster; default 16-worker 1.36× faster; stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -122,6 +123,7 @@ cargo bench -p wrf-dynamics --bench acoustic_flux_accumulation -- --noplot
 cargo bench -p wrf-dynamics --bench zero_gradient_boundary -- --noplot
 cargo bench -p wrf-dynamics --bench flow_dependent_boundary -- --noplot
 cargo bench -p wrf-dynamics --bench flow_dependent_inflow_policies -- --noplot
+cargo bench -p wrf-dynamics --bench specified_boundary_finalization -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -145,6 +147,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-zero-gradient-boundary-fortran.sh
 ./scripts/benchmark-flow-dependent-boundary-fortran.sh
 ./scripts/benchmark-flow-dependent-inflow-policies-fortran.sh
+./scripts/benchmark-specified-boundary-finalization-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -533,4 +536,20 @@ scientific oracle.
 - The Rust capability pays one explicit policy branch instead of maintaining
   three copied loop families. Four-worker Rust is competitive or faster for
   both policies, so the readability and maintenance benefit wins without
-  policy specialization, custom scheduling, or explicit SIMD.
+policy specialization, custom scheduling, or explicit SIMD.
+
+## Specified-boundary finalization comparison notes
+
+- Both implementations reconstruct 205,820 vertical-momentum points on a
+  256 × 256 × 41 full-level domain with a five-point specified zone and eight
+  stored boundary points.
+- GNU Fortran 16.1.0 uses `-O3 -flto -ffp-contract=off`; Rust uses optimization
+  level 3, ThinLTO, and one codegen unit. Neither enables fast-math or native-
+  CPU flags.
+- Fortran measures 0.157440 ms median. Rust measures 0.30229 ms with one
+  worker, 0.10483 ms with four, and 0.11565 ms with the default 16.
+- Every 100 settled calls records one scheduler allocation totaling 1,520
+  bytes, no reallocations, no numerical scratch, and no field clones.
+- Four-worker and host-default Rust both exceed the optimized serial source.
+  The serial gap is recorded, but specialization, custom scheduling, and
+  explicit SIMD stop unless integrated profiling identifies material value.
