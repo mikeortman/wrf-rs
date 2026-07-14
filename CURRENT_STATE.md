@@ -102,7 +102,12 @@ Implemented:
   inputs and no field-sized scratch;
 - exact-body Fortran extraction oracle with 240 raw-bit output/sentinel checks
   across all eight axis/path combinations, plus validation-before-mutation and
-  one/four-worker determinism tests at all physical boundaries.
+  one/four-worker determinism tests at all physical boundaries;
+- a versioned SplitMix64 corpus generator, shared raw-bit input files, and
+  pinned Fortran drivers for 68 seeded cases and 39,588 complete outputs across
+  all four translated routines;
+- exact finite/infinity output comparison, explicit NaN-class policy, and
+  first-divergence reports containing seed, field, and linear index.
 
 The differential drivers compile the pinned upstream Fortran module directly.
 The sheet covers nine exact-bit cases, including signed zero and the epsilon
@@ -116,11 +121,10 @@ shape failure before mutation, all range categories, staggered predecessors,
 and the pressure reference level.
 
 The non-periodic column-mass staggering routine-level paths are complete for the
-current deterministic corpus. Interior subdomain tiles use halo mass points;
+focused and seeded corpora. Interior subdomain tiles use halo mass points;
 physical lower and upper boundaries copy the nearest full mass exactly as WRF
-does. Its matched benchmark and allocation budget are complete. The next gates
-are randomized differential inputs, exceptional-float policy, periodic
-`calc_mu_uv` variants, and idealized-case integration.
+does. Its 16 randomized cases cross all four boundary states on both axes. The
+next ARW gates are periodic `calc_mu_uv` variants and idealized-case integration.
 
 ## Performance decisions
 
@@ -135,6 +139,11 @@ are randomized differential inputs, exceptional-float policy, periodic
 - SIMD dispatch happens once per kernel and runs inside CPU worker chunks.
 - Criterion 0.7 is a dev-only statistical benchmark dependency; 0.8 is excluded
   because it exceeds the workspace's declared Rust 1.85 minimum.
+- Matched Fortran performance is a stopping signal as well as an optimization
+  signal. If portable Rust is already close, the standard multithreaded path is
+  competitive, allocations are bounded, and no full-model profile shows a
+  material hotspot, record the result and move on. Do not spend port time on a
+  fragile marginal win.
 
 See `docs/architecture/compute_backends.md`,
 `docs/architecture/performance_principles.md`, and
@@ -207,6 +216,26 @@ one- and four-worker results and was removed. A safe slice-iterator formulation
 also regressed serial performance and was removed. Keep the readable scalar
 implementation. See `docs/performance/column-mass-staggering-2026-07-13.md`.
 
+## Seeded randomized ARW parity
+
+`tools/arw-corpus-generator` produces committed language-neutral inputs for all
+translated dynamics routines. The corpus contains 24 sheet cases, 16 slab
+cases, 12 Held-Suarez cases, and 16 column-mass cases. It varies small shapes,
+negative and non-one memory origins, domain/tile clipping, signed zero, finite
+magnitude extremes, and active NaN/infinity values. The column-mass cases cover
+all 16 cross-axis physical-boundary combinations.
+
+`scripts/randomized-arw/run-oracles.sh` regenerates and byte-compares the input
+files before compiling the pinned WRF routines. Rust consumes those same inputs
+and all 39,588 Fortran-derived output records. Finite values, signed zero, and
+infinities match raw bits; NaN matches by class because payload propagation is
+not portable. Current default-host-parallel Rust passes every case.
+
+Finite extreme sheet seed `1695930` and slab seed `2771003` reproduce
+intermediate multiplication overflow in WRF's normalization. Rust preserves the
+infinity results; `UPSTREAM_FINDINGS.md` records this as WRF-008 rather than
+silently changing operation order.
+
 ## WRF time oracle
 
 The bundled Fortran `external/esmf_time_f90/Test1.F90` is compiled locally
@@ -241,6 +270,7 @@ cargo test --workspace --release
 ./scripts/run-positive-definite-oracle.sh
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/run-column-mass-staggering-oracle.sh
+./scripts/randomized-arw/run-oracles.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
@@ -249,16 +279,16 @@ cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
 ```
 
-Result: 52 unit tests and three doctests passed in debug and release modes (11
-`wrf-compute`, 21 `wrf-dynamics`, 20 `wrf-time`), including all-target benchmark
-smoke execution. Clippy and rustdoc are clean. All 93 active WRF time cases are
-referenced by executing Rust assertions, both Fortran time interfaces match
-`Test1.out.correct`, both positive-definite oracles match raw IEEE-754 bits, the
-16-selection Held-Suarez boundary oracle matches exactly, and all 240
-`calc_mu_staggered` output/sentinel bits match across its eight axis/path
-combinations. The column-mass matched benchmark, one/four/host-worker Criterion
-run, allocation budget, optimized assembly inspection, and rejected SIMD screen
-are recorded in the performance ledger and detailed baseline.
+Result: 57 unit tests and three doctests passed in debug and release modes (one
+corpus-generator test, 11 `wrf-compute`, 25 `wrf-dynamics`, and 20 `wrf-time`),
+including all-target benchmark smoke execution. Clippy and rustdoc are clean.
+All 93 active WRF time cases are referenced by executing Rust assertions, both
+Fortran time interfaces match `Test1.out.correct`, the focused numerical
+oracles remain exact, and all four randomized Fortran corpora pass their 39,588
+complete-output comparisons. The column-mass matched benchmark,
+one/four/host-worker Criterion run, allocation budget, optimized assembly
+inspection, and rejected SIMD screen remain recorded in the performance ledger
+and detailed baseline.
 
 ## Maintained knowledge and quality ledgers
 
@@ -291,9 +321,12 @@ are recorded in the performance ledger and detailed baseline.
   separation, 240-value exact Fortran corpus, and all-boundary determinism.
 - `dd3e903` — matched column-mass Criterion/Fortran benchmark harnesses and
   warmed allocation instrumentation.
+- `f6dd8e6` — versioned seeded ARW input generator, four pinned Fortran corpus
+  drivers, 39,588 complete-output comparisons, CI gate, and exceptional-value
+  policy in rustdoc.
 
 ## Immediate next actions
 
-1. Build a randomized differential corpus for all completed dynamics kernels.
-2. Port the WRF Registry DSL and generated-state fixtures.
+1. Port the first WRF Registry DSL and generated-state slice under issue #4.
+2. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
 3. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

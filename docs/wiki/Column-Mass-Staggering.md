@@ -128,7 +128,13 @@ clipping, and unchanged inactive storage. Separate tests prove validation
 before mutation and bitwise equality between one and four CPU workers when the
 tile touches all four physical boundaries.
 
-This evidence completes the non-periodic `calc_mu_staggered` routine-level
-paths. It does not cover the periodic `calc_mu_uv` variants, randomized inputs,
-exceptional floating-point values, or an end-to-end ARW trajectory; those
-remain explicit later gates.
+Sixteen seeded cases then cross all four west-east boundary states with all four
+south-north states while varying shapes, non-one memory origins, clipping,
+signed zero, large finite cancellation, and active NaN/infinity inputs. All
+6,150 complete output and sentinel values match: finite values and infinities by
+raw bits, NaN by class. Failures identify the seed, output staggering, and first
+divergent linear index.
+
+This evidence completes randomized non-periodic `calc_mu_staggered`
+routine-level coverage. It does not cover the periodic `calc_mu_uv` variants or
+an end-to-end ARW trajectory; those remain explicit later gates.

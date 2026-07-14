@@ -13,6 +13,9 @@ implemented system; proposed work is explicitly labeled.
   multithreading, capability traits, and the future GPU boundary.
 - [Parity and testing](Parity-and-Testing.md) — what “same output” means and how
   Fortran oracles prevent self-confirming tests.
+- [Randomized differential testing](Randomized-Differential-Testing.md) —
+  shared raw-bit inputs, deterministic seeds, exceptional-value policy, and
+  first-divergence diagnosis.
 - [Timekeeping](Timekeeping.md) — exact rational model time and Gregorian
   calendar behavior.
 - [Positive-definite correction](Positive-Definite-Correction.md) — derivation,

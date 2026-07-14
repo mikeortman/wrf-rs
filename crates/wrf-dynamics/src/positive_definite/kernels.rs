@@ -8,6 +8,11 @@ use crate::{PositiveDefiniteResult, PositiveDefiniteSlabRegion};
 /// buffers behind the same numerical capability without pretending that an
 /// arbitrary host closure is portable to a device.
 ///
+/// Finite values follow WRF's exact single-precision operation order. The
+/// capability deliberately does not add a full-field finiteness scan that WRF
+/// lacks. A NaN output is therefore compared by IEEE class rather than payload;
+/// non-finite inputs are diagnostic states, not supported atmospheric values.
+///
 /// # Example
 ///
 /// ```

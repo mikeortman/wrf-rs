@@ -13,6 +13,9 @@ use crate::{ColumnMassStaggeringRegion, ColumnMassStaggeringResult};
 /// The [`CpuBackend`](wrf_compute::CpuBackend) implementation schedules
 /// disjoint output rows on its persistent worker pool, borrows both inputs, and
 /// allocates no numerical scratch. It preserves WRF's `f32` expression order.
+/// Finite inputs compare by raw bits. Non-finite inputs are not pre-scanned;
+/// NaN outputs compare by IEEE class because payload propagation is not a
+/// portable numerical contract.
 ///
 /// # Example
 ///

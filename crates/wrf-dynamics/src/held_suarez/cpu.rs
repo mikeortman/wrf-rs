@@ -189,6 +189,7 @@ mod tests {
     use wrf_compute::{ComputeBackend, GridShape};
 
     use super::*;
+    use crate::test_support::{CorpusReader, ExpectedOutputReader};
 
     #[test]
     fn matches_upstream_fortran_boundary_and_active_point_bits() {
@@ -261,6 +262,96 @@ mod tests {
             west_east_momentum_tendency.values(),
             original_west_east_tendency
         );
+    }
+
+    #[test]
+    fn matches_seeded_randomized_fortran_corpus() {
+        let backend = CpuBackend::try_new().unwrap();
+        let mut corpus = CorpusReader::new(include_str!(
+            "../../test-data/randomized-arw/held_suarez.in"
+        ));
+        let mut expected = ExpectedOutputReader::new(include_str!(
+            "../../test-data/randomized-arw/held_suarez.out.correct"
+        ));
+        let case_count = corpus.read_usize("Held-Suarez case count");
+
+        for _ in 0..case_count {
+            let seed = corpus.read_seed();
+            let _domain_west_east_start = corpus.read_i32("domain west-east start");
+            let _domain_west_east_end = corpus.read_i32("domain west-east end");
+            let domain_south_north_start = corpus.read_i32("domain south-north start");
+            let domain_south_north_end = corpus.read_i32("domain south-north end");
+            let _domain_bottom_top_start = corpus.read_i32("domain bottom-top start");
+            let domain_bottom_top_end = corpus.read_i32("domain bottom-top end");
+            let memory_west_east_start = corpus.read_i32("memory west-east start");
+            let memory_west_east_end = corpus.read_i32("memory west-east end");
+            let memory_south_north_start = corpus.read_i32("memory south-north start");
+            let memory_south_north_end = corpus.read_i32("memory south-north end");
+            let memory_bottom_top_start = corpus.read_i32("memory bottom-top start");
+            let memory_bottom_top_end = corpus.read_i32("memory bottom-top end");
+            let tile_west_east_start = corpus.read_i32("tile west-east start");
+            let tile_west_east_end = corpus.read_i32("tile west-east end");
+            let tile_south_north_start = corpus.read_i32("tile south-north start");
+            let tile_south_north_end = corpus.read_i32("tile south-north end");
+            let tile_bottom_top_start = corpus.read_i32("tile bottom-top start");
+            let tile_bottom_top_end = corpus.read_i32("tile bottom-top end");
+            let shape = GridShape::try_new(
+                extent(memory_west_east_start, memory_west_east_end),
+                extent(memory_south_north_start, memory_south_north_end),
+                extent(memory_bottom_top_start, memory_bottom_top_end),
+            )
+            .unwrap();
+            let mut fields = HeldSuarezFixture {
+                west_east_momentum_tendency: read_corpus_field(&backend, shape, &mut corpus),
+                south_north_momentum_tendency: read_corpus_field(&backend, shape, &mut corpus),
+                west_east_momentum: read_corpus_field(&backend, shape, &mut corpus),
+                south_north_momentum: read_corpus_field(&backend, shape, &mut corpus),
+                perturbation_pressure: read_corpus_field(&backend, shape, &mut corpus),
+                base_pressure: read_corpus_field(&backend, shape, &mut corpus),
+            };
+            let active_bottom_top_end = tile_bottom_top_end.min(domain_bottom_top_end - 1);
+            let active_south_north_end = tile_south_north_end.min(domain_south_north_end - 1);
+            let region = HeldSuarezDampingRegion::try_new(
+                shape,
+                offset(tile_west_east_start, memory_west_east_start)
+                    ..offset(tile_west_east_end + 1, memory_west_east_start),
+                offset(tile_bottom_top_start, memory_bottom_top_start)
+                    ..offset(active_bottom_top_end + 1, memory_bottom_top_start),
+                offset(tile_south_north_start, memory_south_north_start)
+                    ..offset(active_south_north_end + 1, memory_south_north_start),
+                offset(
+                    (domain_south_north_start + 1).max(tile_south_north_start),
+                    memory_south_north_start,
+                )..offset(active_south_north_end + 1, memory_south_north_start),
+                offset(1, memory_bottom_top_start),
+            )
+            .unwrap_or_else(|error| panic!("seed {seed}: invalid Held-Suarez region: {error}"));
+
+            apply_fixture(&backend, &mut fields, &region).unwrap_or_else(|error| {
+                panic!("seed {seed}: Held-Suarez execution failed: {error}")
+            });
+            for (value_index, actual_value) in fields
+                .west_east_momentum_tendency
+                .values()
+                .iter()
+                .copied()
+                .enumerate()
+            {
+                expected.assert_next(seed, "west_east_tendency", value_index, actual_value);
+            }
+            for (value_index, actual_value) in fields
+                .south_north_momentum_tendency
+                .values()
+                .iter()
+                .copied()
+                .enumerate()
+            {
+                expected.assert_next(seed, "south_north_tendency", value_index, actual_value);
+            }
+        }
+
+        corpus.finish();
+        expected.finish();
     }
 
     struct HeldSuarezFixture {
@@ -396,5 +487,25 @@ mod tests {
             .skip(1)
             .map(|value| u32::from_str_radix(value, 16).unwrap())
             .collect()
+    }
+
+    fn read_corpus_field(
+        backend: &CpuBackend,
+        shape: GridShape,
+        corpus: &mut CorpusReader<'_>,
+    ) -> CpuField<f32> {
+        let mut field = backend.create_field(shape, 0.0_f32).unwrap();
+        for value in field.values_mut() {
+            *value = corpus.read_f32("Held-Suarez field value");
+        }
+        field
+    }
+
+    fn extent(start: i32, end: i32) -> usize {
+        (end - start + 1) as usize
+    }
+
+    fn offset(index: i32, memory_start: i32) -> usize {
+        (index - memory_start) as usize
     }
 }

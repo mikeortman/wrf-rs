@@ -1,5 +1,10 @@
 [workspace]
-members = ["crates/wrf-compute", "crates/wrf-dynamics", "crates/wrf-time"]
+members = [
+    "crates/wrf-compute",
+    "crates/wrf-dynamics",
+    "crates/wrf-time",
+    "tools/arw-corpus-generator",
+]
 resolver = "2"
 
 [workspace.package]

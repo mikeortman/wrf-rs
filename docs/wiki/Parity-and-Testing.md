@@ -37,8 +37,10 @@ incorrect hand-derived expectation.
 
 Upstream tests are a floor. Rust tests add missing branch boundaries, typed
 shape failures, signed zero, concurrency determinism, worker failure mapping,
-and numerical invariants. Randomized tests should use committed seeds and print
-the smallest reproducible case on failure.
+and numerical invariants. The current ARW randomized corpora use committed
+seeds and shared raw-bit inputs; failures print the seed, field, and first
+divergent index. See [Randomized differential
+testing](Randomized-Differential-Testing.md).
 
 Exact equality is preferred whenever operation order can be preserved. When a
 parallel reduction, device implementation, or different elementary function

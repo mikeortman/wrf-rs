@@ -623,6 +623,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "wrf-arw-corpus-generator"
+version = "0.1.0"
+
+[[package]]
 name = "wrf-compute"
 version = "0.1.0"
 dependencies = [

@@ -6,6 +6,9 @@ use crate::{HeldSuarezDampingFields, HeldSuarezDampingRegion, HeldSuarezDampingR
 ///
 /// The capability keeps native field storage behind the backend while exposing
 /// the same validated scientific operation to CPU and future GPU callers.
+/// Finite inputs retain WRF's single-precision ordering. Non-finite inputs are
+/// not rejected with an extra domain-sized scan; NaN results have class parity
+/// with the pinned Fortran oracle but do not promise a payload bit pattern.
 ///
 /// ```
 /// use wrf_compute::{ComputeBackend, CpuBackend, GridShape};

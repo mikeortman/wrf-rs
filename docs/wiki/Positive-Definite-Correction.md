@@ -73,6 +73,16 @@ an unchanged line.
 The Rust suite additionally proves sheet bitwise equality between one and four
 CPU workers and rejects incompatible shapes or totals. A slab fixture exercises
 non-one Fortran memory origins, domain/tile clipping, all major correction
-branches, and untouched halo/stagger sentinels. NaN and infinity behavior,
-randomized differential fixtures, and broader slab-bound combinations remain
-documented gaps.
+branches, and untouched halo/stagger sentinels.
+
+The seeded differential layer adds 24 sheet cases and 16 slab cases. It compares
+13,740 complete outputs while varying shape, non-one memory origins, clipping,
+signed zero, subnormal and large finite values, NaN, and positive infinity.
+Finite values and infinities match raw bits; NaN matches by class. NaN and
+positive infinity do not satisfy WRF's `< 0` predicate, so a line containing no
+negative finite value remains unchanged.
+
+The extreme finite cases also reproduce an intermediate-overflow limitation:
+`line * target * reciprocal` can overflow in the first multiplication even when
+the combined scale would be representable. Rust intentionally preserves the
+result; WRF-008 records the upstream investigation candidate.

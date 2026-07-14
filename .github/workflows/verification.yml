@@ -42,6 +42,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+      - name: Install stable Rust for corpus regeneration
+        uses: dtolnay/rust-toolchain@stable
       - name: Install GNU Fortran
         run: sudo apt-get update && sudo apt-get install --yes gfortran
       - name: Prepare archive cache
@@ -63,6 +65,8 @@ jobs:
         run: ./scripts/run-held-suarez-oracle.sh
       - name: Verify column-mass staggering
         run: ./scripts/run-column-mass-staggering-oracle.sh
+      - name: Verify randomized ARW corpora
+        run: ./scripts/randomized-arw/run-oracles.sh
 
   publish-wiki:
     name: Publish Wiki
