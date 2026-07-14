@@ -913,6 +913,14 @@ immutable interior planes for parallel south/north copies and direct west/east
 copies without numerical scratch or field clones. One-worker Rust is within
 6.8% of optimized serial Fortran, while four-worker Rust is 1.21× faster, so
 the ordinary readable implementation is accepted without SIMD tuning.
+Flow-dependent scalar boundaries implement `flow_dep_bdy` with a dedicated
+unstaggered region, typed scalar/U/V roles, and explicit upper velocity-neighbor
+validation. Six direct cases cover mixed inflow/outflow, periodic X, both
+partial-boundary corners, inactive tiles, exceptional velocity signs, and the
+ignored upper vertical tile bound; all 3,072 stored values match exactly.
+Serial Rust is 1.5% faster and four-worker Rust is 1.24× faster than optimized
+Fortran. The host-default 16-worker path is overhead-bound on this thin
+perimeter, so SIMD and per-kernel scheduling complexity stop here.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -965,7 +973,7 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port flow-dependent and remaining physical boundary stages, then insert them and
+1. Port flow-dependent boundary variants and remaining relaxation stages, then insert them and
    halo/polar operations around the verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.

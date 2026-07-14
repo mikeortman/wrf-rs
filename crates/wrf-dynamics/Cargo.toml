@@ -96,3 +96,7 @@ harness = false
 [[bench]]
 name = "zero_gradient_boundary"
 harness = false
+
+[[bench]]
+name = "flow_dependent_boundary"
+harness = false

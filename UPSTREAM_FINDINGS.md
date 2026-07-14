@@ -1191,3 +1191,43 @@ The local oracle extracts the exact pinned routine and compares all 3,584
 stored values across seven such cases by raw IEEE bits. Suggested upstream
 action: adopt this fixture and include the operation after W boundary tendency
 updates in a specified-domain acoustic trajectory.
+
+## WRF-068: `flow_dep_bdy` carries eight dead dimension arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The routine never reads `kds`, `kte`, or any of `ips`, `ipe`, `jps`, `jpe`,
+`kps`, and `kpe`. Its vertical loop begins at `kts` and derives the upper bound
+from `kde`, so the accepted upper tile bound does not constrain writes.
+
+Suggested upstream action: remove the dead plumbing during a planned interface
+revision, or explicitly document the ignored `kte` and required upper U/V
+neighbor contracts. Focused unused-dummy diagnostics would prevent drift.
+
+## WRF-069: no focused numerical regression covers `flow_dep_bdy`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+Production callers cover moisture, TKE, tracer, and scalar advancement, but a
+repository search finds no compact complete-storage fixture for mixed inflow
+and outflow, all four sides, periodic X, partial tiles, inactive storage,
+upper U/V neighbors, ignored `kte`, or IEEE comparison behavior.
+
+The local oracle extracts the exact pinned routine and compares all 3,072
+stored values across six such cases by raw IEEE bits. Suggested upstream
+action: adopt the fixture and add an integrated moisture or TKE advancement
+case that applies this final boundary stage.
+
+## WRF-070: three flow-dependent boundary routines duplicate traversal
+
+Status: source-confirmed maintenance opportunity.
+
+`flow_dep_bdy`, `flow_dep_bdy_qnn`, and `flow_dep_bdy_fixed_inflow` repeat the
+same trapezoid geometry, velocity sign tests, source clamping, and vertical
+loop. Their only material policy difference is the inflow action: write zero,
+write `ccn_conc`, or retain the destination.
+
+Suggested upstream action: share one internal traversal with an explicit
+inflow policy after establishing complete-storage regression coverage for all
+three public entry points. This reduces the chance that fixes to corner or
+neighbor behavior land in only one copy.

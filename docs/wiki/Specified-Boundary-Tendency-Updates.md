@@ -128,3 +128,34 @@ optimized serial Fortran and four-worker Rust is 1.21× faster. The kernel has
 no numerical scratch or field clones. This is close enough to stop: explicit
 SIMD or special worker selection would add complexity without evidence of an
 end-to-end benefit.
+
+## Flow-dependent scalar boundaries
+
+Moisture species without supplied lateral conditions, TKE, tracers, and some
+scalars use `flow_dep_bdy`. The field is unstaggered, while coupled U and V
+velocities classify each contacted boundary point:
+
+| Boundary | Outflow condition | Outflow value | Inflow value |
+|---|---|---|---|
+| south | `v(i,k,j) < 0` | nearest interior scalar row | `+0.0` |
+| north | `v(i,k,j+1) > 0` | nearest interior scalar row | `+0.0` |
+| west | `u(i,k,j) < 0` | nearest interior scalar column | `+0.0` |
+| east | `u(i+1,k,j) > 0` | nearest interior scalar column | `+0.0` |
+
+The upper-side tests require one stored U or V neighbor beyond the last scalar
+point. `SpecifiedBoundaryFlowRegion` fixes the field location to unstaggered
+mass half levels, and the capability validates the scalar and both velocity
+shapes, upper neighbors, and independent interior core before mutation.
+
+As with `zero_grad_bdy`, the vertical loop begins at the tile's lower bound but
+ignores its upper bound, continuing through the half-level domain top. Six
+direct cases compare all 3,072 stored values by raw bits, including periodic X,
+both partial-boundary orientations, inactive storage, NaN, signed-zero, and
+infinite velocity signs. Added tests cover shape, neighbor, and core failures
+atomically plus one/four-worker determinism.
+
+On the matched 256 × 256 × 40 workload, serial Rust is 1.5% faster than
+optimized serial Fortran and four-worker Rust is 1.24× faster. No numerical
+scratch or field clones are used. The default 16-worker pool is overhead-bound
+for this thin operation; special scheduling and SIMD wait for an integrated
+scalar-advancement profile.

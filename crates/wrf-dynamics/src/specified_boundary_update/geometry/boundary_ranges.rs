@@ -158,7 +158,7 @@ impl SpecifiedBoundaryRanges {
             < self.specified_zone_width
     }
 
-    fn touches_north_boundary(&self) -> bool {
+    pub(crate) fn touches_north_boundary(&self) -> bool {
         self.ranges.effective_south_north_domain.end - self.ranges.south_north.end
             < self.specified_zone_width
     }
@@ -168,7 +168,7 @@ impl SpecifiedBoundaryRanges {
             < self.specified_zone_width
     }
 
-    fn touches_east_boundary(&self) -> bool {
+    pub(crate) fn touches_east_boundary(&self) -> bool {
         self.ranges.effective_west_east_domain.end - self.ranges.west_east.end
             < self.specified_zone_width
     }
