@@ -314,16 +314,18 @@ cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
 ```
 
-Result: 57 unit tests and three doctests passed in debug and release modes (one
-corpus-generator test, 11 `wrf-compute`, 25 `wrf-dynamics`, and 20 `wrf-time`),
-including all-target benchmark smoke execution. Clippy and rustdoc are clean.
+Result: 72 unit tests and four doctests passed in debug and release modes (one
+corpus-generator test, 11 `wrf-compute`, 25 `wrf-dynamics`, 15 `wrf-registry`,
+and 20 `wrf-time`), including all-target benchmark smoke execution. Clippy and
+rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
 Fortran time interfaces match `Test1.out.correct`, the focused numerical
 oracles remain exact, and all four randomized Fortran corpora pass their 39,588
 complete-output comparisons. The column-mass matched benchmark,
 one/four/host-worker Criterion run, allocation budget, optimized assembly
 inspection, and rejected SIMD screen remain recorded in the performance ledger
-and detailed baseline.
+and detailed baseline. The WRF Registry oracle matches five generated includes
+and eight state-metadata records exactly.
 
 ## Maintained knowledge and quality ledgers
 
@@ -359,6 +361,10 @@ and detailed baseline.
 - `f6dd8e6` — versioned seeded ARW input generator, four pinned Fortran corpus
   drivers, 39,588 complete-output comparisons, CI gate, and exceptional-value
   policy in rustdoc.
+- `dcb30e3` — typed Registry parser, selected exact artifact generator, upstream
+  fixture/goldens, malformed-input coverage, and CI oracle.
+- `076caa1` — Registry architecture, language inventory, wiki, state ledgers,
+  and confirmed upstream allocation-generator finding.
 
 ## Immediate next actions
 
