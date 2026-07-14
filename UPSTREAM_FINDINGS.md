@@ -1431,3 +1431,48 @@ The local direct oracle compares all 24,800 stored values across eight cases,
 including exceptional IEEE inputs. Suggested upstream action: adopt the focused
 fixture and then include it in a multi-tile specified-domain acoustic
 trajectory.
+
+## WRF-084: global `spec_bdy_dry` leaves an `INTENT(OUT)` W tendency undefined
+
+Status: source-confirmed Fortran interface defect.
+
+`spec_bdy_dry` declares `rw_tend` as `INTENT(OUT)`, which makes the complete
+actual argument undefined on entry. The only W assignment is guarded by
+`config_flags%nested`. A non-nested call therefore returns without defining any
+element of `rw_tend`. The other five outputs inherit the partial-definition
+problem already recorded for `spec_bdytend` in WRF-075.
+
+Observed GNU Fortran builds retain the prior W bytes, but reading those values
+after a global call is not standard-conforming. Suggested upstream action:
+declare the wrapper outputs `INTENT(INOUT)` when inactive storage must be
+preserved, particularly `rw_tend`, or define the complete declared outputs.
+The Rust global variant does not borrow W and cannot invalidate it.
+
+## WRF-085: `spec_bdy_dry` carries 24 unused boundary-state arrays
+
+Status: source-confirmed interface and maintenance opportunity.
+
+The wrapper accepts west, east, south, and north boundary-state arrays for U,
+V, PH, T, W, and MU, then forwards them to `spec_bdytend`. That scalar routine
+never reads any boundary-state array; only the corresponding boundary-tendency
+arrays affect output. The extra 24 arguments obscure the wrapper's actual data
+dependency and make swapped positional arguments harder to audit.
+
+Suggested upstream action: route the wrapper through a tendency-only internal
+core or remove the state arrays in a planned interface revision. The Rust
+capability exposes only the 24 boundary-tendency arrays it reads.
+
+## WRF-086: no focused numerical regression covers `spec_bdy_dry`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+No compact regression proves the wrapper's U, V, PH, T, MU, optional W order,
+global/nested branch, periodic X behavior, or the different half- and full-level
+upper-tile rules. Independent scalar coverage would not detect a swapped field
+or selector at this orchestration layer.
+
+The local direct oracle compares all 27,900 stored values across nine cases,
+including a shortened vertical tile and exceptional IEEE payload copies.
+Suggested upstream action: adopt the focused fixture, correct the output intent
+contract, and include this stage before dry relaxation in a multi-tile
+specified-domain acoustic trajectory.

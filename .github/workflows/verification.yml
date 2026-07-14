@@ -109,6 +109,8 @@ jobs:
         run: ./scripts/run-specified-boundary-relaxation-oracle.sh
       - name: Verify complete dry boundary relaxation
         run: ./scripts/run-dry-boundary-relaxation-oracle.sh
+      - name: Verify complete dry boundary-tendency assignment
+        run: ./scripts/run-dry-boundary-tendencies-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

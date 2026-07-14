@@ -120,3 +120,7 @@ harness = false
 [[bench]]
 name = "dry_boundary_relaxation"
 harness = false
+
+[[bench]]
+name = "dry_boundary_tendencies"
+harness = false

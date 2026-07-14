@@ -31,15 +31,8 @@ impl<'a> SpecifiedBoundaryTendencyCpuKernel<'a> {
         west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
         region: &SpecifiedBoundaryUpdateRegion,
     ) -> SpecifiedBoundaryTendencyResult<Self> {
-        Self::validate_parameters(parameters)?;
-        let boundary_vertical_points = Self::boundary_vertical_points(region)?;
-        Self::validate_tendency(tendency, region)?;
-        Self::validate_boundary_tendencies(
-            &boundary_tendencies,
-            region.shape(),
-            boundary_vertical_points,
-            parameters.boundary_width,
-        )?;
+        let boundary_vertical_points =
+            Self::validate(tendency, &boundary_tendencies, parameters, region)?;
         Ok(Self {
             tendency,
             boundary_tendencies,
@@ -52,6 +45,24 @@ impl<'a> SpecifiedBoundaryTendencyCpuKernel<'a> {
                 west_east_periodicity,
             ),
         })
+    }
+
+    pub(super) fn validate(
+        tendency: &CpuField<f32>,
+        boundary_tendencies: &SpecifiedBoundaryTendencies<'_, CpuField<f32>>,
+        parameters: SpecifiedBoundaryTendencyParameters,
+        region: &SpecifiedBoundaryUpdateRegion,
+    ) -> SpecifiedBoundaryTendencyResult<usize> {
+        Self::validate_parameters(parameters)?;
+        let boundary_vertical_points = Self::boundary_vertical_points(region)?;
+        Self::validate_tendency(tendency, region)?;
+        Self::validate_boundary_tendencies(
+            boundary_tendencies,
+            region.shape(),
+            boundary_vertical_points,
+            parameters.boundary_width,
+        )?;
+        Ok(boundary_vertical_points)
     }
 
     pub(super) fn execute(self, backend: &CpuBackend) -> SpecifiedBoundaryTendencyResult<()> {
