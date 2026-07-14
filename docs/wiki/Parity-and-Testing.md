@@ -26,6 +26,13 @@ preserving signed zero and avoiding decimal format ambiguity. For build-time
 infrastructure, the Registry oracle builds WRF's C generator and compares
 generated Fortran and metadata byte-for-byte.
 
+Registry package parity goes one step further: it extracts package and scalar
+constant semantics from WRF-generated `module_state_description.F` and
+`scalar_indices.inc`, then compiles and executes the generated selection code
+for nine runtime choices. The Rust comparison therefore covers both static
+ordering and actual activation/deduplication behavior rather than asserting
+against a hand-copied expected table.
+
 The golden output is committed and consumed by Rust tests. This creates one
 chain of provenance:
 

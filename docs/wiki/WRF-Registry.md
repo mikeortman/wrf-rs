@@ -68,7 +68,7 @@ The reachable v4.7.1 sources use these language families:
 | dimensions | `dimspec`, standard/namelist/constant bounds, coordinate axes | parsed and selected output generated |
 | fields | `state`, `i1`, `typedef`, built-in and derived types | `state` plus built-in types parsed |
 | configuration | `rconfig`, scalar/expression entry counts, namelist/derived setting | parsed and selected output generated |
-| packages | `package`, state and four-dimensional-scalar membership | deferred |
+| packages | `package`, signed integer conditions, state and four-dimensional-scalar membership | package conditions and ordered four-dimensional scalar groups parsed and resolved; state-package activation deferred |
 | communication | `halo`, conditional `halo_nta`, `period`, `xpose` | deferred |
 | compact syntax | quoted empty/text fields, brace dimensions, `*`, `f/t/x/y/b` dimension modifiers, staggering and I/O strings | empty/text fields, `*`, simple dimensions, modifiers, staggering, and opaque I/O parsed; braces deferred |
 
@@ -87,6 +87,7 @@ Positional fields are:
 | `dimspec` | `name order length axis data_name` |
 | `state` | `type name dimensions use time_levels staggering io data_name description units` |
 | `rconfig` | `type name how_set entry_count default io data_name description units` |
+| `package` | `name integer_condition [state_variables] [scalar_groups]` |
 
 Quoted values may contain spaces and retain case. Unquoted text is folded to
 lowercase, matching WRF. A `-` means “not specified” in optional positions.
@@ -170,6 +171,31 @@ when emitted; numeric and logical defaults do not. This reproduces WRF's
 `namelist_defaults.inc` behavior without treating every default as an
 unstructured generated line.
 
+## Packages and scalar-array layouts
+
+A package associates a runtime integer choice such as `mp_physics==1` with
+state variables and semicolon-separated scalar-array groups. Package lines may
+omit their two trailing membership fields, which WRF treats as `-`. Scalar
+groups preserve source order, for example `moist:qv,qc,qr`, and every package,
+condition, group, and diagnostic retains its physical source location.
+
+Resolution is a separate typed stage. It selects every matching package in
+source order, validates scalar-array and member names against parsed state
+definitions, and deduplicates a member already activated by an earlier
+matching package. Three index domains remain distinct:
+
+- definition-table `PARAM_*` indices include the reserved placeholder, so
+  Kessler has `PARAM_QV=1`, `PARAM_QC=2`, and `PARAM_QR=3`;
+- WRF packed `P_*` indices are one-based and reserve slot one, giving
+  `P_QV=2`, `P_QC=3`, and `P_QR=4`; and
+- Rust dense indices omit the placeholder and are zero-based, giving
+  `qv=0`, `qc=1`, and `qr=2`.
+
+The generic Registry model does not depend on physics. `wrf-physics` owns the
+conversion from a resolved `moist` layout into `MoistureSpeciesPackage`, so a
+reordered Registry package changes the typed physics positions without a
+Kessler-specific grammar branch.
+
 ## Selected artifact generation
 
 The first generator writes five WRF include files:
@@ -219,14 +245,24 @@ not require a C compiler or a WRF build. The oracle remains the independent
 source-of-truth regeneration path and runs in CI after the checksum-pinned WRF
 source is fetched.
 
+`scripts/run-registry-package-oracle.sh` adds an independent package fixture
+extracted from `Registry.EM_COMMON`. It checks the pinned generator-source
+hashes, runs WRF's C Registry generator, projects exact package and `PARAM_*`
+rows from `module_state_description.F` and `scalar_indices.inc`, and compiles
+and executes the generated scalar-index statements. Twenty-two static/runtime
+rows are compared to the Rust Registry-to-physics path. Nine runtime choices
+cover inactive, omitted, explicit-absent, passive-vapor, canonical Kessler,
+reordered, cross-package deduplicated, and trailing-separator layouts.
+
 ## Diagnostics and safety
 
 Every recoverable parser failure is a `RegistryParseError` containing a
 `SourceLocation` and typed `RegistryParseErrorKind`. Covered failures include
 unbalanced quotes, dangling continuations, incorrect positional counts,
 duplicates, unknown dimensions, malformed bound expressions, invalid types,
-zero or malformed time levels, invalid staggering, and unsupported entry
-categories.
+zero or malformed time levels, invalid staggering, malformed package
+conditions or membership groups, unknown scalar arrays or members, and
+unsupported entry categories.
 
 The crate forbids unsafe Rust. Source names are shared through `Arc<str>` so
 locations remain inexpensive to clone without lifetime-heavy public APIs.
@@ -240,9 +276,9 @@ meaningful bottleneck.
 
 The following upstream language and generator surfaces remain future slices:
 
-- recursive `include` and conditional preprocessing;
 - `typedef`, `i1`, and derived types;
-- `package` and four-dimensional scalar-array generation;
+- package-owned state activation and generalized four-dimensional scalar
+  metadata beyond the resolved member/index layout;
 - `halo`, `period`, `xpose`, swap, and cycle communication entries;
 - brace-delimited multi-character state dimensions;
 - complete I/O-mask and nesting-function interpretation; and

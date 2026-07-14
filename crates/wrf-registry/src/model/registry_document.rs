@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::{DimensionSpecification, RegistryEntry, RuntimeConfiguration, StateVariable};
+use crate::{
+    DimensionSpecification, RegistryEntry, RegistryPackage, RegistryResolutionResult,
+    ResolvedScalarArrayLayout, RuntimeConfiguration, RuntimeConfigurationChoice, StateVariable,
+};
 
 /// Typed Registry entries parsed from one source.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -44,5 +47,32 @@ impl RegistryDocument {
             RegistryEntry::RuntimeConfiguration(configuration) => Some(configuration),
             _ => None,
         })
+    }
+
+    /// Iterates over parsed package declarations in source order.
+    pub fn packages(&self) -> impl Iterator<Item = &RegistryPackage> {
+        self.entries.iter().filter_map(|entry| match entry {
+            RegistryEntry::Package(package) => Some(package),
+            _ => None,
+        })
+    }
+
+    /// Resolves active four-dimensional scalar arrays for one domain.
+    ///
+    /// Every package whose signed integer condition matches is applied in
+    /// Registry source order. Repeated member activation reuses the first
+    /// packed position, matching WRF's generated index tables.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed error for duplicate or unknown runtime choices,
+    /// malformed cross-entry associations, missing reserved placeholders, or
+    /// package references to unknown scalar arrays and members. Resolution is
+    /// failure-atomic: no partial layout is returned with an error.
+    pub fn resolve_scalar_array_layouts(
+        &self,
+        configuration_choices: &[RuntimeConfigurationChoice],
+    ) -> RegistryResolutionResult<Vec<ResolvedScalarArrayLayout>> {
+        crate::scalar_layout::ScalarArrayLayoutResolver::resolve(self, configuration_choices)
     }
 }

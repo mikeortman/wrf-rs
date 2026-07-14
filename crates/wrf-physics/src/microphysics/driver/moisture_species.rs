@@ -17,6 +17,15 @@ pub enum MoistureSpecies {
 }
 
 impl MoistureSpecies {
+    pub(crate) fn from_registry_name(name: &str) -> Option<Self> {
+        match name {
+            "qv" => Some(Self::WaterVapor),
+            "qc" => Some(Self::CloudWater),
+            "qr" => Some(Self::RainWater),
+            _ => None,
+        }
+    }
+
     /// Returns the Registry state name associated with this role.
     pub const fn registry_name(self) -> &'static str {
         match self {
@@ -46,6 +55,11 @@ mod tests {
         assert_eq!(MoistureSpecies::WaterVapor.registry_name(), "qv");
         assert_eq!(MoistureSpecies::CloudWater.registry_name(), "qc");
         assert_eq!(MoistureSpecies::RainWater.registry_name(), "qr");
+        assert_eq!(
+            MoistureSpecies::from_registry_name("qc"),
+            Some(MoistureSpecies::CloudWater)
+        );
+        assert_eq!(MoistureSpecies::from_registry_name("qi"), None);
     }
 
     #[test]

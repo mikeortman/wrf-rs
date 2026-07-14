@@ -1,4 +1,6 @@
-use crate::{DimensionSpecification, RuntimeConfiguration, SourceLocation, StateVariable};
+use crate::{
+    DimensionSpecification, RegistryPackage, RuntimeConfiguration, SourceLocation, StateVariable,
+};
 
 /// One supported entry in source order.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -9,6 +11,8 @@ pub enum RegistryEntry {
     State(StateVariable),
     /// An `rconfig` entry.
     RuntimeConfiguration(RuntimeConfiguration),
+    /// A generic `package` entry.
+    Package(RegistryPackage),
 }
 
 impl RegistryEntry {
@@ -19,6 +23,7 @@ impl RegistryEntry {
             Self::Dimension(dimension) => dimension.location(),
             Self::State(state) => state.location(),
             Self::RuntimeConfiguration(configuration) => configuration.location(),
+            Self::Package(package) => package.location(),
         }
     }
 }

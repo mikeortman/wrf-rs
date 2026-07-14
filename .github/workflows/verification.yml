@@ -130,6 +130,8 @@ jobs:
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation
         run: ./scripts/run-registry-oracle.sh
+      - name: Verify WRF Registry package selection
+        run: ./scripts/run-registry-package-oracle.sh
       - name: Verify domain decomposition
         run: ./scripts/run-domain-topology-oracle.sh
       - name: Verify clipped tile bounds

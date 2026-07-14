@@ -9,8 +9,8 @@ temperature through latent heating and diagnoses surface precipitation.
 
 The pinned implementation is `phys/module_mp_kessler.F`. It is a complete
 microphysics option invoked by WRF's physics driver. The Rust port implements
-the scheme routine itself; driver selection and full model-step coupling remain
-future work.
+the scheme routine and typed disabled/Kessler driver dispatch; full model-step
+coupling remains future work.
 
 Kessler is the first `wrf-physics` capability because it is scientifically
 meaningful, self-contained, horizontally parallel, and small enough for a
@@ -120,6 +120,15 @@ All 660 mutable outputs match by raw IEEE-754 bits. Rust tests also prove
 one-worker/four-worker determinism, validation before mutation, parameter
 rejection, vertical-contract enforcement, and unchanged halos.
 
+The driver obtains its ordered `qv`/`qc`/`qr` roles from the generic Registry
+package resolver. `scripts/run-registry-package-oracle.sh` runs WRF's pinned C
+generator and its generated Fortran scalar-index statements for canonical,
+reordered, inactive, and source-order-deduplicated packages. Canonical and
+reordered three-species layouts are also compared through
+`MoistureSpeciesPackage::try_from_registry_layout`; inactive and deduplicated
+layout behavior remains Registry-owned. Registry syntax stays out of the
+physics crate.
+
 ## Performance
 
 On the recorded 655,360-point workload, one-worker Rust and optimized serial
@@ -131,7 +140,6 @@ See the [detailed baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/
 
 ## Remaining integration work
 
-Routine parity does not yet prove forecast parity. Remaining work includes the
-microphysics driver, Registry moisture-species mapping, ARW tendency coupling,
-halo scheduling around physics, restart state, and idealized precipitation
-trajectories.
+Routine and driver parity do not yet prove forecast parity. Remaining work
+includes ARW tendency coupling, halo scheduling around physics, restart state,
+and idealized precipitation trajectories.

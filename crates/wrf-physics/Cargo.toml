@@ -12,6 +12,7 @@ workspace = true
 [dependencies]
 rayon = "1.10"
 wrf-compute = { path = "../wrf-compute" }
+wrf-registry = { path = "../wrf-registry" }
 
 [dev-dependencies]
 criterion = "0.7"

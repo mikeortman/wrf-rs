@@ -1,14 +1,15 @@
 use crate::{
     MicrophysicsDriverError, MicrophysicsDriverResult, MoistureSpecies, MoistureSpeciesIndex,
 };
+use wrf_registry::ResolvedScalarArrayLayout;
 
 /// Ordered moisture species associated with one Registry scheme package.
 ///
 /// Mirrors Registry package lines such as
 /// `package kesslerscheme mp_physics==1 - moist:qv,qc,qr`, whose species order
 /// defines the generated `P_QV`/`P_QC`/`P_QR` positions inside `moist`.
-/// Registry-parsed construction is follow-up work owned by the Registry area;
-/// until then the pinned orderings are built explicitly.
+/// Generic Registry parsing and index resolution remain Registry-owned; this
+/// physics type owns the conversion of resolved `moist` names into species.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct MoistureSpeciesPackage {
     species: Vec<MoistureSpecies>,
@@ -33,6 +34,39 @@ impl MoistureSpeciesPackage {
             }
         }
         Ok(Self { species })
+    }
+
+    /// Converts a generic resolved Registry `moist` layout into physics roles.
+    ///
+    /// Members retain the zero-based dense order established by Registry
+    /// package resolution. Definition-table and one-based packed indices stay
+    /// Registry-owned and are not reinterpreted by the numerical driver.
+    ///
+    /// # Errors
+    ///
+    /// Returns a typed error if `layout` is not the `moist` scalar array, a
+    /// member has no supported moisture role, or the resulting package is
+    /// empty or contains a duplicate role.
+    pub fn try_from_registry_layout(
+        layout: &ResolvedScalarArrayLayout,
+    ) -> MicrophysicsDriverResult<Self> {
+        if layout.scalar_array_name() != "moist" {
+            return Err(MicrophysicsDriverError::UnexpectedMoistureScalarArray {
+                actual: layout.scalar_array_name().to_owned(),
+            });
+        }
+        let species = layout
+            .members()
+            .iter()
+            .map(|member| {
+                MoistureSpecies::from_registry_name(member.name()).ok_or_else(|| {
+                    MicrophysicsDriverError::UnsupportedMoistureSpecies {
+                        name: member.name().to_owned(),
+                    }
+                })
+            })
+            .collect::<MicrophysicsDriverResult<Vec<_>>>()?;
+        Self::try_new(species)
     }
 
     /// Creates the pinned `kesslerscheme` package ordering `moist:qv,qc,qr`.
@@ -81,6 +115,8 @@ impl MoistureSpeciesPackage {
 
 #[cfg(test)]
 mod tests {
+    use wrf_registry::{RegistryParser, RuntimeConfigurationChoice};
+
     use super::*;
 
     #[test]
@@ -128,5 +164,92 @@ mod tests {
                 species: MoistureSpecies::RainWater,
             })
         );
+    }
+
+    #[test]
+    fn registry_layout_conversion_preserves_canonical_and_reordered_dense_order() {
+        let source = "\
+dimspec i 1 standard_domain x west_east
+dimspec k 2 standard_domain z bottom_top
+dimspec j 3 standard_domain y south_north
+rconfig integer mp_physics namelist,physics 1 -1 - mp_physics \"\" \"\"
+state real - ikjftb moist 1 - - - - -
+state real qv ikjftb moist 1 - - QVAPOR vapor 1
+state real qc ikjftb moist 1 - - QCLOUD cloud 1
+state real qr ikjftb moist 1 - - QRAIN rain 1
+package canonical mp_physics==1 - moist:qv,qc,qr
+package reordered mp_physics==2 - moist:qr,qv,qc
+";
+        let document = RegistryParser::parse("Registry.physics", source).unwrap();
+
+        for (choice, expected) in [
+            (
+                1,
+                vec![
+                    MoistureSpecies::WaterVapor,
+                    MoistureSpecies::CloudWater,
+                    MoistureSpecies::RainWater,
+                ],
+            ),
+            (
+                2,
+                vec![
+                    MoistureSpecies::RainWater,
+                    MoistureSpecies::WaterVapor,
+                    MoistureSpecies::CloudWater,
+                ],
+            ),
+        ] {
+            let layouts = document
+                .resolve_scalar_array_layouts(&[RuntimeConfigurationChoice::new(
+                    "mp_physics",
+                    choice,
+                )])
+                .unwrap();
+            let package = MoistureSpeciesPackage::try_from_registry_layout(&layouts[0]).unwrap();
+
+            assert_eq!(package.species(), expected);
+            for (dense_index, species) in expected.into_iter().enumerate() {
+                assert_eq!(
+                    package.index_of(species),
+                    Some(MoistureSpeciesIndex::new(dense_index))
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn registry_layout_conversion_rejects_wrong_array_and_unknown_species() {
+        let sources = [
+            (
+                "scalar",
+                "state real - if scalar 1 - - - - -\nstate real qv if scalar 1 - - QV vapor 1\npackage selected option==1 - scalar:qv\n",
+                MicrophysicsDriverError::UnexpectedMoistureScalarArray {
+                    actual: "scalar".to_owned(),
+                },
+            ),
+            (
+                "moist",
+                "state real - if moist 1 - - - - -\nstate real qi if moist 1 - - QI ice 1\npackage selected option==1 - moist:qi\n",
+                MicrophysicsDriverError::UnsupportedMoistureSpecies {
+                    name: "qi".to_owned(),
+                },
+            ),
+        ];
+
+        for (array_name, body, expected) in sources {
+            let source = format!(
+                "dimspec i 1 standard_domain x west_east\nrconfig integer option namelist,test 1 0 - option \"\" \"\"\n{body}"
+            );
+            let document = RegistryParser::parse("Registry.physics-error", &source).unwrap();
+            let layouts = document
+                .resolve_scalar_array_layouts(&[RuntimeConfigurationChoice::new("option", 1)])
+                .unwrap();
+            assert_eq!(layouts[0].scalar_array_name(), array_name);
+            assert_eq!(
+                MoistureSpeciesPackage::try_from_registry_layout(&layouts[0]),
+                Err(expected)
+            );
+        }
     }
 }
