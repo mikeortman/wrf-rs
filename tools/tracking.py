@@ -258,13 +258,130 @@ def changed_paths(base: str, head: str) -> list[str]:
     return [line for line in completed.stdout.splitlines() if line]
 
 
-def select_suites(paths: list[str], run_all: bool = False) -> list[dict[str, str]]:
-    benchmarks = load_benchmarks()
+def load_benchmarks_at_revision(revision: str) -> dict[str, Any] | None:
+    completed = subprocess.run(
+        ["git", "show", f"{revision}:tracking/benchmarks.json"],
+        cwd=ROOT,
+        check=False,
+        text=True,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        return None
+    try:
+        catalog = json.loads(completed.stdout)
+    except json.JSONDecodeError as error:
+        raise TrackingError(
+            f"tracking/benchmarks.json at {revision} is not valid JSON: {error}"
+        ) from error
+    if not isinstance(catalog, dict):
+        raise TrackingError(
+            f"tracking/benchmarks.json at {revision} must contain a JSON object"
+        )
+    return catalog
+
+
+def changed_catalog_suite_ids(
+    previous: dict[str, Any] | None,
+    current: dict[str, Any],
+) -> set[str] | None:
+    """Return changed current suite ids, or ``None`` when every suite is safer."""
+    if previous is None:
+        return None
+    previous_top_level = {key: value for key, value in previous.items() if key != "suites"}
+    current_top_level = {key: value for key, value in current.items() if key != "suites"}
+    if previous_top_level != current_top_level and not is_scoped_routing_watch_migration(
+        previous_top_level, current_top_level
+    ):
+        return None
+
+    previous_suites = previous.get("suites")
+    current_suites = current.get("suites")
+    if not isinstance(previous_suites, list) or not isinstance(current_suites, list):
+        return None
+    previous_by_id = {
+        suite.get("id"): suite
+        for suite in previous_suites
+        if isinstance(suite, dict) and isinstance(suite.get("id"), str)
+    }
+    current_by_id = {
+        suite.get("id"): suite
+        for suite in current_suites
+        if isinstance(suite, dict) and isinstance(suite.get("id"), str)
+    }
+    if len(previous_by_id) != len(previous_suites) or len(current_by_id) != len(current_suites):
+        return None
+
+    changed_current_ids = {
+        identifier
+        for identifier, suite in current_by_id.items()
+        if previous_by_id.get(identifier) != suite
+    }
+    removed_ids = previous_by_id.keys() - current_by_id.keys()
+    order_changed = [suite["id"] for suite in previous_suites] != [
+        suite["id"] for suite in current_suites
+    ]
+    if (removed_ids or order_changed) and not changed_current_ids:
+        return None
+    return changed_current_ids or None
+
+
+def is_scoped_routing_watch_migration(
+    previous: dict[str, Any], current: dict[str, Any]
+) -> bool:
+    """Recognize moving catalog and router paths out of unconditional routing."""
+    previous_without_watch = {
+        key: value for key, value in previous.items() if key != "global_watch"
+    }
+    current_without_watch = {
+        key: value for key, value in current.items() if key != "global_watch"
+    }
+    if previous_without_watch != current_without_watch:
+        return False
+    previous_watch = previous.get("global_watch")
+    current_watch = current.get("global_watch")
+    if not isinstance(previous_watch, list) or not isinstance(current_watch, list):
+        return False
+    migrated_paths = {"tools/tracking.py", "tracking/benchmarks.json"}
+    removed_paths = [path for path in previous_watch if path not in current_watch]
+    return (
+        [path for path in previous_watch if path not in migrated_paths] == current_watch
+        and set(removed_paths) == migrated_paths
+        and len(removed_paths) == len(migrated_paths)
+    )
+
+
+def select_suites(
+    paths: list[str],
+    run_all: bool = False,
+    *,
+    benchmarks: dict[str, Any] | None = None,
+    previous_benchmarks: dict[str, Any] | None = None,
+) -> list[dict[str, str]]:
+    benchmarks = benchmarks or load_benchmarks()
     suites = benchmarks["suites"]
     global_change = any(path_matches(path, benchmarks["global_watch"]) for path in paths)
-    selected = suites if run_all or global_change else [
-        suite for suite in suites if any(path_matches(path, suite["watch"]) for path in paths)
-    ]
+    if run_all or global_change:
+        selected = suites
+    else:
+        catalog_changed = "tracking/benchmarks.json" in paths
+        routing_code_changed = "tools/tracking.py" in paths
+        selected_ids = {
+            suite["id"]
+            for suite in suites
+            if any(path_matches(path, suite["watch"]) for path in paths)
+        }
+        if catalog_changed:
+            catalog_ids = changed_catalog_suite_ids(previous_benchmarks, benchmarks)
+            if catalog_ids is None:
+                selected = suites
+            else:
+                selected_ids.update(catalog_ids)
+                selected = [suite for suite in suites if suite["id"] in selected_ids]
+        elif routing_code_changed:
+            selected = suites
+        else:
+            selected = [suite for suite in suites if suite["id"] in selected_ids]
     return [{"id": suite["id"], "label": suite["label"]} for suite in selected]
 
 
@@ -1202,9 +1319,19 @@ def main() -> int:
             check()
         elif arguments.command == "select":
             paths = arguments.path
+            benchmarks = None
+            previous_benchmarks = None
             if arguments.base:
                 paths.extend(changed_paths(arguments.base, arguments.head))
-            selected = select_suites(sorted(set(paths)), arguments.run_all)
+                if "tracking/benchmarks.json" in paths:
+                    previous_benchmarks = load_benchmarks_at_revision(arguments.base)
+                    benchmarks = load_benchmarks_at_revision(arguments.head)
+            selected = select_suites(
+                sorted(set(paths)),
+                arguments.run_all,
+                benchmarks=benchmarks,
+                previous_benchmarks=previous_benchmarks,
+            )
             matrix = {"include": selected}
             encoded = json.dumps(matrix, separators=(",", ":"))
             if arguments.github_output:

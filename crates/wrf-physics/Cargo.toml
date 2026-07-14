@@ -21,3 +21,7 @@ stats_alloc = "0.1.10"
 [[bench]]
 name = "kessler_microphysics"
 harness = false
+
+[[bench]]
+name = "kessler_precipitation_trajectory"
+harness = false
