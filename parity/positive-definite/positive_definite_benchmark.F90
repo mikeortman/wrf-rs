@@ -7,7 +7,7 @@ program positive_definite_benchmark
   integer, parameter :: line_count = 4096
   integer, parameter :: bottom_top_points = 64
   integer, parameter :: south_north_points = line_count / bottom_top_points
-  integer, parameter :: sample_count = 11
+  integer, parameter :: sample_count = 31
   integer, parameter :: calls_per_sample = 32
   integer, parameter :: warmup_call_count = 100
   real, allocatable :: sheet_template(:, :), sheet_field(:, :), line_totals(:)

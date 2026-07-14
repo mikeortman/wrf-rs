@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "ci_runner_class": "github-hosted-relative",
+  "ci_runner_class": "self-hosted-mac-studio-2",
   "global_watch": [
     "Cargo.toml",
     "Cargo.lock",

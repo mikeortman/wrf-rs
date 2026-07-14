@@ -18,7 +18,7 @@ program acoustic_flux_accumulation_benchmark
   vertical(:,1)=.45;vertical(:,2)=.2
   call invoke_sequence
   call system_clock(count_rate=rate)
-  do sample=1,11
+  do sample=1,31
     call system_clock(started)
     do sequence=1,sequences_per_sample
       call invoke_sequence

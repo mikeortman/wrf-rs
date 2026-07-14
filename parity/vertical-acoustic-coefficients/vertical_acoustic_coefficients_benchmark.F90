@@ -2,7 +2,7 @@ program vertical_acoustic_coefficients_benchmark
   use iso_fortran_env, only: int64,real64
   use extracted_vertical_acoustic_coefficients, only: calc_coef_w
   implicit none
-  integer,parameter::nx=256,ny=256,nz=40,samples=11,iterations=20
+  integer,parameter::nx=256,ny=256,nz=40,samples=31,iterations=20
   integer,parameter::ims=1,ime=nx,jms=1,jme=ny,kms=1,kme=nz+1
   integer,parameter::ids=1,ide=nx+1,jds=1,jde=ny+1,kds=1,kde=nz+1
   integer,parameter::its=1,ite=nx,jts=1,jte=ny,kts=1,kte=nz

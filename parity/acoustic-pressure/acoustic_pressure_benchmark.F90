@@ -2,7 +2,7 @@ program acoustic_pressure_benchmark
   use iso_fortran_env, only: int64,real64
   use extracted_acoustic_pressure, only: calc_p_rho
   implicit none
-  integer,parameter::nx=256,ny=256,nz=40,samples=11,iterations=20
+  integer,parameter::nx=256,ny=256,nz=40,samples=31,iterations=20
   integer,parameter::ims=0,ime=nx+1,jms=0,jme=ny+1,kms=0,kme=nz+1
   integer,parameter::ids=1,ide=nx+1,jds=1,jde=ny+1,kds=1,kde=nz+1
   integer,parameter::its=1,ite=nx+1,jts=1,jte=ny+1,kts=1,kte=nz+1
