@@ -67,6 +67,11 @@ trajectory.
 
 Work remaining is tracked in [GitHub Issues](https://github.com/mikeortman/wrf-rs/issues).
 
+Each implementation starts from one issue on an `issue-N` branch, lands through
+one pull request whose description closes that issue, and uses auto-merge only
+after required Rust and Fortran parity checks pass. This preserves the issue,
+review diff, CI evidence, commit, and merge as one traceable chain.
+
 ## Reproduce
 
 ```sh
