@@ -1384,3 +1384,50 @@ The local oracle extracts all three exact nonlinear routines and compares all
 action: adopt that fixture, add bounds-checked invalid-width cases, and then
 place the routine after `spec_bdytend` in a multi-tile specified-domain acoustic
 trajectory.
+
+## WRF-081: `relax_bdy_dry` allocates and fills tile-sized scratch on no-op paths
+
+Status: source-confirmed memory and performance opportunity.
+
+The routine declares automatic `rfield(its-1:ite+1,kts:kte,jts-1:jte+1)`
+storage for every invocation. A representative 256 × 256 × 41 single-precision
+tile reserves about 10.4 MiB per active call or thread. It then runs
+`mass_weight` for PH and T, plus nested W, even when the tile misses every
+physical boundary or the relaxation band is empty. No later code observes the
+scratch values on those paths.
+
+Suggested upstream action: return before scratch preparation when no relaxed
+points intersect the tile, and consider caller-managed reusable scratch for
+active paths. The Rust capability uses one caller-owned tile-halo workspace and
+skips no-op mass weighting while preserving every observable output.
+
+## WRF-082: half-level scratch coverage can exceed a shortened vertical tile
+
+Status: source-confirmed correctness and memory-safety risk for partial
+vertical tiles.
+
+The half-level T call to `mass_weight` fills `rfield` only through `kte-1`.
+Downstream `relax_bdytend_core` ignores the upper tile bound for selectors other
+than `h` and `m`, traversing through domain level `kde-1`. If a caller supplies
+`kte < kde`, relaxation can therefore read uninitialized or out-of-tile
+scratch. Normal ARW callers appear to use complete vertical columns, but the
+routine interface does not enforce or document that requirement.
+
+Suggested upstream action: assert complete-column vertical coverage at the
+wrapper boundary or pass an upper bound that reflects initialized scratch.
+The Rust capability rejects insufficient vertical coverage before mutation.
+
+## WRF-083: no focused regression covers `relax_bdy_dry` orchestration
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The repository has no compact complete-storage regression proving the U, V,
+PH, T, MU, optional W order together with both mass-weighting modes, global and
+nested behavior, periodic X, partial tiles, or inactive paths. Independent
+scalar tests would not detect a swapped field, coefficient family, or vertical
+mode in this wrapper.
+
+The local direct oracle compares all 24,800 stored values across eight cases,
+including exceptional IEEE inputs. Suggested upstream action: adopt the focused
+fixture and then include it in a multi-tile specified-domain acoustic
+trajectory.

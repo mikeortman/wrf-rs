@@ -112,7 +112,8 @@ material need.
 
 ## Integration boundary
 
-This page documents the isolated numerical kernel. The next gate inserts
-boundary-file tendency assignment, this relaxation step, specified updates,
-and halo exchange around the already verified local acoustic trajectory. Only
-that coupled fixture can prove correct ordering across tiles and substeps.
+This page documents the isolated numerical kernel. The verified
+[`relax_bdy_dry` wrapper](Dry-Boundary-Relaxation.md) now composes it across U,
+V, PH, T, MU, and optional nested W using one reusable mass-weighting
+workspace. The next gate ports `spec_bdy_dry`, then inserts the complete dry
+boundary and halo sequence around the local acoustic trajectory.

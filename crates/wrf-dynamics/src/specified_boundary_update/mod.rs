@@ -7,6 +7,7 @@
 //! contracts.
 
 mod cpu;
+mod dry_relaxation;
 mod error;
 mod field_location;
 mod finalization;
@@ -21,6 +22,13 @@ mod relaxation;
 mod tendency_assignment;
 mod zero_gradient;
 
+pub use dry_relaxation::{
+    DryBoundaryRelaxationBoundaryData, DryBoundaryRelaxationBoundaryFields,
+    DryBoundaryRelaxationError, DryBoundaryRelaxationField, DryBoundaryRelaxationKernels,
+    DryBoundaryRelaxationMassCoefficients, DryBoundaryRelaxationRegion,
+    DryBoundaryRelaxationResult, DryBoundaryRelaxationState, DryBoundaryRelaxationTarget,
+    DryBoundaryRelaxationTendencies, DryBoundaryRelaxationWorkspace, DryBoundaryVerticalRelaxation,
+};
 pub use error::{SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateResult};
 pub use field_location::SpecifiedBoundaryFieldLocation;
 pub use finalization::{

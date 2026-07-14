@@ -35,30 +35,15 @@ impl<'a> SpecifiedBoundaryRelaxationCpuKernel<'a> {
         west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
         region: &SpecifiedBoundaryUpdateRegion,
     ) -> SpecifiedBoundaryRelaxationResult<Self> {
-        Self::validate_parameters(parameters)?;
-        Self::validate_tendency(tendency, region)?;
-        Self::validate_field_view(&inputs)?;
+        Self::validate_operation(tendency, &inputs, parameters, west_east_periodicity, region)?;
         let boundary_vertical_points = Self::boundary_vertical_points(region)?;
-        Self::validate_boundary_fields(
-            &inputs,
-            region.shape(),
-            boundary_vertical_points,
-            parameters.boundary_width,
-        )?;
-        Self::validate_coefficients(&inputs, parameters.boundary_width)?;
         let ranges = SpecifiedBoundaryRelaxationRanges::new(
             region.active_ranges(),
             parameters.specified_zone_width,
             parameters.relaxation_zone_width,
             west_east_periodicity,
         );
-        let has_updates = match ranges.required_field_coverage() {
-            Some(coverage) => {
-                Self::validate_field_coverage(&inputs, coverage)?;
-                true
-            }
-            None => false,
-        };
+        let has_updates = ranges.required_field_coverage().is_some();
         Ok(Self {
             tendency,
             inputs,
@@ -68,6 +53,36 @@ impl<'a> SpecifiedBoundaryRelaxationCpuKernel<'a> {
             ranges,
             has_updates,
         })
+    }
+
+    pub(super) fn validate_operation(
+        tendency: &CpuField<f32>,
+        inputs: &SpecifiedBoundaryRelaxationInputs<'_, CpuField<f32>>,
+        parameters: SpecifiedBoundaryRelaxationParameters,
+        west_east_periodicity: SpecifiedBoundaryWestEastPeriodicity,
+        region: &SpecifiedBoundaryUpdateRegion,
+    ) -> SpecifiedBoundaryRelaxationResult<()> {
+        Self::validate_parameters(parameters)?;
+        Self::validate_tendency(tendency, region)?;
+        Self::validate_field_view(inputs)?;
+        let boundary_vertical_points = Self::boundary_vertical_points(region)?;
+        Self::validate_boundary_fields(
+            inputs,
+            region.shape(),
+            boundary_vertical_points,
+            parameters.boundary_width,
+        )?;
+        Self::validate_coefficients(inputs, parameters.boundary_width)?;
+        let ranges = SpecifiedBoundaryRelaxationRanges::new(
+            region.active_ranges(),
+            parameters.specified_zone_width,
+            parameters.relaxation_zone_width,
+            west_east_periodicity,
+        );
+        if let Some(coverage) = ranges.required_field_coverage() {
+            Self::validate_field_coverage(inputs, coverage)?;
+        }
+        Ok(())
     }
 
     pub(super) fn execute(self, backend: &CpuBackend) -> SpecifiedBoundaryRelaxationResult<()> {

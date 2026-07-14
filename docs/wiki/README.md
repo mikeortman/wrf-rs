@@ -85,6 +85,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary relaxation](Specified-Boundary-Relaxation.md) — external
   state mismatch, five-point smoothing, fixed/relaxed zones, halo-extended tile
   views, and exact pinned-source evidence.
+- [Complete dry boundary relaxation](Dry-Boundary-Relaxation.md) — WRF's
+  mass-weighted U/V/PH/T/MU/optional-W orchestration, reusable workspace,
+  failure-atomic validation, and exact pinned-source evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -160,6 +163,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary relaxation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-relaxation-2026-07-14.md)
   — matched five-point forcing, CPU scaling, allocation evidence, and the
   operational-parity tuning stop.
+- [Dry boundary-relaxation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/dry-boundary-relaxation-2026-07-14.md)
+  — matched complete wrapper, mass-weighting cost, CPU scaling, workspace
+  accounting, and the 1% tuning stop.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.
