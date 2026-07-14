@@ -74,6 +74,8 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Integrated RK preparation | seven diagnostics on 2,621,440 mass points | 6.067100 ms median `[5.997000, 6.636100]` | 10.092 ms `[10.023, 10.162]` | 3.3025 ms (4 workers) | Rust serial 66.3% slower; Rust 4-worker 1.84× faster; Rust 16-worker 1.33× faster; stop tuning pending trajectory profile |
 | Dry RK tendency assembly | 26,542,080 mutable values | 8.425600 ms median `[8.281500, 8.913450]` | 18.625 ms `[18.457, 18.845]` | 2.5235 ms (16 workers) | Rust serial 2.21× slower; Rust 4-worker 1.70× faster; Rust 16-worker 3.34× faster; stop tuning pending trajectory profile |
 | Acoustic small-step preparation | 45,543,936 mutable values | 5.877800 ms median `[5.731300, 7.147600]` | 26.123 ms `[25.869, 26.388]` | 6.5595 ms (16 workers) | Rust serial 4.44× slower; Rust 4-worker 26.1% slower; Rust 16-worker 11.6% slower; operationally close, stop tuning pending trajectory profile |
+| Acoustic pressure, nonhydrostatic | 2,621,440 mass points | 1.529500 ms median `[1.512550, 2.006750]` | 1.8319 ms `[1.8075, 1.8596]` | 0.81126 ms (4 workers) | Rust serial 19.8% slower; Rust 4-worker 1.89× faster; stop tuning pending trajectory profile |
+| Acoustic pressure, hydrostatic | 2,621,440 mass points | 1.602750 ms median `[1.563400, 1.765500]` | 2.0816 ms `[2.0569, 2.1137]` | 0.95950 ms (4 workers) | Rust serial 29.9% slower; Rust 4-worker 1.67× faster; stop tuning pending trajectory profile |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -100,6 +102,7 @@ cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
 cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -114,6 +117,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-runge-kutta-preparation-fortran.sh
 ./scripts/benchmark-dry-tendency-assembly-fortran.sh
 ./scripts/benchmark-acoustic-step-preparation-fortran.sh
+./scripts/benchmark-acoustic-pressure-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -310,6 +314,24 @@ scientific oracle.
 - Ordinary parallel Rust is operationally close to optimized Fortran. Per the
   project stopping rule, explicit SIMD and more complex pass fusion wait for a
   coupled trajectory profile.
+
+## Acoustic pressure diagnosis comparison notes
+
+- Both implementations process 256 × 256 × 40 mass points and retain the upper
+  geopotential level. Nonhydrostatic and hydrostatic modes use the same reused
+  fields and pressure-history initialization phase.
+- GNU Fortran 16.1.0 uses `-O3 -flto`; Rust uses portable optimization level 3,
+  ThinLTO, and one codegen unit. Neither enables fast-math or a native CPU flag.
+- Four-worker Rust is 1.89× faster in nonhydrostatic mode and 1.67× faster in
+  hydrostatic mode than optimized serial Fortran.
+- Reordering the parity-correct hydrostatic recurrence from column-strided to
+  WRF-like level-major traversal improved serial Rust from 8.63 to 2.08 ms
+  without changing any oracle bit.
+- Settled 100-call phases record at most five allocations and 6,080 bytes, no
+  reallocations, no numerical scratch, and no field clones.
+- The normal multithreaded path clears the gate, so explicit SIMD, unsafe
+  fusion, and custom per-kernel worker selection wait for a coupled trajectory
+  profile.
 
 ## Kessler microphysics comparison notes
 

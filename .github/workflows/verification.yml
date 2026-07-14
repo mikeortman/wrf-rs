@@ -85,6 +85,8 @@ jobs:
         run: ./scripts/run-dry-tendency-assembly-oracle.sh
       - name: Verify acoustic small-step preparation
         run: ./scripts/run-acoustic-step-preparation-oracle.sh
+      - name: Verify acoustic pressure diagnosis
+        run: ./scripts/run-acoustic-pressure-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

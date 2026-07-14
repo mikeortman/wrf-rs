@@ -58,6 +58,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic small-step preparation](Acoustic-Step-Preparation.md) — time-level
   switching, mass-coupled perturbations, C-grid/full-level contracts, and exact
   first/later-substep evidence.
+- [Acoustic pressure and inverse-density diagnosis](Acoustic-Pressure-Diagnosis.md)
+  — nonhydrostatic/hydrostatic equations, pressure-history damping, vertical
+  geopotential recurrence, and exact mode/phase evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -94,6 +97,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic-step preparation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-step-preparation-2026-07-14.md)
   — matched first-substep workload, CPU scaling, allocation evidence, and the
   complexity stopping decision.
+- [Acoustic-pressure performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-pressure-2026-07-14.md)
+  — matched governing modes, hydrostatic layout correction, CPU scaling,
+  allocations, and the SIMD stopping decision.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

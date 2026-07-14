@@ -17,6 +17,7 @@
 
 #![forbid(unsafe_code)]
 
+mod acoustic_pressure;
 mod acoustic_step_preparation;
 mod column_mass_staggering;
 mod dry_tendency_assembly;
@@ -31,6 +32,13 @@ mod runge_kutta_preparation;
 #[cfg(test)]
 mod test_support;
 
+pub use acoustic_pressure::{
+    AcousticPressureAxis, AcousticPressureCoefficient, AcousticPressureCoefficients,
+    AcousticPressureDampingPhase, AcousticPressureError, AcousticPressureField,
+    AcousticPressureKernels, AcousticPressureMasses, AcousticPressureMode,
+    AcousticPressureParameters, AcousticPressureRegion, AcousticPressureResult,
+    AcousticPressureState, AcousticPressureThermodynamics, AcousticPressureVerticalMetrics,
+};
 pub use acoustic_step_preparation::{
     AcousticStepPreparationAxis, AcousticStepPreparationCoefficient,
     AcousticStepPreparationCoefficients, AcousticStepPreparationColumnMassTimeLevels,

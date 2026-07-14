@@ -35,6 +35,9 @@ a measured regression until a representative benchmark exists.
 | WRF-036 | Interface/performance opportunity | Source-confirmed | `small_step_prep` | Ten numerical dummy arguments and three lower domain bounds are not read; production full-column execution also performs boundary stores that are overwritten before return |
 | WRF-037 | Confirmed interface defect | Source-confirmed | `small_step_prep` | Twelve partially written arrays are declared `INTENT(OUT)`, making their inactive storage undefined on entry even though callers and differential tests may expect preserved halos |
 | WRF-038 | Test gap | Repository search plus direct differential fixture | `small_step_prep` | No focused production regression checks first/later time-level behavior, all staggered bounds, exceptional arithmetic, or inactive storage |
+| WRF-039 | Interface/API opportunity | Source-confirmed | `calc_p_rho` | Six coefficient/coordinate arrays and three lower domain bounds are accepted but never read |
+| WRF-040 | Confirmed interface defect | Source-confirmed | `calc_p_rho` | Partially written `al` and `p` arrays are declared `INTENT(OUT)`, making inactive tile and halo storage undefined on entry |
+| WRF-041 | Test gap | Repository search plus direct differential fixture | `calc_p_rho` | No focused production regression jointly checks both governing modes, damping phases, hydrostatic recurrence, partial tiles, or exceptional arithmetic |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -773,3 +776,53 @@ and sentinel values across first, later-interior, and exceptional cases.
 Suggested upstream action: adopt a similarly small routine-level fixture, then
 extend it into an acoustic trajectory that observes state after every small
 step.
+
+## WRF-039: `calc_p_rho` carries nine dead dummy arguments
+
+Status: source-confirmed API maintenance opportunity; no independent
+whole-model speed claim is made.
+
+The executable body never reads full-level coefficient arrays `c1f`, `c2f`,
+`c3f`, and `c4f`, half-level array `c4h`, or vertical coordinate `znu`. Lower
+domain bounds `ids`, `jds`, and `kds` are also unused. The memory bounds remain
+necessary for explicit-shape dummy arrays, while upper domain and tile bounds
+participate in clipping.
+
+These arguments make a large positional call harder to audit and imply
+dependencies that do not exist. The Rust capability keeps only `c1h`, `c2h`,
+`c3h`, `rdnw`, and `dnw`, grouped by scientific role. Suggested upstream
+action: remove dead dummies during a planned interface revision or enable
+unused-dummy warnings to prevent further drift.
+
+## WRF-040: `calc_p_rho` partially defines `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect.
+
+`al` and `p` are declared `INTENT(OUT)` at lines 460–461, but the routine only
+writes `its:min(ite,ide-1)`, `jts:min(jte,jde-1)`, and
+`kts:min(kte,kde-1)`. Under the Fortran standard, association with an
+`INTENT(OUT)` dummy makes the complete actual argument undefined on entry, so
+inactive tile and halo storage cannot portably retain its prior value.
+
+GNU Fortran currently preserves those inactive bytes, enabling the local
+fixture to observe sentinels, but this is not a language guarantee. Rust uses
+mutable caller-owned storage and explicitly leaves inactive values unchanged.
+Suggested upstream action: use `INTENT(INOUT)` if preservation is the intended
+contract, or define the complete arrays and test that policy.
+
+## WRF-041: no focused numerical regression for `calc_p_rho`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The routine is called before and during every acoustic loop, yet a repository
+search finds no dedicated production numerical fixture. Missing branch
+coverage includes nonhydrostatic geopotential-gradient diagnosis, hydrostatic
+pressure and upward geopotential recurrence, initialization versus forward
+pressure damping, partial vertical tiles, inactive storage, and zero/infinite
+denominators.
+
+The local oracle extracts the exact pinned routine and compares all 3,456
+stored values across both governing modes and both damping phases, including
+partial and exceptional cases. Suggested upstream action: adopt a compact
+routine fixture and include pressure, inverse density, geopotential, and
+pressure history in a per-substep acoustic trajectory comparison.

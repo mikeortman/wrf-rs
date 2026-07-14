@@ -60,3 +60,7 @@ harness = false
 [[bench]]
 name = "acoustic_step_preparation"
 harness = false
+
+[[bench]]
+name = "acoustic_pressure"
+harness = false
