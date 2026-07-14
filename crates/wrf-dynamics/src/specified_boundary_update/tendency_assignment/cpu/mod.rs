@@ -33,6 +33,16 @@ impl SpecifiedBoundaryTendencyKernels for CpuBackend {
     }
 }
 
+pub(crate) fn validate_cpu_tendency_assignment(
+    tendency: &CpuField<f32>,
+    boundary_tendencies: &SpecifiedBoundaryTendencies<'_, CpuField<f32>>,
+    parameters: SpecifiedBoundaryTendencyParameters,
+    region: &SpecifiedBoundaryUpdateRegion,
+) -> SpecifiedBoundaryTendencyResult<()> {
+    SpecifiedBoundaryTendencyCpuKernel::validate(tendency, boundary_tendencies, parameters, region)
+        .map(|_| ())
+}
+
 #[cfg(test)]
 mod tests {
     use std::ops::Range;

@@ -82,6 +82,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary updates](Specified-Boundary-Tendency-Updates.md) — C-grid
   field locations, trapezoidal corners, periodic-X behavior, mass-normalized
   geopotential, direct parallel ranges, and exact pinned-source evidence.
+- [Complete dry boundary-tendency assignment](Dry-Boundary-Tendency-Assignment.md)
+  — WRF's U/V/PH/T/MU/optional-W orchestration, typed preflight, multithreaded
+  execution, and exact pinned-source evidence.
 - [Specified-boundary relaxation](Specified-Boundary-Relaxation.md) — external
   state mismatch, five-point smoothing, fixed/relaxed zones, halo-extended tile
   views, and exact pinned-source evidence.
@@ -160,6 +163,9 @@ implemented system; proposed work is explicitly labeled.
 - [Specified-boundary tendency-assignment performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-tendencies-2026-07-14.md)
   — matched boundary-file copies, CPU scaling, allocation evidence, and the
   thin-perimeter tuning stop.
+- [Complete dry boundary-tendency performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/dry-boundary-tendencies-2026-07-14.md)
+  — matched six-field wrapper, CPU scaling, allocation evidence, and the
+  composed-kernel tuning stop.
 - [Specified-boundary relaxation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/specified-boundary-relaxation-2026-07-14.md)
   — matched five-point forcing, CPU scaling, allocation evidence, and the
   operational-parity tuning stop.

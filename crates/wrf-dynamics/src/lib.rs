@@ -16,6 +16,8 @@
 //! U/V signs, copying outflow and clearing inflow.
 //! [`SpecifiedBoundaryTendencyKernels`] assigns boundary-file tendencies before
 //! relaxation and acoustic advancement.
+//! [`DryBoundaryTendencyKernels`] composes that assignment across U, V, PH, T,
+//! MU, and optional nested W in `spec_bdy_dry` order.
 //! [`SpecifiedBoundaryRelaxationKernels`] then applies WRF's five-point
 //! specified-zone relaxation forcing.
 //! [`DryBoundaryRelaxationKernels`] composes that stencil across mass-weighted
@@ -177,14 +179,17 @@ pub use specified_boundary_update::{
     DryBoundaryRelaxationError, DryBoundaryRelaxationField, DryBoundaryRelaxationKernels,
     DryBoundaryRelaxationMassCoefficients, DryBoundaryRelaxationRegion,
     DryBoundaryRelaxationResult, DryBoundaryRelaxationState, DryBoundaryRelaxationTarget,
-    DryBoundaryRelaxationTendencies, DryBoundaryRelaxationWorkspace, DryBoundaryVerticalRelaxation,
-    SpecifiedBoundaryFieldLocation, SpecifiedBoundaryFinalizationBoundaryFields,
-    SpecifiedBoundaryFinalizationError, SpecifiedBoundaryFinalizationFieldLocation,
-    SpecifiedBoundaryFinalizationInputs, SpecifiedBoundaryFinalizationKernels,
-    SpecifiedBoundaryFinalizationParameters, SpecifiedBoundaryFinalizationRegion,
-    SpecifiedBoundaryFinalizationResult, SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField,
-    SpecifiedBoundaryFlowInputs, SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters,
-    SpecifiedBoundaryFlowRegion, SpecifiedBoundaryFlowResult, SpecifiedBoundaryGeopotentialError,
+    DryBoundaryRelaxationTendencies, DryBoundaryRelaxationWorkspace, DryBoundaryTendencies,
+    DryBoundaryTendencyBoundaryFields, DryBoundaryTendencyError, DryBoundaryTendencyKernels,
+    DryBoundaryTendencyRegion, DryBoundaryTendencyResult, DryBoundaryTendencyTarget,
+    DryBoundaryVerticalRelaxation, DryBoundaryVerticalTendency, SpecifiedBoundaryFieldLocation,
+    SpecifiedBoundaryFinalizationBoundaryFields, SpecifiedBoundaryFinalizationError,
+    SpecifiedBoundaryFinalizationFieldLocation, SpecifiedBoundaryFinalizationInputs,
+    SpecifiedBoundaryFinalizationKernels, SpecifiedBoundaryFinalizationParameters,
+    SpecifiedBoundaryFinalizationRegion, SpecifiedBoundaryFinalizationResult,
+    SpecifiedBoundaryFlowError, SpecifiedBoundaryFlowField, SpecifiedBoundaryFlowInputs,
+    SpecifiedBoundaryFlowKernels, SpecifiedBoundaryFlowParameters, SpecifiedBoundaryFlowRegion,
+    SpecifiedBoundaryFlowResult, SpecifiedBoundaryGeopotentialError,
     SpecifiedBoundaryGeopotentialInputs, SpecifiedBoundaryGeopotentialKernels,
     SpecifiedBoundaryGeopotentialResult, SpecifiedBoundaryInflowPolicy,
     SpecifiedBoundaryRelaxationBoundaryValues, SpecifiedBoundaryRelaxationCoefficients,

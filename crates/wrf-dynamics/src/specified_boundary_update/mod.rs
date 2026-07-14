@@ -8,6 +8,7 @@
 
 mod cpu;
 mod dry_relaxation;
+mod dry_tendency_assignment;
 mod error;
 mod field_location;
 mod finalization;
@@ -28,6 +29,11 @@ pub use dry_relaxation::{
     DryBoundaryRelaxationMassCoefficients, DryBoundaryRelaxationRegion,
     DryBoundaryRelaxationResult, DryBoundaryRelaxationState, DryBoundaryRelaxationTarget,
     DryBoundaryRelaxationTendencies, DryBoundaryRelaxationWorkspace, DryBoundaryVerticalRelaxation,
+};
+pub use dry_tendency_assignment::{
+    DryBoundaryTendencies, DryBoundaryTendencyBoundaryFields, DryBoundaryTendencyError,
+    DryBoundaryTendencyKernels, DryBoundaryTendencyRegion, DryBoundaryTendencyResult,
+    DryBoundaryTendencyTarget, DryBoundaryVerticalTendency,
 };
 pub use error::{SpecifiedBoundaryUpdateError, SpecifiedBoundaryUpdateResult};
 pub use field_location::SpecifiedBoundaryFieldLocation;

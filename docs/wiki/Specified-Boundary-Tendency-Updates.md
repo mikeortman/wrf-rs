@@ -255,3 +255,10 @@ On the matched 256 × 256 × 41 vertical-momentum workload, four-worker Rust is
 1.50× faster and default 16-worker Rust is 1.36× faster than optimized serial
 Fortran. The kernel has no numerical scratch or field clones; further SIMD or
 scheduler specialization waits for an integrated boundary-driver profile.
+
+## Complete dry assignment wrapper
+
+The verified [`spec_bdy_dry` wrapper](Dry-Boundary-Tendency-Assignment.md) now
+composes boundary-file tendency assignment across U, V, PH, T, MU, and optional
+nested W. It preflights every scalar call before mutation and preserves the
+source's field order and location-dependent vertical behavior.

@@ -6,6 +6,8 @@ mod error;
 mod kernels;
 mod parameters;
 
+pub(crate) use cpu::validate_cpu_tendency_assignment;
+
 pub use boundary_tendencies::SpecifiedBoundaryTendencies;
 pub use error::{SpecifiedBoundaryTendencyError, SpecifiedBoundaryTendencyResult};
 pub use kernels::SpecifiedBoundaryTendencyKernels;
