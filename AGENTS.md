@@ -3,6 +3,15 @@
 These instructions apply to the whole repository. More specific `AGENTS.md`
 files may tighten them for a subtree.
 
+## Mandatory Rust contract
+
+**MUST follow [`RUST_BACKEND_STYLE_GUIDE.md`](RUST_BACKEND_STYLE_GUIDE.md) for
+all Rust design, implementation, review, testing, and documentation work.** Read
+it before changing Rust code. Treat its rules as the repository contract, not
+optional guidance. A more specific `AGENTS.md` may add stricter requirements
+but may not weaken the style guide unless the user explicitly directs an
+exception.
+
 ## Sources of truth
 
 - GitHub Issues, sub-issues, and the **WRF Rust Port** Project own mutable work
