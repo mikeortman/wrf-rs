@@ -54,6 +54,16 @@ impl GridShape {
     pub const fn point_count(self) -> usize {
         self.point_count
     }
+
+    /// Returns the matching horizontal field shape with one vertical level.
+    pub const fn horizontal_shape(self) -> Self {
+        Self {
+            west_east_points: self.west_east_points,
+            south_north_points: self.south_north_points,
+            bottom_top_points: 1,
+            point_count: self.point_count / self.bottom_top_points,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -76,6 +86,16 @@ mod tests {
         assert_eq!(
             GridShape::try_new(usize::MAX, 2, 1),
             Err(ComputeError::GridPointCountOverflow)
+        );
+    }
+
+    #[test]
+    fn horizontal_shape_preserves_horizontal_extents() {
+        let shape = GridShape::try_new(5, 7, 3).unwrap();
+
+        assert_eq!(
+            shape.horizontal_shape(),
+            GridShape::try_new(5, 7, 1).unwrap()
         );
     }
 }

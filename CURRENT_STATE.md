@@ -131,6 +131,33 @@ Implemented:
 Topology is setup work and no misleading throughput ratio is recorded. A
 matched halo benchmark waits for WRF-compatible multi-field aggregation.
 
+### `wrf-physics`
+
+Implemented:
+
+- the first dependency-closed physical parameterization, WRF Kessler warm-rain
+  microphysics from pinned `phys/module_mp_kessler.F`;
+- a focused `KesslerMicrophysicsKernels` capability with backend-owned field
+  and workspace associated types for future GPU implementations;
+- validated scalar parameters, field shapes, precipitation shapes, horizontal
+  tile ranges, the surface-start vertical contract, and minimum level count;
+- sedimentation, adaptive fallout substeps, surface precipitation,
+  cloud-to-rain conversion, saturation adjustment, evaporation, and latent
+  heating with WRF single-precision operation order;
+- default parallel execution across independent south-north rows on the
+  persistent CPU pool;
+- reusable production scratch plus one vertical terminal-velocity buffer per
+  worker, with no field clones and no numerical scratch allocation per call;
+- exact raw-bit equality for all 660 mutable output, halo, and precipitation
+  values in a direct pinned-Fortran oracle; and
+- typed failure-before-mutation tests, one/four-worker determinism, unchanged
+  halo tests, matched optimized-Fortran timing, and allocation evidence.
+
+The candidate inventory, dependency map, selection rationale, exclusions, and
+parity policy are in `docs/physics/kessler-selection.md`. The next physics gate
+is microphysics driver and Registry moisture-species integration, followed by a
+coupled precipitation trajectory.
+
 ### `wrf-dynamics`
 
 Implemented:
@@ -272,6 +299,20 @@ one- and four-worker results and was removed. A safe slice-iterator formulation
 also regressed serial performance and was removed. Keep the readable scalar
 implementation. See `docs/performance/column-mass-staggering-2026-07-13.md`.
 
+## Kessler microphysics performance baseline
+
+For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
+30.944 ms and matched GNU Fortran 14.2.0 `-O3 -flto` measured a 31.7804 ms
+median. Four-worker Rust measured 8.9176 ms and 16-worker Rust measured 5.0144
+ms, respectively 3.56× and 6.34× faster than serial Fortran. Serial performance
+is already within 2.6%, so no SIMD or more complex layout is being pursued.
+
+The reusable workspace uses 2,621,600 bytes with one worker and 2,624,000 bytes
+with 16 workers on this workload. Every settled 100-call measurement recorded
+three 1,520-byte scheduler allocations and no reallocations; numerical scratch
+was allocated only at workspace creation. See
+`docs/performance/kessler-microphysics-2026-07-13.md`.
+
 ## Seeded randomized ARW parity
 
 `tools/arw-corpus-generator` produces committed language-neutral inputs for all
@@ -332,17 +373,22 @@ cargo test --workspace --release
 ./scripts/run-clipped-tiles-oracle.sh
 ./scripts/run-mpi-halo-parity.sh
 ./scripts/run-periodic-halo-oracle.sh
+./scripts/run-kessler-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
+./scripts/benchmark-kessler-fortran.sh
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
+cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
+cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 89 unit tests and four doctests passed in debug and release modes (one
-corpus-generator test, 11 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 25 `wrf-dynamics`, 15 `wrf-registry`, and 20 `wrf-time`),
+Result: 99 unit tests and five doctests passed in debug and release modes (one
+corpus-generator test, 13 `wrf-compute`, 15 `wrf-domain`, two
+`wrf-domain-mpi`, 25 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
 Fortran time interfaces match `Test1.out.correct`, the focused numerical
@@ -354,6 +400,9 @@ and detailed baseline. The WRF Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
 tiles match pinned WRF routines, periodic destinations match `period.c`
 exactly, and complete four-rank MPI patch memory matches the local executor.
+The Kessler oracle matches all 660 mutable values exactly; its matched timing,
+one/four/host-worker scaling, and explicit workspace/allocation accounting are
+recorded in the performance ledgers.
 
 ## Maintained knowledge and quality ledgers
 
@@ -403,3 +452,5 @@ exactly, and complete four-rank MPI patch memory matches the local executor.
 4. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
 5. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
+6. Connect Kessler fields to Registry moisture species and the microphysics
+   driver, then add a coupled precipitation trajectory.

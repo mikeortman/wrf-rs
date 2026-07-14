@@ -21,6 +21,10 @@ a measured regression until a representative benchmark exists.
 | WRF-007 | Test gap | Repository search | Column-mass staggering | No dedicated numerical regression for `calc_mu_staggered` was found in the WRF tree |
 | WRF-008 | Numerical robustness | Reproduced against pinned Fortran | Positive-definite correction | Finite extreme inputs can overflow the intermediate scale multiplication and produce infinity even when the normalized result is representable |
 | WRF-009 | Confirmed bug | Compiler-diagnosed and source-reproduced | Registry allocation generator | Empty output-directory branches pass a string to `%d` and an unused integer to `sprintf`, invoking undefined behavior |
+| WRF-010 | Confirmed bug | Reproduced for non-one origins | RSL_LITE decomposition | `task_for_point` mixes absolute indices and offsets, lacks a return, and has malformed diagnostic formatting |
+| WRF-011 | Numerical consistency | Source-confirmed against default constants | Kessler microphysics | Saturation adjustment uses passed `xlv`/`cp`, while latent heating and pressure use different hard-coded constants |
+| WRF-012 | Confirmed latent bug | Source-confirmed; bounds-check reproducer recommended | Kessler microphysics | Several sedimentation loops index from literal level `1` despite accepting and allocating from `kts` |
+| WRF-013 | Test gap | Repository search | Kessler microphysics | No dedicated numerical regression for the exported Kessler scheme was found in the WRF tree |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -252,3 +256,74 @@ the extra origin subtraction in the final branch, return an explicit status,
 and pass the intended process dimensions to bounded `snprintf`. Add direct
 tests with positive and negative non-one origins, odd remainders, and the
 MIC/HOST rejection path.
+
+## WRF-011: Kessler ignores passed thermodynamic constants in part of the update
+
+Status: source-confirmed numerical inconsistency, including with WRF's default
+model constants; scientific intent requires maintainer confirmation.
+
+`phys/module_mp_kessler.F:81` calculates the saturation-adjustment factor with
+the passed `xlv` and `cp` values:
+
+```fortran
+f5 = svp2*(svpt0-svp3)*xlv/cp
+```
+
+The later latent-heating and pressure expressions at lines 215-216 instead use
+hard-coded values:
+
+```fortran
+pressure = 1.000e+05 * (pii(i,k,j)**(1004./287.))
+gam = 2.5e+06/(1004.*pii(i,k,j))
+```
+
+WRF's default `module_model_constants.F` defines `cp = 7*r_d/2 = 1004.5`, not
+1004. Consequently, even the normal default call uses one heat capacity in
+`f5` and another in `gam` and the pressure exponent. Alternate caller-provided
+`xlv` or `cp` values affect only part of the update.
+
+The Rust port intentionally preserves the mixed constants because all 660
+oracle outputs require exact parity. Suggested upstream investigation: confirm
+whether the legacy 1004 values are scientifically intentional. If not, replace
+them with the passed constants (and pass `r_d` if required), then add a
+regression using non-default constants. This change would alter results and
+must be treated as a scientific behavior change rather than cleanup.
+
+## WRF-012: Kessler sedimentation assumes `kts = 1`
+
+Status: source-confirmed latent bounds and interface defect. Normal ARW calls
+appear to use `kts = 1`; operational impact outside that contract is not yet
+established.
+
+The routine accepts `kts` and declares scratch arrays with bounds `kts:kte`,
+but initialization and spacing loops at lines 110 and 120 start from literal
+level `1`. Bottom density and precipitation also read literal level `1` at
+lines 114 and 144. Later loops switch back to `kts`.
+
+If `kts > 1`, accesses such as `vt(1)`, `prodk(1)`, and `rhok(1)` fall outside
+the declared automatic-array bounds. If a memory allocation contains level 1
+but the active tile begins higher, the routine also processes excluded levels
+before writing only `kts:kte` back to `prod`.
+
+The Rust region rejects non-surface vertical starts explicitly rather than
+pretending the upstream routine supports them. Suggested upstream fix: either
+document and assert `kts == 1`, or consistently use `kts` as the lower bound and
+define which density level supplies the fall-speed correction. Add a
+`-fcheck=bounds` regression with `kts > 1` before accepting the latter change.
+
+## WRF-013: Kessler numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the scheme definition, physics-driver calls,
+and tangent-linear/adjoint variants, but no dedicated numerical regression for
+`module_mp_kessler.F`. Important branches include dry and saturated columns,
+the cloud autoconversion threshold, rain accretion, evaporation limits,
+adaptive sedimentation substeps, precipitation accumulation, and untouched
+horizontal halos.
+
+The local differential oracle compiles the pinned module directly and compares
+all 660 mutable outputs by raw single-precision bits. It covers four rain
+regimes, both sides of the cloud threshold, multi-step fallout, non-one
+horizontal origins, and halo sentinels. A future upstream test should also add
+exceptional values and a coupled precipitation trajectory.

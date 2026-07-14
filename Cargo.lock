@@ -874,6 +874,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "wrf-physics"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "rayon",
+ "stats_alloc",
+ "wrf-compute",
+]
+
+[[package]]
 name = "wrf-registry"
 version = "0.1.0"
 

@@ -32,6 +32,9 @@ implemented system; proposed work is explicitly labeled.
 - [Column-mass staggering](Column-Mass-Staggering.md) — C-grid interpolation,
   physical-boundary copy rules, domain/tile/storage contracts, operation order,
   and exact-bit evidence.
+- [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
+  cloud conversion, saturation adjustment, reusable workspace, parallel rows,
+  and exact pinned-WRF evidence.
 - [Development infrastructure](Development-Infrastructure.md) — source pinning,
   scripts, verification gates, and documentation policy.
 - [Positive-definite performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/positive-definite-2026-07-13.md)
@@ -41,6 +44,9 @@ implemented system; proposed work is explicitly labeled.
 - [Column-mass staggering performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/column-mass-staggering-2026-07-13.md)
   — matched geometry, CPU scaling, allocation evidence, and the rejected SIMD
   screen.
+- [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
+  — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
+  accounting.
 - [Rust/Fortran performance ledger](https://github.com/mikeortman/wrf-rs/blob/main/PERFORMANCE_PARITY.md) — matched
   workload policy and cumulative comparison table.
 - [Rust module structure](https://github.com/mikeortman/wrf-rs/blob/main/docs/architecture/module_structure.md) — family-owned

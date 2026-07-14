@@ -1,0 +1,22 @@
+[package]
+name = "wrf-physics"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Parity-tested WRF physical parameterization kernels"
+
+[lints]
+workspace = true
+
+[dependencies]
+rayon = "1.10"
+wrf-compute = { path = "../wrf-compute" }
+
+[dev-dependencies]
+criterion = "0.7"
+stats_alloc = "0.1.10"
+
+[[bench]]
+name = "kessler_microphysics"
+harness = false

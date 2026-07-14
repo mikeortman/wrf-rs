@@ -47,6 +47,9 @@ upstream tests and differential fixtures pass.
   positive-definite correction, Held-Suarez momentum damping, and non-periodic
   column-mass staggering, checked against upstream `REAL` bit patterns across
   deterministic fixtures and seeded randomized corpora.
+- `wrf-physics` contains the first physical parameterization: parallel Kessler
+  warm-rain microphysics with reusable scratch and exact pinned-Fortran output
+  parity.
 - CPU SIMD is selected per translated kernel after scalar parity; see
   `docs/architecture/simd.md`.
 - Scientific source families own nested modules instead of flattening every
@@ -81,7 +84,7 @@ WRF initialization and match an upstream integration.
 | Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
 | Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
 | ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and every `calc_mu_staggered` physical-boundary path have deterministic and seeded randomized Fortran oracles, matched optimized-Fortran benchmarks, CPU scaling results, and allocation budgets | Port periodic mass staggering and begin dependency-closed ARW integration |
-| Physics drivers and schemes | Not started | — | Inventory schemes and translate one dependency-closed column |
+| Physics drivers and schemes | In progress | Kessler warm-rain microphysics matches all 660 mutable oracle values exactly; one/four-worker determinism, reusable scratch, matched optimized-Fortran benchmark, and allocation evidence | Port microphysics driver/state mapping and add a coupled precipitation trajectory |
 | I/O and NetCDF metadata | Not started | — | Round-trip WRF files with exact schema parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
 | End-to-end idealized/regression suite | Not started | — | `em_b_wave`/`em_squall2d_x` differential runs |
@@ -117,10 +120,13 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-clipped-tiles-oracle.sh
 ./scripts/run-mpi-halo-parity.sh
 ./scripts/run-periodic-halo-oracle.sh
+./scripts/run-kessler-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
+./scripts/benchmark-kessler-fortran.sh
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
+cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ```
 
 The upstream source is intentionally ignored by the root repository. Its tag,
