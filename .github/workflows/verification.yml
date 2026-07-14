@@ -77,6 +77,8 @@ jobs:
         run: ./scripts/run-moisture-coefficient-oracle.sh
       - name: Verify full inverse density
         run: ./scripts/run-inverse-density-oracle.sh
+      - name: Verify pressure-point geopotential
+        run: ./scripts/run-pressure-point-geopotential-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

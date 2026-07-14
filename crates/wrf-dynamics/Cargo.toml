@@ -44,3 +44,7 @@ harness = false
 [[bench]]
 name = "inverse_density"
 harness = false
+
+[[bench]]
+name = "pressure_point_geopotential"
+harness = false

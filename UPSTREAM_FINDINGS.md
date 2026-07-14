@@ -553,3 +553,53 @@ axis independently and together, negative/non-one memory origins, finite
 overflow, cancellation, signed zero, opposite infinities, untouched storage,
 and worker-count determinism. A useful upstream test should add the same
 geometry and exercise `alt` through an integrated `rk_step_prep` trajectory.
+
+## WRF-027: `calc_php` assumes a stored upper full level
+
+Status: source-confirmed latent bounds precondition. Normal ARW grids provide
+the required vertical stagger; impact is limited to invalid independent bounds.
+
+The loop clips `ktf` to `kde-1` at line 1256, then reads both `ph(i,k+1,j)` and
+`phb(i,k+1,j)` at line 1261. The routine accepts `kde` and `kme` independently
+but does not document or check that the memory allocation includes logical
+level `kde`. A caller with `kde > kme` can therefore read outside the declared
+dummy-array bounds.
+
+The Rust region rejects a missing upper full level before mutation. Suggested
+upstream action: document and assert `kde <= kme`, or replace independent
+integers with a validated grid descriptor. Add a `-fcheck=bounds` regression
+for the missing-neighbor case.
+
+## WRF-028: `calc_php` partially defines an `INTENT(OUT)` array
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`php` is declared `INTENT(OUT)` at line 1241, making the complete dummy array
+undefined on entry. The routine clips all upper tile endpoints at lines
+1254–1256 and writes only active mass points at line 1261. Halos, upper stagger
+storage, and points outside a subdomain tile are not assigned.
+
+Observed GNU Fortran builds retain prior bytes in inactive storage, enabling
+sentinel verification, but those values are not standard-conforming after the
+call. Suggested upstream action: change `php` to `INTENT(INOUT)` when
+preservation is intended, or assign the complete array and document inactive
+values.
+
+## WRF-029: pressure-point geopotential numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_php`, its `rk_step_prep`
+call, equivalent initialization expressions, and downstream pressure-gradient
+consumers, but no dedicated numerical regression for the production routine.
+Its apparent simplicity hides three-axis clipping, a vertical neighbor, partial
+output definition, and floating-point operation-order sensitivity.
+
+The local differential oracle extracts the exact routine body and compares all
+2,352 stored output and sentinel values across six cases. It covers independent
+and combined upper boundaries, negative/non-one memory origins, the required
+upper full level, source-order-sensitive overflow, signed zero, opposite
+infinities, untouched storage, and worker-count determinism. A useful upstream
+test should add the same geometry and then exercise all seven diagnostics in an
+integrated `rk_step_prep` trajectory.

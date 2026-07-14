@@ -70,6 +70,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Dry-air omega diagnosis | 2,686,976 omega outputs | 1.832250 ms median `[1.743500, 1.881850]` | 5.0201 ms `[4.9991, 5.0425]` | 0.66690 ms (16 workers) | Rust serial 2.74× slower; Rust 4-worker 1.38× faster; Rust 16-worker 2.75× faster; stop tuning |
 | Moisture momentum coefficients | 7,819,264 coefficient outputs | 5.221150 ms median `[5.161350, 5.510350]` | 7.1239 ms `[7.0845, 7.1668]` | 2.0418 ms (4 workers) | Rust serial 36.4% slower; Rust 4-worker 2.56× faster; Rust 16-worker 1.52× faster; stop tuning |
 | Full inverse density | 2,621,440 mass-point outputs | 0.210880 ms median `[0.206400, 0.223980]` | 0.32594 ms `[0.32076, 0.33097]` | 0.12102 ms (4 workers) | Rust serial 54.6% slower; Rust 4-worker 1.74× faster; stop tuning |
+| Pressure-point geopotential | 2,621,440 mass-point outputs | 0.402140 ms median `[0.377740, 0.464480]` | 0.44482 ms `[0.44034, 0.44991]` | 0.14072 ms (4 workers) | Rust serial 10.6% slower; Rust 4-worker 2.86× faster; stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -92,6 +93,7 @@ cargo bench -p wrf-dynamics --bench momentum_coupling -- --noplot
 cargo bench -p wrf-dynamics --bench omega_diagnosis -- --noplot
 cargo bench -p wrf-dynamics --bench moisture_coefficients -- --noplot
 cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
+cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -102,6 +104,7 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-omega-diagnosis-fortran.sh
 ./scripts/benchmark-moisture-coefficients-fortran.sh
 ./scripts/benchmark-inverse-density-fortran.sh
+./scripts/benchmark-pressure-point-geopotential-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -234,6 +237,22 @@ scientific oracle.
 - Settled execution records one 1,520-byte scheduler allocation per 100 calls,
   no reallocations, and no numerical scratch. The standard multithreaded path
   is competitive, so additional SIMD and scheduling work stops here.
+
+## Pressure-point geopotential comparison notes
+
+- Both implementations average base-state and perturbation geopotential from
+  adjacent full levels into 2,621,440 active pressure points on a
+  256 × 256 × 40 mass grid.
+- Fortran uses eleven samples of 50 calls after 20 warm-up calls. Rust uses
+  Criterion's 100-sample statistical benchmark. All three fields are reused.
+- Rust preserves WRF's base-state-first four-term single-precision addition
+  order. The exact oracle includes a reassociation-sensitive overflow case.
+- One-worker Rust is 10.6% slower than optimized serial Fortran. Four-worker
+  Rust is 2.86× faster; 16 workers add overhead and are 1.6% slower than
+  Fortran.
+- Settled execution records one 1,520-byte scheduler allocation per 100 calls,
+  no reallocations, and no numerical scratch. The ordinary multithreaded path
+  clears the performance gate, so explicit SIMD work stops here.
 
 ## Kessler microphysics comparison notes
 

@@ -22,6 +22,7 @@ mod moisture_coefficients;
 mod momentum_coupling;
 mod omega_diagnosis;
 mod positive_definite;
+mod pressure_point_geopotential;
 #[cfg(test)]
 mod test_support;
 
@@ -58,4 +59,9 @@ pub use omega_diagnosis::{
 pub use positive_definite::{
     PositiveDefiniteError, PositiveDefiniteKernels, PositiveDefiniteResult,
     PositiveDefiniteSlabAxis, PositiveDefiniteSlabRegion,
+};
+pub use pressure_point_geopotential::{
+    PressurePointGeopotentialAxis, PressurePointGeopotentialError, PressurePointGeopotentialField,
+    PressurePointGeopotentialKernels, PressurePointGeopotentialRegion,
+    PressurePointGeopotentialResult,
 };
