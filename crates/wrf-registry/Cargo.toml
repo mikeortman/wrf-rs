@@ -1,0 +1,18 @@
+[package]
+name = "wrf-registry"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Typed parser and selected code generator for the WRF Registry DSL"
+
+[lints]
+workspace = true
+
+[lib]
+name = "wrf_registry"
+path = "src/lib.rs"
+
+[[bin]]
+name = "wrf-registry-generate"
+path = "src/bin/wrf_registry_generate.rs"

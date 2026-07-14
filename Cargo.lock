@@ -644,6 +644,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "wrf-registry"
+version = "0.1.0"
+
+[[package]]
 name = "wrf-time"
 version = "0.1.0"
 
