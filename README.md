@@ -115,37 +115,32 @@ upstream tests and differential fixtures pass.
   `docs/architecture/module_structure.md`.
 - Rust tests cite the corresponding cases in
   `upstream/WRF/external/esmf_time_f90/Test1.F90`.
-- The port-status table below is the source of truth for implementation scope.
+- The generated [port-status matrix](docs/generated/port-status.md), backed by
+  [`tracking/port-status.json`](tracking/port-status.json), is the source of
+  truth for accepted implementation scope.
 - The [GitHub Wiki](https://github.com/mikeortman/wrf-rs/wiki) publishes the
   technical encyclopedia maintained under [`docs/wiki`](docs/wiki/README.md).
 - [`UPSTREAM_FINDINGS.md`](UPSTREAM_FINDINGS.md) records reproducible WRF bugs,
   test gaps, and performance opportunities suitable for upstream reporting.
-- [`TEST_COVERAGE.md`](TEST_COVERAGE.md) tracks what is tested and what still
-  needs adversarial coverage.
-- [`PERFORMANCE_PARITY.md`](PERFORMANCE_PARITY.md) tracks matched Rust and
-  optimized-Fortran kernel performance without extrapolating to whole-model
-  speedup.
+- GitHub Issues, sub-issues, and the **WRF Rust Port** Project own mutable work,
+  priorities, dependencies, and coverage gaps.
+- The generated [benchmark catalog](docs/generated/benchmark-catalog.md) and
+  post-merge Actions receipts track matched Rust and optimized-Fortran kernel
+  performance without extrapolating to whole-model speedup.
+- The public [WRF Rust Port Project](https://github.com/users/mikeortman/projects/1)
+  is the queryable roadmap; the latest post-merge performance matrix publishes
+  to [GitHub Pages](https://mikeortman.github.io/wrf-rs/).
 
 ## Port status
 
 Target: WRF v4.7.1 at commit
 `f52c197ed39d12e087d02c50f412d90d418f6186`.
 
-The states below describe translated interfaces and tests, not scientific
-accuracy. Whole-model parity remains 0% until a Rust executable can consume a
-WRF initialization and match an upstream integration.
-
-| Area | State | Evidence | Next gate |
-|---|---|---|---|
-| Source pin and license | Complete | `UPSTREAM.toml`, `scripts/fetch-wrf.sh` | Monitor upstream only by explicit retargeting |
-| ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
-| Registry/configuration | In progress | Typed `dimspec`, `state`, and `rconfig` parser with physical source locations; six WRF-generated artifact goldens match exactly | Add includes/conditionals, packages, typedefs, communication entries, and the remaining generators |
-| Domain decomposition / halo exchange | In progress | Exact `task_for_point.c` decomposition; direct `period.c` periodic/stagger parity; deterministic local and four-rank MPI results match | Add generated communication descriptors, multi-field aggregation, nesting, and broader process grids |
-| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, all three column-mass staggering entry points, integrated failure-atomic `rk_step_prep`, `rk_addtend_dry`, the coupled `rk_addtend_dry` → `spec_bdy_dry` stage, the complete seven-kernel local acoustic trajectory, `spec_bdyupdate`, `spec_bdyupdate_ph`, `zero_grad_bdy`, all three `flow_dep_bdy` policies, `spec_bdy_final`, `spec_bdytend`, `spec_bdy_dry`, `relax_bdytend`, and the `relax_bdy_dry`/`mass_weight` dry wrapper have direct Fortran evidence; the trajectory matches 2,196 selected final values and 88,952 boundary/coupled fixture values match exactly or by NaN class | Prepend first-substep dry relaxation to the coupled stage, then add specified updates and halo exchange around the local acoustic trajectory |
-| Physics drivers and schemes | In progress | Kessler warm-rain microphysics matches all 660 mutable oracle values exactly; one/four-worker determinism, reusable scratch, matched optimized-Fortran benchmark, and allocation evidence | Port microphysics driver/state mapping and add a coupled precipitation trajectory |
-| I/O and NetCDF metadata | In progress | Typed minimum ARW schema; independent NetCDF-C/Rust restart files match ordered metadata and every field bit | Add full Registry-selected state, alarm metadata, NetCDF-4 output policy, and resumed-trajectory parity |
-| WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
-| End-to-end idealized/regression suite | Not started | — | `em_b_wave`/`em_squall2d_x` differential runs |
+The current area, state, evidence, next gate, and linked issue are generated in
+the [port-status matrix](docs/generated/port-status.md). Whole-model parity is
+still 0%: no Rust executable yet consumes WRF initialization and matches an
+upstream integration trajectory. The matrix describes accepted interfaces and
+tests, not scientific accuracy or a percentage extrapolated from source files.
 
 Parity means exact discrete behavior; per-routine numerical fixtures with an
 explicit exact or ULP policy; per-timestep trajectory comparisons including
@@ -154,6 +149,11 @@ Passing a looser end-state tolerance does not excuse an unexplained divergent
 trajectory.
 
 Work remaining is tracked in [GitHub Issues](https://github.com/mikeortman/wrf-rs/issues).
+The [ARW baseline parent objective](https://github.com/mikeortman/wrf-rs/issues/81)
+derives its progress from dependency-linked sub-issues.
+The [tracking model](tracking/README.md) explains how issues, structured facts,
+generated views, and Actions evidence replace the former Markdown handoff
+ledger.
 
 Each implementation starts from one issue on an `issue-N` branch, lands through
 one pull request whose description closes that issue, and uses auto-merge only

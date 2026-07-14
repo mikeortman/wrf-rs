@@ -1,0 +1,66 @@
+name: Project task
+description: Track infrastructure, testing, performance, documentation, or upstream work
+title: "Task: "
+projects:
+  - "mikeortman/1"
+body:
+  - type: dropdown
+    id: work_type
+    attributes:
+      label: Work type
+      options:
+        - Port
+        - Parity and test
+        - Performance
+        - Documentation
+        - Upstream finding
+        - Infrastructure
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Time
+        - Compute
+        - Registry
+        - Domain and MPI
+        - ARW dynamics
+        - Physics
+        - I/O
+        - Integration
+        - Infrastructure
+    validations:
+      required: true
+  - type: dropdown
+    id: horizon
+    attributes:
+      label: Horizon
+      description: Planning horizon, not a delivery promise.
+      options:
+        - Now
+        - Next
+        - Later
+        - Someday
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: State the observable result, not only the implementation idea.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and relationships
+      description: Link parent, blocking, and blocked issues where known.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Acceptance evidence
+      description: List parity, tests, measurements, documentation, or external confirmation needed to close the issue.
+    validations:
+      required: true

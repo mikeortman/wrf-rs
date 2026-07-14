@@ -3,6 +3,8 @@ description: Track one dependency-closed WRF compatibility slice
 title: "Port: "
 labels:
   - "type: port"
+projects:
+  - "mikeortman/1"
 body:
   - type: input
     id: upstream
@@ -28,10 +30,10 @@ body:
         - label: Rust scalar implementation matches the parity policy
         - label: Missing edge and malformed-input tests were added
         - label: One-worker and multithreaded results are deterministic
-        - label: Rust and matched optimized-Fortran benchmarks are recorded
+        - label: The suite is registered in tracking/benchmarks.json and post-merge performance automation is applicable
         - label: Allocation behavior is measured
         - label: SIMD was accepted or rejected with parity and benchmark evidence
-        - label: Rustdoc, wiki, coverage, findings, and README status are updated
+        - label: Rustdoc, wiki, structured parity state, and upstream findings are updated
         - label: Full formatting, test, Clippy, rustdoc, and diff gates pass
   - type: textarea
     id: notes

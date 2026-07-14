@@ -1,0 +1,191 @@
+name: Performance
+
+on:
+  workflow_run:
+    workflows:
+      - Verification
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      all_suites:
+        description: Run every matched Rust and Fortran suite
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  pages: write
+  pull-requests: write
+
+concurrency:
+  group: performance-main
+  cancel-in-progress: false
+
+jobs:
+  select:
+    name: Select changed suites
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.selection.outputs.count }}
+      matrix: ${{ steps.selection.outputs.matrix }}
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - name: Resolve verified source
+        id: source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          DISPATCH_SHA: ${{ github.sha }}
+        run: |
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            echo "sha=$WORKFLOW_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=$DISPATCH_SHA" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Check out verified source
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+          ref: ${{ steps.source.outputs.sha }}
+      - name: Build benchmark matrix
+        id: selection
+        env:
+          RUN_ALL: ${{ inputs.all_suites || 'false' }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          arguments=(--base "${SOURCE_SHA}^" --head "$SOURCE_SHA" --github-output "$GITHUB_OUTPUT")
+          if [[ "$RUN_ALL" == "true" ]]; then
+            arguments+=(--all)
+          fi
+          python3 tools/tracking.py select "${arguments[@]}"
+      - name: Explain an empty matrix
+        if: steps.selection.outputs.count == '0'
+        run: echo "No numerical implementation or benchmark definition changed; no performance suites were selected." >> "$GITHUB_STEP_SUMMARY"
+
+  benchmark:
+    name: Benchmark ${{ matrix.label }}
+    needs:
+      - select
+    if: needs.select.outputs.count != '0'
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    env:
+      CARGO_PROFILE_BENCH_CODEGEN_UNITS: 1
+      CARGO_PROFILE_BENCH_LTO: thin
+      CARGO_PROFILE_BENCH_OPT_LEVEL: 3
+      WRF_BENCHMARK_RUNNER_CLASS: github-hosted-relative
+    steps:
+      - name: Check out verified source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.select.outputs.source_sha }}
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Cargo artifacts
+        uses: Swatinem/rust-cache@v2
+      - name: Install matched Fortran toolchain
+        run: sudo apt-get update && sudo apt-get install --yes gfortran libnetcdf-dev libopenmpi-dev openmpi-bin
+      - name: Prepare archive cache
+        run: mkdir -p "${RUNNER_TEMP}/wrf-downloads"
+      - name: Cache pinned WRF archive
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/wrf-downloads
+          key: wrf-archives-${{ hashFiles('UPSTREAM.toml') }}
+      - name: Fetch checksum-pinned WRF source
+        env:
+          WRF_DOWNLOAD_CACHE: ${{ runner.temp }}/wrf-downloads
+        run: ./scripts/fetch-wrf.sh
+      - name: Run matched optimized benchmark
+        run: python3 tools/tracking.py run-benchmark --id "${{ matrix.id }}" --output-directory benchmark-results
+      - name: Upload normalized result and raw logs
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-${{ matrix.id }}
+          path: benchmark-results/
+          retention-days: 90
+
+  aggregate:
+    name: Aggregate performance matrix
+    needs:
+      - select
+      - benchmark
+    if: >-
+      always() && needs.select.result == 'success' &&
+      needs.select.outputs.count != '0' && needs.benchmark.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out verified source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.select.outputs.source_sha }}
+      - name: Download matched benchmark evidence
+        uses: actions/download-artifact@v8
+        with:
+          pattern: benchmark-*
+          path: raw-results
+      - name: Download the previously published cumulative matrix
+        run: |
+          if curl --fail --silent --show-error --output previous-summary.download "https://mikeortman.github.io/wrf-rs/benchmark-summary.json?run=${GITHUB_RUN_ID}"; then
+            mv previous-summary.download previous-summary.json
+          fi
+      - name: Build Markdown, JSON, and Pages views
+        env:
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 tools/tracking.py aggregate --results-directory raw-results --output-directory dashboard --run-url "$RUN_URL" --previous-summary previous-summary.json
+      - name: Publish matrix in the workflow summary
+        run: cat dashboard/benchmark-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Find the merged pull request
+        id: pull-request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ needs.select.outputs.source_sha }}
+        run: |
+          number=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/pulls" --jq '.[0].number // empty')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+      - name: Attach the performance receipt to the merged pull request
+        if: steps.pull-request.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr comment "${{ steps.pull-request.outputs.number }}" --body-file dashboard/benchmark-receipt.md
+      - name: Upload aggregate evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: performance-matrix-${{ needs.select.outputs.source_sha }}
+          path: dashboard/
+          retention-days: 90
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+      - name: Package the latest dashboard for Pages
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dashboard/
+
+  deploy:
+    name: Publish latest performance dashboard
+    needs:
+      - select
+      - aggregate
+    if: >-
+      always() && needs.aggregate.result == 'success' &&
+      (github.event_name == 'workflow_run' || github.ref == 'refs/heads/main')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

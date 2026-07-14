@@ -2,8 +2,11 @@
 
 Last updated: 2026-07-14
 
-This file is the durable handoff for continuing the WRF Rust port after context
-compaction or a new session. Update it only with verified current-state facts.
+> **Legacy snapshot.** This file is retained for historical context and is no
+> longer a mutable handoff or backlog. Query GitHub Issues and the **WRF Rust
+> Port** Project for work state, `tracking/port-status.json` for parity state,
+> and Actions performance receipts for measurements. Do not update totals,
+> TODOs, or benchmark values here.
 
 ## Goal and non-negotiable constraints
 
@@ -1060,19 +1063,6 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Prepend first-substep `relax_bdy_dry` to the coupled dry stage, then add
-   specified updates and boundary/halo operations around the verified acoustic
-   trajectory.
-2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
-   fields, WRF alarm metadata, and a resumed idealized trajectory.
-3. Add Registry-generated asymmetric halo descriptors and multi-field message
-   aggregation to the domain transport.
-4. Extend Registry preprocessing with includes and conditional definitions.
-5. Add Registry-backed state binding and a short prognostic trajectory through
-   integrated `rk_step_prep`, `rk_addtend_dry`, acoustic preparation, and
-   pressure diagnosis.
-6. Add Registry packages, typedefs, communication entries, and remaining
-   generated artifacts in dependency-closed slices.
-7. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
-8. Connect Kessler fields to Registry moisture species and the microphysics
-   driver, then add a coupled precipitation trajectory.
+This list has moved to queryable GitHub parent issues and sub-issues. Use
+`gh issue list --repo mikeortman/wrf-rs --state open --limit 100` and the
+**WRF Rust Port** Project instead of editing this snapshot.

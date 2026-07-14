@@ -9,6 +9,9 @@ implemented system; proposed work is explicitly labeled.
 
 - [System overview](System-Overview.md) — major WRF subsystems and the Rust
   workspace map.
+- [Project tracking and performance automation](Project-Tracking-and-Performance-Automation.md)
+  — queryable sources of truth, issue hierarchy, benchmark selection, receipts,
+  and merge-safety policy.
 - [Execution and storage](Execution-and-Storage.md) — memory order,
   multithreading, capability traits, and the future GPU boundary.
 - [Parity and testing](Parity-and-Testing.md) — what “same output” means and how

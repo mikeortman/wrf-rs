@@ -2,3 +2,5 @@
 **/target/
 /upstream/WRF/
 *.mod
+__pycache__/
+*.py[cod]

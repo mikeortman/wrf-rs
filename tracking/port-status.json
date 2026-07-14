@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "target": {
+    "name": "WRF",
+    "version": "4.7.1",
+    "commit": "f52c197ed39d12e087d02c50f412d90d418f6186"
+  },
+  "whole_model_parity": {
+    "state": "not-started",
+    "percent": 0,
+    "definition": "A Rust executable consumes WRF initialization and matches an upstream integration trajectory."
+  },
+  "areas": [
+    {
+      "id": "source",
+      "area": "Source pin and license",
+      "state": "complete",
+      "evidence": "UPSTREAM.toml and scripts/fetch-wrf.sh pin and verify WRF v4.7.1.",
+      "next_gate": "Retarget only through an explicit issue and compatibility audit."
+    },
+    {
+      "id": "time",
+      "area": "ESMF-derived time/calendar",
+      "state": "complete-active-surface",
+      "evidence": "All 93 active Test1 cases and both Fortran interfaces match the golden output.",
+      "next_gate": "Add cases when later WRF callers expose untested behavior."
+    },
+    {
+      "id": "registry",
+      "area": "Registry and configuration",
+      "state": "in-progress",
+      "evidence": "Typed dimspec, state, and rconfig parsing plus six exact generated-artifact goldens.",
+      "next_gate": "Includes, conditionals, packages, typedefs, communication entries, and remaining generators.",
+      "tracking_issue": 83
+    },
+    {
+      "id": "domain",
+      "area": "Domain decomposition and halo exchange",
+      "state": "in-progress",
+      "evidence": "Exact task_for_point.c decomposition, period.c parity, and deterministic local and four-rank MPI results.",
+      "next_gate": "Generated communication descriptors, multi-field aggregation, nesting, and broader process grids.",
+      "tracking_issue": 88
+    },
+    {
+      "id": "dynamics",
+      "area": "ARW dynamical core",
+      "state": "in-progress",
+      "evidence": "Dependency-closed dry, acoustic, and specified-boundary kernels have direct pinned-Fortran parity; the local acoustic trajectory matches 2,196 selected final values.",
+      "next_gate": "Compose first-substep relaxation, specified updates, and halo exchange around the verified acoustic trajectory.",
+      "tracking_issue": 86
+    },
+    {
+      "id": "physics",
+      "area": "Physics drivers and schemes",
+      "state": "in-progress",
+      "evidence": "Kessler warm-rain microphysics matches all 660 mutable oracle values with deterministic worker counts and bounded scratch.",
+      "next_gate": "Microphysics driver and Registry moisture-species mapping, then a precipitation trajectory.",
+      "tracking_issue": 87
+    },
+    {
+      "id": "io",
+      "area": "I/O and NetCDF metadata",
+      "state": "in-progress",
+      "evidence": "The minimum typed ARW schema writes independently comparable restart metadata and field bits.",
+      "next_gate": "Full Registry-selected state, alarms, NetCDF-4 policy, and resumed-trajectory parity.",
+      "tracking_issue": 84
+    },
+    {
+      "id": "extended-components",
+      "area": "WRFDA, WRF-Chem, WRF-Hydro, and TL/adjoint",
+      "state": "not-started",
+      "evidence": "No accepted compatibility slice.",
+      "next_gate": "Create separate workstreams after the ARW baseline."
+    },
+    {
+      "id": "end-to-end",
+      "area": "End-to-end idealized and regression suite",
+      "state": "not-started",
+      "evidence": "No Rust executable trajectory accepted yet.",
+      "next_gate": "em_b_wave, then em_squall2d_x differential runs.",
+      "tracking_issue": 8
+    }
+  ]
+}

@@ -2,6 +2,9 @@ name: Verification
 
 on:
   pull_request:
+  merge_group:
+    types:
+      - checks_requested
   push:
     branches:
       - main
@@ -25,6 +28,10 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Install native development libraries
         run: sudo apt-get update && sudo apt-get install --yes libnetcdf-dev libopenmpi-dev openmpi-bin
+      - name: Validate queryable project metadata
+        run: |
+          python3 tools/tracking.py check
+          python3 -m unittest discover -s tools/tests -v
       - name: Check formatting
         run: cargo fmt --all --check
       - name: Test every workspace target
