@@ -1,5 +1,11 @@
 # Rust and Fortran performance tracking
 
+> **Historical snapshot.** The comparison policy and decision records below
+> remain useful, but the current suite catalog and measured values are no
+> longer hand-maintained here. See the generated
+> [benchmark catalog](docs/generated/benchmark-catalog.md), post-merge Actions
+> receipts, and the [latest GitHub Pages dashboard](https://mikeortman.github.io/wrf-rs/).
+
 This ledger compares each translated Rust numerical slice with the pinned WRF
 Fortran routine on the same machine and matched workload. It complements the
 detailed statistical benchmark pages; it is not a claim that isolated kernel

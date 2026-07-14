@@ -1,7 +1,9 @@
 # Test coverage and gap inventory
 
-This is the test-planning ledger. The root `README.md` tracks implementation
-scope; this file tracks confidence within that scope.
+> **Historical evidence inventory.** Use GitHub Issues, sub-issues, and the
+> **WRF Rust Port** Project for mutable coverage gaps and priorities. Accepted
+> coarse parity state lives in `tracking/port-status.json`; do not add changing
+> totals or TODO state here.
 
 ## Required layers
 
