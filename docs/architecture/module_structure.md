@@ -35,6 +35,17 @@ src/
 │   │   ├── velocity_rows.rs
 │   │   └── ...
 │   └── ...
+├── moisture_coefficients/
+│   ├── mod.rs
+│   ├── kernels.rs
+│   ├── region.rs
+│   ├── species.rs
+│   ├── cpu/
+│   │   ├── mod.rs
+│   │   ├── west_east.rs
+│   │   ├── south_north.rs
+│   │   └── vertical.rs
+│   └── ...
 └── positive_definite/
     ├── mod.rs
     ├── cpu.rs

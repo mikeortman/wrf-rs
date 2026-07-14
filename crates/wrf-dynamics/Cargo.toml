@@ -36,3 +36,7 @@ harness = false
 [[bench]]
 name = "omega_diagnosis"
 harness = false
+
+[[bench]]
+name = "moisture_coefficients"
+harness = false

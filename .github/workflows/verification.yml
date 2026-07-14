@@ -73,6 +73,8 @@ jobs:
         run: ./scripts/run-momentum-coupling-oracle.sh
       - name: Verify dry-air omega diagnosis
         run: ./scripts/run-omega-diagnosis-oracle.sh
+      - name: Verify moisture momentum coefficients
+        run: ./scripts/run-moisture-coefficient-oracle.sh
       - name: Verify randomized ARW corpora
         run: ./scripts/randomized-arw/run-oracles.sh
       - name: Verify WRF Registry generation

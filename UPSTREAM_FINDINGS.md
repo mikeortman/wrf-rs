@@ -453,3 +453,70 @@ tiles, combined boundaries, non-one/negative memory origins, finite overflow,
 zero map factors, and untouched storage. A useful upstream regression should
 add the same geometry, a full-column contract check, randomized finite inputs,
 and an integrated `rk_step_prep` trajectory.
+
+## WRF-021: `calc_cq` assumes west and south halo neighbors
+
+Status: source-confirmed latent bounds precondition. Normal ARW decomposition
+provides these halos; impact is limited to callers that violate the implicit
+tile contract.
+
+The `cqu` loop reads `moist(i-1,k,j,ispe)` beginning at `i=its`, and the `cqv`
+loop reads `moist(i,k,j-1,ispe)` beginning at `j=jts`. The routine accepts
+memory and tile bounds independently but does not document or check that
+`its > ims` and `jts > jms`. A tile beginning at its allocation lower bound
+therefore reads outside the declared dummy-array bounds when active species
+exist.
+
+The Rust region rejects missing west and south neighbors before mutation.
+Suggested upstream action: document and assert the halo precondition, or pass
+validated domain descriptors rather than independent integers. Add a
+`-fcheck=bounds` regression with each missing neighbor.
+
+## WRF-022: `calc_cq` partially defines three `INTENT(OUT)` arrays
+
+Status: source-confirmed Fortran interface defect; normal callers may not read
+inactive storage.
+
+`cqu`, `cqv`, and `cqw` are all declared `INTENT(OUT)`, which makes each entire
+dummy array undefined on entry. The routine assigns only component-specific
+tile ranges: `cqu` retains the upper west-east stagger, `cqv` retains the upper
+south-north stagger, and `cqw` excludes the tile's first vertical level. Halos,
+clipped upper points, and other allocated levels are not assigned.
+
+Observed GNU Fortran builds leave inactive bytes unchanged, enabling the local
+oracle to check sentinels, but prior values are not standard-conforming after
+the call. Suggested upstream action: use `INTENT(INOUT)` when preservation is
+the contract, or initialize every declared element and document its dry value.
+
+## WRF-023: `calc_cq` carries avoidable row scratch
+
+Status: source-confirmed performance opportunity; model-level impact has not
+been measured.
+
+The routine declares automatic `qtot(its:ite)` storage, clears the complete row
+for every active `(j,k)` pair, accumulates species into it, then makes another
+pass to write the output. For `cqv` and `cqw`, `itf` may be clipped below `ite`,
+so `qtot = 0.` also clears values that cannot be read. Modern compilers may
+optimize some traffic, and this finding does not claim a measured WRF defect.
+
+The parity-equivalent Rust implementation uses each active output row as the
+temporary total and overwrites it with the final coefficient, removing
+numerical scratch while preserving per-point addition order. Suggested
+upstream experiment: accumulate directly into the corresponding output range,
+restrict initialization to `its:itf`, and benchmark with exact-output checks.
+
+## WRF-024: moisture-coefficient numerical test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds the production `calc_cq` routine, its
+`rk_step_prep` call, downstream uses, and tangent-linear/adjoint variants, but
+no dedicated numerical regression for the production routine. Its zero-species
+branch, generated first-scalar index, three distinct staggers, lower-neighbor
+reads, and component-specific clipping are otherwise easy to regress.
+
+The local differential oracle extracts the exact production body and compares
+all 8,232 output and sentinel values across zero, one, and three active species,
+upper boundaries, non-one origins, vertical clipping, signed zero, and finite
+overflow. A useful upstream test should add the same geometry and then exercise
+the coefficients through `rk_step_prep` and a small-step trajectory.

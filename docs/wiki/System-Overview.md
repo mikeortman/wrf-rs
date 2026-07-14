@@ -30,7 +30,8 @@ utility slices are foundations, not evidence of forecast parity.
   communicator types from entering scientific kernel interfaces.
 - `wrf-dynamics` owns translated ARW numerical capabilities. Its first kernel
   families cover positive-definite correction, Held-Suarez damping, and
-  column-mass staggering.
+  selected `rk_step_prep` calculations: column-mass staggering, momentum
+  coupling, dry-air omega diagnosis, and moisture momentum coefficients.
 - `wrf-physics` owns translated physical parameterizations. Its first scheme is
   Kessler warm-rain microphysics with backend-native reusable workspace.
 - `wrf-io` owns typed WRF NetCDF schema, borrowed dataset validation, classic

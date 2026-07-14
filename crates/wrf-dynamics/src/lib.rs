@@ -17,6 +17,7 @@
 
 mod column_mass_staggering;
 mod held_suarez;
+mod moisture_coefficients;
 mod momentum_coupling;
 mod omega_diagnosis;
 mod positive_definite;
@@ -31,6 +32,11 @@ pub use column_mass_staggering::{
 pub use held_suarez::{
     HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,
     HeldSuarezDampingKernels, HeldSuarezDampingRegion, HeldSuarezDampingResult,
+};
+pub use moisture_coefficients::{
+    MoistureCoefficientAxis, MoistureCoefficientError, MoistureCoefficientField,
+    MoistureCoefficientKernels, MoistureCoefficientOutputs, MoistureCoefficientRegion,
+    MoistureCoefficientResult, MoistureSpecies,
 };
 pub use momentum_coupling::{
     MomentumCouplingAxis, MomentumCouplingCoefficient, MomentumCouplingCoefficients,
