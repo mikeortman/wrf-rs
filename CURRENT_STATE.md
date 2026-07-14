@@ -1,6 +1,6 @@
 # Current implementation state
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
 
 This file is the durable handoff for continuing the WRF Rust port after context
 compaction or a new session. Update it only with verified current-state facts.
@@ -209,6 +209,35 @@ physical lower and upper boundaries copy the nearest full mass exactly as WRF
 does. Its 16 randomized cases cross all four boundary states on both axes. The
 next ARW gates are periodic `calc_mu_uv` variants and idealized-case integration.
 
+### `wrf-io`
+
+Implemented:
+
+- a typed minimum ARW initialization/restart schema with checked mass and
+  staggered dimensions, fixed WRF timestamps, ordered metadata, and 13 core
+  variables;
+- current v4.7.1 Registry data naming, including `THM` rather than historical
+  `T`;
+- borrowed complete-dataset validation before filesystem mutation;
+- safe classic NetCDF 64-bit-offset output without field-sized clones;
+- NetCDF-3/4 input through the safe GeoRust wrapper into caller-owned buffers;
+- exact ordered restart schema, metadata, and raw-bit comparison with two
+  reusable scratch buffers capped at one MiB each; and
+- an independent NetCDF-C oracle that matches the Rust fixture exactly.
+
+The current reader intentionally accepts only dimensions and primitive types in
+the minimum schema. Full restart support still needs all Registry-selected
+fields and dimensions, WRF alarm attributes, multiple records, NetCDF-4 output
+policy, and a resumed idealized trajectory.
+
+Matched classic-format I/O measurements put 1,000 tiny complete restart writes
+in the same practical class (0.56 seconds NetCDF-C, 0.44 seconds Rust). For 400
+MiB of bulk field overwrites, Rust took 0.543888 seconds versus 0.242086 for
+NetCDF-C, while separate peak RSS was 19.6 MB versus 28.6 MB. A one-MiB standard
+buffer removed an initial per-value syscall pathology. The remaining 2.25×
+bulk gap is tracked; do not add a bespoke unsafe or SIMD serializer without an
+end-to-end profile and exact parity evidence.
+
 ## Performance decisions
 
 - Release profile: thin LTO, one codegen unit.
@@ -374,10 +403,12 @@ cargo test --workspace --release
 ./scripts/run-mpi-halo-parity.sh
 ./scripts/run-periodic-halo-oracle.sh
 ./scripts/run-kessler-oracle.sh
+./scripts/run-netcdf-restart-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
+./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
@@ -385,10 +416,10 @@ cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_all
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 99 unit tests and five doctests passed in debug and release modes (one
+Result: 110 unit tests and five doctests passed in debug and release modes (one
 corpus-generator test, 13 `wrf-compute`, 15 `wrf-domain`, two
 `wrf-domain-mpi`, 25 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
-and 20 `wrf-time`),
+11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
 Fortran time interfaces match `Test1.out.correct`, the focused numerical
@@ -403,6 +434,8 @@ exactly, and complete four-rank MPI patch memory matches the local executor.
 The Kessler oracle matches all 660 mutable values exactly; its matched timing,
 one/four/host-worker scaling, and explicit workspace/allocation accounting are
 recorded in the performance ledgers.
+The independent NetCDF-C and Rust minimum restart files are byte-identical and
+also pass typed schema, metadata, and raw-bit comparison.
 
 ## Maintained knowledge and quality ledgers
 
@@ -445,12 +478,14 @@ recorded in the performance ledgers.
 
 ## Immediate next actions
 
-1. Add Registry-generated asymmetric halo descriptors and multi-field message
+1. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
+   fields, WRF alarm metadata, and a resumed idealized trajectory.
+2. Add Registry-generated asymmetric halo descriptors and multi-field message
    aggregation to the domain transport.
-2. Extend Registry preprocessing with includes and conditional definitions.
-3. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
-4. Add Registry packages, typedefs, communication entries, and remaining
+3. Extend Registry preprocessing with includes and conditional definitions.
+4. Add periodic `calc_mu_uv` parity before larger ARW coupling work.
+5. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
-5. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
-6. Connect Kessler fields to Registry moisture species and the microphysics
+6. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
+7. Connect Kessler fields to Registry moisture species and the microphysics
    driver, then add a coupled precipitation trajectory.

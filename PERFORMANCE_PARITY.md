@@ -66,6 +66,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Held-Suarez damping | 2,097,152 momentum updates | 0.859712 ms median `[0.851224, 0.877004]` | 0.93459 ms `[0.92879, 0.94090]` | 0.29105 ms (4 workers) | Rust serial 8.7% slower; Rust 4-worker 2.95× faster |
 | Column-mass staggering | 2,099,200 momentum-mass outputs | 0.286850 ms median `[0.284748, 0.309500]` | 0.33280 ms `[0.32970, 0.33632]` | 0.11532 ms (4 workers) | Rust serial 16.0% slower; Rust 4-worker 2.49× faster |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
+| Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
 Domain topology is setup work and is not benchmarked as a timestep kernel.
 Halo throughput is also not assigned a Rust/Fortran ratio yet: a four-rank
@@ -83,6 +84,7 @@ cargo bench -p wrf-dynamics --bench positive_definite -- --noplot
 cargo bench -p wrf-dynamics --bench held_suarez -- --noplot
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
+./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-column-mass-staggering-fortran.sh
@@ -92,6 +94,18 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 The Rust detailed results live under `docs/performance/`. Fortran drivers live
 beside their parity fixtures so workload mapping can be reviewed with the
 scientific oracle.
+
+## NetCDF restart I/O comparison notes
+
+- WRF's storage backend is NetCDF-C, so the direct C comparison is more exact
+  than adding a Fortran wrapper around the same calls.
+- Both bulk writers create classic 64-bit-offset files and overwrite one
+  256 × 256 × 64 `float` field 25 times from a reused caller allocation.
+- A one-MiB `BufWriter` fixed the pure-Rust crate's per-value syscall behavior.
+  The remaining scalar byte-order conversion gap is documented rather than
+  hidden behind local unsafe code or an unproven SIMD serializer.
+- See `docs/performance/netcdf-restart-2026-07-14.md` for memory, limitations,
+  toolchains, and the tiny-schema control-plane run.
 
 ## Positive-definite comparison notes
 

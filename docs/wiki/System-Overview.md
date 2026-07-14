@@ -33,6 +33,8 @@ utility slices are foundations, not evidence of forecast parity.
   column-mass staggering.
 - `wrf-physics` owns translated physical parameterizations. Its first scheme is
   Kessler warm-rain microphysics with backend-native reusable workspace.
+- `wrf-io` owns typed WRF NetCDF schema, borrowed dataset validation, classic
+  64-bit-offset output, NetCDF-3/4 input, and bounded exact restart comparison.
 
 This split follows ownership. Time can be tested without a grid, compute can be
 tested without atmospheric formulas, Registry generation can be tested without

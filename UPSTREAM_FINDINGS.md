@@ -25,6 +25,7 @@ a measured regression until a representative benchmark exists.
 | WRF-011 | Numerical consistency | Source-confirmed against default constants | Kessler microphysics | Saturation adjustment uses passed `xlv`/`cp`, while latent heating and pressure use different hard-coded constants |
 | WRF-012 | Confirmed latent bug | Source-confirmed; bounds-check reproducer recommended | Kessler microphysics | Several sedimentation loops index from literal level `1` despite accepting and allocating from `kts` |
 | WRF-013 | Test gap | Repository search | Kessler microphysics | No dedicated numerical regression for the exported Kessler scheme was found in the WRF tree |
+| WRF-014 | Test gap | Source and build-rule inventory | NetCDF I/O | The bundled `testWRFWrite.F90` and `testWRFRead.F90` are not build targets and call obsolete unprefixed external entry points absent from the current I/O library |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -327,3 +328,23 @@ all 660 mutable outputs by raw single-precision bits. It covers four rain
 regimes, both sides of the cloud threshold, multi-step fallout, non-one
 horizontal origins, and halo sentinels. A future upstream test should also add
 exceptional values and a coupled precipitation trajectory.
+
+## WRF-014: orphaned NetCDF read/write tests
+
+Status: source-confirmed test infrastructure gap; no claim that production WRF
+NetCDF output is broken.
+
+`external/io_netcdf/README` presents `testWRFWrite.F90` and
+`testWRFRead.F90` as the package's tests. The current directory makefile has no
+target that compiles or runs either program; their names appear only in the
+cleanup rule. The programs call unprefixed procedures such as
+`ext_open_for_write_begin` and `ext_write_field`, while the current library
+defines the `ext_ncd_*` entry points with expanded metadata and decomposition
+arguments. A repository search finds no compatibility definitions for the
+unprefixed procedures in `external/io_netcdf` or `external/ioapi_share`.
+
+This leaves the low-level NetCDF backend without a maintained package-local
+round-trip gate. Suggested upstream action: either remove the programs and
+README instructions as historical artifacts, or update them to current
+interfaces and add a build/CTest target that checks schema, field values,
+multiple records, classic/NetCDF-4 modes, and restart metadata.
