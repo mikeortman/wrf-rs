@@ -162,6 +162,9 @@ horizontal axis. A useful upstream test should cover all eight axis/path
 combinations, subdomain tiles that rely on halos, exact single-precision
 rounding, and untouched storage outside the active rectangles.
 
-The local differential oracle currently covers the interior path for both
-staggerings and checks every active output plus surrounding sentinels by raw
-bits. Physical-boundary branches remain an explicit local and upstream gap.
+The local differential oracle now exercises interior, lower-boundary,
+upper-boundary, and both-boundaries paths on both staggerings. It checks all
+240 output and sentinel values by raw bits, including WRF's cross-axis domain
+clipping. This closes the routine-level local gap while leaving the upstream
+test gap unchanged. Periodic `calc_mu_uv` variants and full idealized-case
+integration remain separate coverage requirements.

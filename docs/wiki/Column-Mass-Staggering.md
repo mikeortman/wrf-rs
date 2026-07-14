@@ -1,16 +1,15 @@
 # Column-mass staggering
 
 WRF's ARW dynamical core stores dry-air column mass at scalar, or mass-grid,
-points. Horizontal momentum components live on an Arakawa C grid: the
-west-east component lies between adjacent mass points in the west-east
-direction, while the south-north component lies between adjacent rows.
-`calc_mu_staggered` constructs the mass factors needed at those two momentum
-locations.
+points. Horizontal momentum components live on an Arakawa C grid: west-east
+momentum lies between adjacent mass points in the west-east direction, while
+south-north momentum lies between adjacent rows. `calc_mu_staggered` constructs
+the full dry-air mass factors used at those two momentum locations.
 
-## Algorithm
+## Interior algorithm
 
 Let `mu` be perturbation dry-air column mass and `mub` the hydrostatic
-base-state contribution. At an interior west-east momentum point,
+base-state contribution. At an interior west-east momentum point, WRF computes
 
 ```text
 muu(i,j) = 0.5 * (mu(i,j) + mu(i-1,j) + mub(i,j) + mub(i-1,j))
@@ -23,41 +22,87 @@ muv(i,j) = 0.5 * (mu(i,j) + mu(i,j-1) + mub(i,j) + mub(i,j-1))
 ```
 
 The Rust implementation retains WRF's single precision and source operation
-order. It does not first materialize `mu + mub`, because that would change the
-rounding sequence and can change output bits.
+order. It does not first materialize `mu + mub`, because the different rounding
+sequence can change output bits.
 
-## Storage and ownership
+## Physical boundaries
 
-All four fields use contiguous west-east-major storage. A
-`ColumnMassStaggeringRegion` validates the two output rectangles separately:
-west-east momentum needs a preceding column, and south-north momentum needs a
-preceding row. This makes the halo dependency explicit instead of relying on
-Fortran lower bounds.
+A physical domain boundary is not a halo boundary. An interior subdomain tile
+has valid preceding mass values in its memory halo and uses the average above.
+A tile touching the global lower or upper boundary must instead copy the
+nearest full mass; there is no mass point beyond the physical edge.
 
-The two output fields are borrowed mutably and the mass fields immutably. Each
-output pass schedules complete, disjoint rows on the persistent CPU pool. No
-field clone or numerical scratch allocation occurs in the kernel. The two
-passes remain separate so future GPU backends can provide native kernels and
-storage rather than accepting host closures.
+| Axis path | Lower momentum point | Interior momentum points | Upper momentum point |
+|---|---|---|---|
+| Interior | average | average | average |
+| Lower only | `mu + mub` at the current mass point | average | average |
+| Upper only | average | average | `mu + mub` at the preceding mass point |
+| Both | current-point copy | average | preceding-point copy |
 
-## Current scope
+WRF evaluates these four paths independently for west-east and south-north
+momentum. The Rust port derives the same state for each axis and does not ask a
+caller to supply boolean boundary flags.
 
-The implemented slice corresponds to an interior WRF tile, where every output
-uses the two-point average. `calc_mu_staggered` also contains four physical
-boundary cases that copy the nearest full mass instead of averaging through a
-halo. Those branches are explicitly not yet implemented and remain the next
-parity gate; the root `README.md` does not count this routine as complete.
+## Domain, tile, and memory
+
+`ColumnMassStaggeringRegion` deliberately keeps three coordinate concepts
+separate:
+
+1. the field shape describes allocated memory, including any halos;
+2. each mass-domain range identifies the physical scalar domain; and
+3. each momentum-tile range identifies the points active in this invocation.
+
+All Rust ranges are zero-based and half-open memory offsets. A mass-domain
+range mirrors WRF's `ids..ide` or `jds..jde`: its exclusive endpoint is also
+the stored upper physical-boundary momentum point. A tile range mirrors WRF's
+inclusive `its..ite` or `jts..jte`, so its Rust exclusive endpoint is one
+larger. Equality at the lower endpoints means lower-boundary contact; equality
+between the tile end and `domain.end + 1` means upper-boundary contact.
+
+The constructor validates every relationship before any field is mutated. It
+also derives WRF's cross-axis clipping:
+
+```text
+west-east momentum rows = tile_y.start .. min(tile_y.end, domain_y.end)
+south-north momentum columns = tile_x.start .. min(tile_x.end, domain_x.end)
+```
+
+Values outside those rectangles remain untouched, including allocated halos
+and the unused stagger line at the other axis's upper boundary.
+
+## Execution and ownership
+
+All four fields use contiguous west-east-major storage. The two mass fields are
+borrowed immutably and the two outputs mutably. Each output pass schedules
+complete, disjoint rows on the persistent CPU pool, making standard host
+parallelism deterministic and race-free without a field clone or numerical
+scratch allocation.
+
+Boundary decisions happen once per row or once around the west-east interior
+loop. Interior loops remain contiguous and branch-free. Lightweight `Range`
+clones are used to make ownership clear; they contain only two machine words
+and do not allocate.
+
+The two output passes remain separate behind `ColumnMassStaggeringKernels` so a
+future GPU backend can implement native device kernels and storage rather than
+receiving CPU closures.
 
 ## Parity evidence
 
 `scripts/run-column-mass-staggering-oracle.sh` extracts the exact
-`calc_mu_staggered` routine body from the pinned
-`module_big_step_utilities_em.F`, compiles it with a deterministic interior
-fixture, and compares 60 raw IEEE-754 output values. Sentinels around both
-active rectangles prove that halos remain untouched. Rust additionally checks
-shape failure before mutation and bitwise equality between one and four CPU
-workers.
+`calc_mu_staggered` body from the pinned
+`dyn_em/module_big_step_utilities_em.F`, compiles it without rewriting the
+scientific routine, and runs four domain/tile configurations: interior, lower,
+upper, and both physical boundaries.
 
-The extraction is necessary because the routine lives inside a large module
-whose unrelated procedures depend on much of WRF. The script does not rewrite
-the scientific body; the pinned source text is selected verbatim at build time.
+Each case exercises the named path on both axes. The golden file stores all 240
+raw IEEE-754 output and sentinel values. Rust compares both complete output
+fields for every case, proving exact arithmetic, boundary copies, cross-axis
+clipping, and unchanged inactive storage. Separate tests prove validation
+before mutation and bitwise equality between one and four CPU workers when the
+tile touches all four physical boundaries.
+
+This evidence completes the non-periodic `calc_mu_staggered` routine-level
+paths. It does not cover the periodic `calc_mu_uv` variants, randomized inputs,
+exceptional floating-point values, or an end-to-end ARW trajectory; those
+remain explicit later gates.

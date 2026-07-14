@@ -93,12 +93,16 @@ Implemented:
 - exact-bit tendency updates over independently scheduled west-east lines;
 - scientific-family directories for `positive_definite` and `held_suarez`,
   with `lib.rs` retained as the stable public facade.
-- the interior interpolation path of ARW `calc_mu_staggered`, exposed through
-  `ColumnMassStaggeringKernels` with four typed output ranges;
+- all interior, lower-boundary, upper-boundary, and both-boundaries paths of
+  ARW `calc_mu_staggered`, exposed through `ColumnMassStaggeringKernels`;
+- typed separation of allocated memory shape, physical mass-domain ranges, and
+  active momentum-tile ranges, with boundary contact and cross-axis clipping
+  derived rather than supplied as boolean flags;
 - parallel, disjoint west-east-major output rows with immutable shared mass
   inputs and no field-sized scratch;
-- exact-body Fortran extraction oracle with 60 raw-bit output/sentinel checks,
-  plus validation and one/four-worker determinism tests.
+- exact-body Fortran extraction oracle with 240 raw-bit output/sentinel checks
+  across all eight axis/path combinations, plus validation-before-mutation and
+  one/four-worker determinism tests at all physical boundaries.
 
 The differential drivers compile the pinned upstream Fortran module directly.
 The sheet covers nine exact-bit cases, including signed zero and the epsilon
@@ -111,10 +115,12 @@ non-one memory origins. Added Rust tests cover one/four-worker determinism,
 shape failure before mutation, all range categories, staggered predecessors,
 and the pressure reference level.
 
-The column-mass staggering slice currently covers interior tiles only. Its
-physical lower/upper boundary-copy branches and matched benchmark are the next
-gates; do not mark `calc_mu_staggered` complete until those branches pass an
-expanded exact Fortran oracle.
+The non-periodic column-mass staggering routine-level paths are complete for the
+current deterministic corpus. Interior subdomain tiles use halo mass points;
+physical lower and upper boundaries copy the nearest full mass exactly as WRF
+does. The next gates are a matched Rust/Fortran benchmark, warmed allocation
+budget, randomized differential inputs, exceptional-float policy, periodic
+`calc_mu_uv` variants, and idealized-case integration.
 
 ## Performance decisions
 
@@ -211,7 +217,7 @@ executing Rust assertions, verified by
 
 ```text
 cargo fmt --all
-cargo test --workspace
+cargo test --workspace --all-targets
 cargo clippy --workspace --all-targets -- -D warnings
 RUSTDOCFLAGS='-D warnings' cargo doc --workspace --no-deps
 cargo test --workspace --release
@@ -225,15 +231,14 @@ cargo test --workspace --release
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 ```
 
-Result: 45 unit tests and two doctests passed in debug and release modes (11
-`wrf-compute`, 14 `wrf-dynamics`, 20 `wrf-time`), including all-target benchmark
-smoke execution. Clippy and rustdoc are clean. The release gate exposed and
-fixed a scheduler-test assumption that a small workload would necessarily be
-stolen by multiple workers; the test now coordinates overlapping tasks before
-asserting concurrency. All 93 active WRF time cases are referenced by executing
-Rust assertions, both Fortran time interfaces match `Test1.out.correct`, both
-positive-definite oracles match raw IEEE-754 bits, and the 16-selection
-Held-Suarez boundary oracle matches exactly.
+Result: 52 unit tests and three doctests passed in debug and release modes (11
+`wrf-compute`, 21 `wrf-dynamics`, 20 `wrf-time`), including all-target benchmark
+smoke execution. Clippy and rustdoc are clean. All 93 active WRF time cases are
+referenced by executing Rust assertions, both Fortran time interfaces match
+`Test1.out.correct`, both positive-definite oracles match raw IEEE-754 bits, the
+16-selection Held-Suarez boundary oracle matches exactly, and all 240
+`calc_mu_staggered` output/sentinel bits match across its eight axis/path
+combinations.
 
 ## Maintained knowledge and quality ledgers
 
@@ -262,11 +267,12 @@ Held-Suarez boundary oracle matches exactly.
 - `8d5e112` — durable state pointer for the benchmark checkpoint.
 - `adef46f` — interior ARW column-mass staggering, exact extracted-source
   oracle, typed ranges/errors, concurrency coverage, wiki, and findings.
+- `67d9ce3` — all `calc_mu_staggered` physical-boundary paths, domain/tile/memory
+  separation, 240-value exact Fortran corpus, and all-boundary determinism.
 
 ## Immediate next actions
 
-1. Port all physical-boundary branches of `calc_mu_staggered` and expand its
-   exact Fortran corpus.
-2. Add matched Rust/Fortran and allocation benchmarks for column-mass
-   staggering; screen SIMD only after scalar parity is complete.
+1. Add matched Rust/Fortran and allocation benchmarks for column-mass
+   staggering; screen SIMD only after the scalar performance baseline exists.
+2. Build a randomized differential corpus for all completed dynamics kernels.
 3. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

@@ -37,8 +37,8 @@ upstream tests and differential fixtures pass.
 - `wrf-compute` provides contiguous scalar fields and a persistent,
   work-stealing CPU pool that uses host parallelism by default.
 - `wrf-dynamics` contains line-parallel, scratch-free ports of WRF's
-  positive-definite correction and Held-Suarez momentum damping, checked
-  against upstream `REAL` bit patterns.
+  positive-definite correction, Held-Suarez momentum damping, and non-periodic
+  column-mass staggering, checked against upstream `REAL` bit patterns.
 - CPU SIMD is selected per translated kernel after scalar parity; see
   `docs/architecture/simd.md`.
 - Scientific source families own nested modules instead of flattening every
@@ -72,7 +72,7 @@ WRF initialization and match an upstream integration.
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | Not started | — | Parse Registry DSL and port generated-state fixtures |
 | Domain decomposition / halo exchange | Not started | — | Serial topology first, then MPI differential tests |
-| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and interior column-mass staggering exact-bit Fortran oracles; CPU scaling baselines for the first two families | Complete column-mass boundary branches and matched benchmark |
+| ARW dynamical core | In progress | Positive-definite sheet/slab, Held-Suarez damping, and every `calc_mu_staggered` physical-boundary path have exact-bit Fortran oracles; CPU scaling baselines for the first two families | Add a matched column-mass benchmark and allocation budget |
 | Physics drivers and schemes | Not started | — | Inventory schemes and translate one dependency-closed column |
 | I/O and NetCDF metadata | Not started | — | Round-trip WRF files with exact schema parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |

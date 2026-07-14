@@ -22,7 +22,8 @@ implemented system; proposed work is explicitly labeled.
   Rayleigh friction, staggered pressure geometry, parallel execution, and
   exact-bit evidence.
 - [Column-mass staggering](Column-Mass-Staggering.md) — C-grid interpolation,
-  halo contracts, operation order, and the current interior-tile boundary.
+  physical-boundary copy rules, domain/tile/storage contracts, operation order,
+  and exact-bit evidence.
 - [Development infrastructure](Development-Infrastructure.md) — source pinning,
   scripts, verification gates, and documentation policy.
 - [Positive-definite performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/positive-definite-2026-07-13.md)
