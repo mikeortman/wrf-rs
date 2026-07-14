@@ -10,9 +10,14 @@
 
 #![forbid(unsafe_code)]
 
+mod column_mass_staggering;
 mod held_suarez;
 mod positive_definite;
 
+pub use column_mass_staggering::{
+    ColumnMassStaggeringAxis, ColumnMassStaggeringError, ColumnMassStaggeringField,
+    ColumnMassStaggeringKernels, ColumnMassStaggeringRegion, ColumnMassStaggeringResult,
+};
 pub use held_suarez::{
     HeldSuarezDampingAxis, HeldSuarezDampingError, HeldSuarezDampingField, HeldSuarezDampingFields,
     HeldSuarezDampingKernels, HeldSuarezDampingRegion, HeldSuarezDampingResult,

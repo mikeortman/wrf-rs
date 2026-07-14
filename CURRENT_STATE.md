@@ -93,6 +93,12 @@ Implemented:
 - exact-bit tendency updates over independently scheduled west-east lines;
 - scientific-family directories for `positive_definite` and `held_suarez`,
   with `lib.rs` retained as the stable public facade.
+- the interior interpolation path of ARW `calc_mu_staggered`, exposed through
+  `ColumnMassStaggeringKernels` with four typed output ranges;
+- parallel, disjoint west-east-major output rows with immutable shared mass
+  inputs and no field-sized scratch;
+- exact-body Fortran extraction oracle with 60 raw-bit output/sentinel checks,
+  plus validation and one/four-worker determinism tests.
 
 The differential drivers compile the pinned upstream Fortran module directly.
 The sheet covers nine exact-bit cases, including signed zero and the epsilon
@@ -104,6 +110,11 @@ The Held-Suarez differential fixture checks 16 active and boundary values with
 non-one memory origins. Added Rust tests cover one/four-worker determinism,
 shape failure before mutation, all range categories, staggered predecessors,
 and the pressure reference level.
+
+The column-mass staggering slice currently covers interior tiles only. Its
+physical lower/upper boundary-copy branches and matched benchmark are the next
+gates; do not mark `calc_mu_staggered` complete until those branches pass an
+expanded exact Fortran oracle.
 
 ## Performance decisions
 
@@ -208,6 +219,7 @@ cargo test --workspace --release
 ./scripts/run-wrf-time-oracle.sh
 ./scripts/run-positive-definite-oracle.sh
 ./scripts/run-held-suarez-oracle.sh
+./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
@@ -250,6 +262,8 @@ Held-Suarez boundary oracle matches exactly.
 
 ## Immediate next actions
 
-1. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
-2. Select the next dependency-closed ARW numerical kernel using the same
-   oracle, adversarial-test, wiki, rustdoc, findings, and performance workflow.
+1. Port all physical-boundary branches of `calc_mu_staggered` and expand its
+   exact Fortran corpus.
+2. Add matched Rust/Fortran and allocation benchmarks for column-mass
+   staggering; screen SIMD only after scalar parity is complete.
+3. Measure Held-Suarez SIMD on x86-64 when that architecture is available.

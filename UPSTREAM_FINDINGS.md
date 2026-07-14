@@ -18,6 +18,7 @@ regression until a representative benchmark exists.
 | WRF-004 | Test gap | Repository search | Positive-definite correction | No dedicated regression test for either exported routine was found in the WRF tree |
 | WRF-005 | Test gap | Repository search | Held-Suarez damping | No dedicated numerical regression for `held_suarez_damp` was found in the WRF tree |
 | WRF-006 | Performance opportunity | Source-confirmed, not benchmarked | Held-Suarez damping | The surface-pressure denominator is recomputed for every vertical level although it is invariant in `k` |
+| WRF-007 | Test gap | Repository search | Column-mass staggering | No dedicated numerical regression for `calc_mu_staggered` was found in the WRF tree |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -149,3 +150,18 @@ upstream investigation: inspect optimized code and benchmark the current loop
 against a vector-friendly horizontal reciprocal buffer or a fused calling
 context on representative domains. Preserve single-precision expression order
 when evaluating numerical impact.
+
+## WRF-007: column-mass staggering test coverage
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository-wide search finds `calc_mu_staggered`, its internal calls from
+`couple`, and no dedicated numerical regression. The routine has distinct
+interior, lower-boundary, upper-boundary, and both-boundaries paths for each
+horizontal axis. A useful upstream test should cover all eight axis/path
+combinations, subdomain tiles that rely on halos, exact single-precision
+rounding, and untouched storage outside the active rectangles.
+
+The local differential oracle currently covers the interior path for both
+staggerings and checks every active output plus surrounding sentinels by raw
+bits. Physical-boundary branches remain an explicit local and upstream gap.

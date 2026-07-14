@@ -50,6 +50,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-wrf-time-oracle.sh
 ./scripts/run-positive-definite-oracle.sh
 ./scripts/run-held-suarez-oracle.sh
+./scripts/run-column-mass-staggering-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ./scripts/benchmark-positive-definite-fortran.sh
 ```

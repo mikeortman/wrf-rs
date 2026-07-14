@@ -21,6 +21,8 @@ implemented system; proposed work is explicitly labeled.
 - [Held-Suarez momentum damping](Held-Suarez-Damping.md) — pressure-dependent
   Rayleigh friction, staggered pressure geometry, parallel execution, and
   exact-bit evidence.
+- [Column-mass staggering](Column-Mass-Staggering.md) — C-grid interpolation,
+  halo contracts, operation order, and the current interior-tile boundary.
 - [Development infrastructure](Development-Infrastructure.md) — source pinning,
   scripts, verification gates, and documentation policy.
 - [Positive-definite performance baseline](../performance/positive-definite-2026-07-13.md)

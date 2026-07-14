@@ -13,7 +13,7 @@ WRF initialization and match an upstream integration.
 | ESMF-derived time/calendar | Complete for active Test1 surface | 93/93 active cases; both Fortran interfaces match the golden output | Add cases when later WRF callers expose untested behavior |
 | Registry/configuration | Not started | — | Parse Registry DSL and port generated-state fixtures |
 | Domain decomposition / halo exchange | Not started | — | Serial topology first, then MPI differential tests |
-| ARW dynamical core | In progress | positive-definite sheet/slab and Held-Suarez damping exact-bit Fortran oracles; CPU scaling baselines | Extend differential corpora, then select the next dependency-closed kernel |
+| ARW dynamical core | In progress | positive-definite sheet/slab, Held-Suarez damping, and interior column-mass staggering exact-bit Fortran oracles; CPU scaling baselines for the first two families | Complete column-mass boundary branches and matched benchmark |
 | Physics drivers and schemes | Not started | — | Inventory schemes and translate one dependency-closed column |
 | I/O and NetCDF metadata | Not started | — | Round-trip WRF files with exact schema parity |
 | WRFDA, WRF-Chem, WRF-Hydro, TL/adjoint | Not started | — | Separate workstreams after ARW baseline |
