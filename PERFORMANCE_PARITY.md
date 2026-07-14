@@ -82,6 +82,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Implicit acoustic vertical momentum | 256 × 256 × 40 mass grid plus top level | 16.745 ms median `[16.014, 26.746]` | 61.295 ms `[61.074, 61.480]` | 6.621 ms (16 workers) | Rust 4-worker 1.04× faster; Rust 16-worker 2.53× faster; stop tuning pending trajectory profile |
 | Acoustic flux accumulation | three substeps on 256 × 256 × 40 mass grid plus U/V/W staggers | 5.513750 ms median `[5.163000, 6.643500]` | 26.048 ms `[25.922, 26.187]` | 3.6192 ms (16 workers) | Rust 16-worker 1.52× faster; stop tuning pending trajectory profile |
 | Specified-boundary tendency update | 200,800 updated points on 256 × 256 × 40 mass grid | 0.144940 ms median `[0.133350, 0.162710]` | 0.096968 ms `[0.096231, 0.097789]` | 0.037367 ms (4 workers) | Rust serial 1.49× faster; Rust 4-worker 3.88× faster; default 16-worker 1.61× faster; stop tuning |
+| Specified-boundary geopotential update | 205,820 updated points on 256 × 256 × 41 full-level grid | 0.310400 ms median `[0.301490, 0.337520]` | 0.15437 ms `[0.15322, 0.15570]` | 0.055178 ms (4 workers) | Rust serial 2.01× faster; Rust 4-worker 5.63× faster; default 16-worker 3.25× faster; stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -458,3 +459,20 @@ scientific oracle.
   3,152 bytes, no reallocations, no numerical scratch, and no field clones.
 - The ordinary scalar/parallel path is already faster than optimized serial
   Fortran, so explicit SIMD and custom worker selection stop here.
+
+## Specified-boundary geopotential comparison notes
+
+- Both implementations update 205,820 full-level points in a five-point zone
+  on the same 256 × 256 horizontal mass domain.
+- GNU Fortran 16.1.0 uses `-O3 -flto -ffp-contract=off`; Rust uses optimization
+  level 3, ThinLTO, and one codegen unit. Neither enables fast-math or native-
+  CPU flags.
+- Serial Rust measures 0.15437 ms versus Fortran's 0.310400 ms median. Four
+  workers measure 0.055178 ms; the default 16-worker path measures 0.095639 ms.
+- Rust computes the prior column mass as a scalar at the consuming point. It
+  does not declare WRF's tile-sized `mu_old` automatic array, allocate numerical
+  scratch, or clone fields.
+- Every 100 settled calls records two scheduler allocations totaling 3,040
+  bytes and no reallocations.
+- The normal scalar/parallel implementation clears the performance gate, so
+  explicit SIMD and custom worker selection stop here.

@@ -40,6 +40,9 @@ a measured regression until a representative benchmark exists.
 | WRF-041 | Test gap | Repository search plus direct differential fixture | `calc_p_rho` | No focused production regression jointly checks both governing modes, damping phases, hydrostatic recurrence, partial tiles, or exceptional arithmetic |
 | WRF-061 | Interface/API opportunity | Source-confirmed | `spec_bdyupdate` | The lower vertical domain bound and all six patch bounds are accepted but never read |
 | WRF-062 | Test gap | Repository search plus direct differential fixture | `spec_bdyupdate` | No focused numerical regression checks every field stagger, trapezoidal corners, periodic X, partial tiles, or inactive storage |
+| WRF-063 | Performance opportunity | Source-confirmed plus matched routine benchmark; attribution not isolated | `spec_bdyupdate_ph` | A tile-sized automatic `mu_old` array stores values that are assigned and consumed immediately at one point |
+| WRF-064 | Interface/API opportunity | Source-confirmed | `spec_bdyupdate_ph` | The lower vertical domain bound and all six patch bounds are accepted but never read |
+| WRF-065 | Test gap | Repository search plus direct differential fixture | `spec_bdyupdate_ph` | No focused nonlinear regression checks field staggers, mass normalization, periodic X, partial tiles, inactive storage, or exceptional arithmetic |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -1111,3 +1114,51 @@ The local oracle extracts the exact pinned routine and compares all 1,728
 stored values across eight such cases by raw IEEE bits. Suggested upstream
 action: adopt a compact complete-storage fixture and include it in a nested
 acoustic trajectory with boundary communication and finalization.
+
+## WRF-063: `spec_bdyupdate_ph` declares tile-sized scalar scratch
+
+Status: source-confirmed performance opportunity with a matched routine
+benchmark; individual attribution is not isolated.
+
+The routine declares `mu_old(its:ite,jts:jte)`, but each addressed element is
+assigned from `muts - dt * mu_tend` and consumed immediately in the same
+innermost boundary loop. No later iteration reads the stored value. A compiler
+may scalar-replace the array, so the declaration alone does not prove a runtime
+allocation or measured regression.
+
+The safe Rust implementation keeps `mu_old` scalar and is 2.01× faster with one
+worker than GNU Fortran 16.1.0 at `-O3 -flto` on the matched 256 × 256 × 41
+boundary workload. The comparison also changes compilers and loop expression,
+so it supports investigation without attributing the full difference to the
+automatic array.
+
+Suggested upstream action: replace the array element with a scalar local,
+inspect optimized code across supported compilers, and benchmark representative
+tile sizes before accepting the change.
+
+## WRF-064: `spec_bdyupdate_ph` carries seven dead dimension arguments
+
+Status: source-confirmed interface maintenance opportunity.
+
+The routine never reads `kds` or any of `ips`, `ipe`, `jps`, `jpe`, `kps`, and
+`kpe`. The Rust capability accepts only the physical domains, storage shape,
+and active tile that determine output.
+
+Suggested upstream action: remove the dead plumbing during a planned interface
+revision, or document why the patch bounds remain part of the compatibility
+surface. Focused unused-dummy diagnostics would prevent further drift.
+
+## WRF-065: no focused nonlinear regression covers `spec_bdyupdate_ph`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+The source tree contains nonlinear, tangent-linear, and adjoint implementations
+and production call sites, but no compact nonlinear complete-storage fixture
+covering mass/U/V/full-level location rules, column-mass normalization, saved
+geopotential coupling, trapezoidal corners, periodic X, partial tiles, inactive
+storage, and zero-denominator IEEE behavior.
+
+The local oracle extracts the exact nonlinear routine and compares all 1,944
+stored values across nine cases by raw bits or NaN class. Suggested upstream
+action: adopt that coverage and then include the operation between flux
+accumulation and closing pressure diagnosis in a nested acoustic trajectory.

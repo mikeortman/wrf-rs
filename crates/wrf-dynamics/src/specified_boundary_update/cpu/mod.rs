@@ -8,10 +8,9 @@ use crate::{
     SpecifiedBoundaryUpdateResult, SpecifiedBoundaryWestEastPeriodicity,
 };
 
-mod point_membership;
 mod validation;
 
-use point_membership::SpecifiedBoundaryPointMembership;
+use crate::specified_boundary_update::geometry::SpecifiedBoundaryRanges;
 
 impl SpecifiedBoundaryUpdateKernels for CpuBackend {
     type Field = CpuField<f32>;
@@ -34,7 +33,7 @@ impl SpecifiedBoundaryUpdateKernels for CpuBackend {
         let plane_length = west_east_points * bottom_top_points;
         let tendency_values = tendency.values();
         let ranges = region.active_ranges();
-        let membership = SpecifiedBoundaryPointMembership::new(
+        let boundary_ranges = SpecifiedBoundaryRanges::new(
             ranges,
             parameters.specified_zone_width,
             west_east_periodicity,
@@ -43,7 +42,7 @@ impl SpecifiedBoundaryUpdateKernels for CpuBackend {
             field.values_mut(),
             plane_length,
             |south_north, output_plane| {
-                let row_ranges = membership.ranges_for_row(south_north);
+                let row_ranges = boundary_ranges.ranges_for_row(south_north);
                 let plane_start = south_north * plane_length;
                 let tendency_plane = &tendency_values[plane_start..plane_start + plane_length];
                 for west_east_range in [
@@ -59,7 +58,7 @@ impl SpecifiedBoundaryUpdateKernels for CpuBackend {
                         output_plane,
                         tendency_plane,
                         west_east_points,
-                        membership.bottom_top_range(),
+                        boundary_ranges.bottom_top_range(),
                         west_east_range,
                         parameters.time_step,
                     );
