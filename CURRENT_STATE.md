@@ -891,6 +891,13 @@ The complete local trajectory's matched 256 × 256 × 40 stage medians sum to
 1.47× host-parallel advantage. This is a transparent arithmetic composition,
 not a fused wall-clock benchmark; direct integrated timing waits for the
 communication and boundary driver.
+Specified-boundary tendency updates implement `spec_bdyupdate` behind a typed,
+backend-neutral capability. Eight direct cases cover all five field locations,
+periodic X, full and partial tiles, inactive interiors, and trapezoidal corner
+clipping; all 1,728 stored values match exactly. Direct boundary ranges avoid
+whole-plane scans. On the matched workload, serial Rust is 1.49× faster and
+four-worker Rust is 3.88× faster than optimized serial Fortran, with no
+numerical scratch or field clones, so SIMD tuning stops.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -943,8 +950,8 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Insert local halo, physical-boundary, polar, and specified/nested operations
-   around the verified acoustic trajectory and bind it to Registry state.
+1. Port the remaining physical/specified boundary stages, then insert them and
+   halo/polar operations around the verified acoustic trajectory.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

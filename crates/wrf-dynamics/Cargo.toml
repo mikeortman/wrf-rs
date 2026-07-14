@@ -84,3 +84,7 @@ harness = false
 [[bench]]
 name = "acoustic_flux_accumulation"
 harness = false
+
+[[bench]]
+name = "specified_boundary_update"
+harness = false

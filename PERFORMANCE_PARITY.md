@@ -81,6 +81,7 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Acoustic mass, omega, and theta | 256 × 256 × 40 mass grid | 5.368 ms median | 29.960 ms | 4.241 ms (16 workers) | Rust 16-worker 1.27× faster; stop tuning pending trajectory profile |
 | Implicit acoustic vertical momentum | 256 × 256 × 40 mass grid plus top level | 16.745 ms median `[16.014, 26.746]` | 61.295 ms `[61.074, 61.480]` | 6.621 ms (16 workers) | Rust 4-worker 1.04× faster; Rust 16-worker 2.53× faster; stop tuning pending trajectory profile |
 | Acoustic flux accumulation | three substeps on 256 × 256 × 40 mass grid plus U/V/W staggers | 5.513750 ms median `[5.163000, 6.643500]` | 26.048 ms `[25.922, 26.187]` | 3.6192 ms (16 workers) | Rust 16-worker 1.52× faster; stop tuning pending trajectory profile |
+| Specified-boundary tendency update | 200,800 updated points on 256 × 256 × 40 mass grid | 0.144940 ms median `[0.133350, 0.162710]` | 0.096968 ms `[0.096231, 0.097789]` | 0.037367 ms (4 workers) | Rust serial 1.49× faster; Rust 4-worker 3.88× faster; default 16-worker 1.61× faster; stop tuning |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -440,3 +441,20 @@ scientific oracle.
   with ThinLTO and one codegen unit, no fast-math or native CPU flag.
 - The ordinary path clears the performance gate, so SIMD and fusion stop. A
   direct integrated measurement waits for the communication/boundary driver.
+
+## Specified-boundary tendency comparison notes
+
+- Both implementations update the 200,800 trapezoid and side-zone points on a
+  256 × 256 × 40 mass grid with a five-point specified zone.
+- GNU Fortran 16.1.0 uses `-O3 -flto -ffp-contract=off`; Rust uses optimization
+  level 3, ThinLTO, and one codegen unit. Neither enables fast-math or native-
+  CPU flags.
+- Serial Rust measures 0.096968 ms versus Fortran's 0.144940 ms median. Four
+  workers measure 0.037367 ms; the default 16-worker path measures 0.089821 ms.
+- The first parity-correct Rust version scanned complete horizontal planes and
+  measured 8.2470 ms serially. Direct side ranges preserve every oracle bit and
+  remove work outside the specified zones.
+- Every 100 settled calls records at most four scheduler allocations totaling
+  3,152 bytes, no reallocations, no numerical scratch, and no field clones.
+- The ordinary scalar/parallel path is already faster than optimized serial
+  Fortran, so explicit SIMD and custom worker selection stop here.
