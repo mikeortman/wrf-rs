@@ -259,6 +259,9 @@ Held-Suarez boundary oracle matches exactly.
   parity corpus, and docs.rs example.
 - `d0ec31d` — matched positive-definite Fortran benchmark, optimization-level
   audit, and rejected bench-only native/fat-LTO profiles.
+- `8d5e112` — durable state pointer for the benchmark checkpoint.
+- `adef46f` — interior ARW column-mass staggering, exact extracted-source
+  oracle, typed ranges/errors, concurrency coverage, wiki, and findings.
 
 ## Immediate next actions
 
