@@ -15,7 +15,7 @@ program periodic_column_mass_benchmark
   integer, parameter :: its = ids, ite = ide
   integer, parameter :: jts = jds, jte = jde
   integer, parameter :: kts = 1, kte = 1
-  integer, parameter :: sample_count = 11
+  integer, parameter :: sample_count = 31
   integer, parameter :: calls_per_sample = 500
   integer, parameter :: warmup_call_count = 100
   type(grid_config_rec_type) :: config_flags

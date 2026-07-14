@@ -13,7 +13,7 @@ program specified_boundary_update_benchmark
   field=1.2;tendency=.1;config%periodic_x=.false.
   call invoke
   call system_clock(count_rate=rate)
-  do sample=1,11
+  do sample=1,31
     call system_clock(started)
     do iteration=1,calls_per_sample
       call invoke

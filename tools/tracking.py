@@ -378,6 +378,10 @@ def run_benchmark(identifier: str, output_directory: Path) -> Path:
         "--",
         suite["rust_case"],
         "--noplot",
+        "--sample-size",
+        "300",
+        "--measurement-time",
+        "10",
     ]
     rust_output = command_output(rust_command)
     (output_directory / f"{identifier}-rust.log").write_text(rust_output, encoding="utf-8")

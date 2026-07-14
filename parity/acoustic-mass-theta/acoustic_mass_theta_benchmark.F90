@@ -31,7 +31,7 @@ program acoustic_mass_theta_benchmark
     call invoke
   enddo
   call system_clock(count_rate=rate)
-  do sample=1,11
+  do sample=1,31
     call system_clock(started)
     do iteration=1,calls_per_sample
       call invoke

@@ -5,7 +5,7 @@ program dry_tendency_assembly_benchmark
   integer, parameter :: ims=0, ime=nx+1, jms=0, jme=ny+1, kms=0, kme=nz+1
   integer, parameter :: ids=1, ide=nx+1, jds=1, jde=ny+1, kds=1, kde=nz+1
   integer, parameter :: its=ids, ite=ide, jts=jds, jte=jde, kts=kds, kte=kde
-  integer, parameter :: samples=11, calls_per_sample=20, warmup_calls=10
+  integer, parameter :: samples=31, calls_per_sample=20, warmup_calls=10
   real, allocatable :: ru(:,:,:),rv(:,:,:),rw(:,:,:),ph(:,:,:),t(:,:,:)
   real, allocatable :: ruf(:,:,:),rvf(:,:,:),rwf(:,:,:),phf(:,:,:),tf(:,:,:)
   real, allocatable :: us(:,:,:),vs(:,:,:),ws(:,:,:),phs(:,:,:),ts(:,:,:),heat(:,:,:)

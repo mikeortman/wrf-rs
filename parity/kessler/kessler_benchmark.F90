@@ -15,7 +15,7 @@ program kessler_benchmark
   integer, parameter :: ids = ims, ide = ime + 1
   integer, parameter :: jds = jms, jde = jme + 1
   integer, parameter :: kds = kms, kde = kme + 1
-  integer, parameter :: sample_count = 11
+  integer, parameter :: sample_count = 31
   integer, parameter :: calls_per_sample = 5
   integer, parameter :: warmup_call_count = 3
   real, parameter :: dt = 60.0

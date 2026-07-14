@@ -6,7 +6,7 @@ program held_suarez_damp_benchmark
   integer, parameter :: active_west_east_points = 256
   integer, parameter :: active_bottom_top_points = 64
   integer, parameter :: active_south_north_points = 64
-  integer, parameter :: sample_count = 7
+  integer, parameter :: sample_count = 31
   integer, parameter :: iteration_count = 500
   integer, parameter :: warmup_iteration_count = 100
   real, allocatable :: ru_tend(:, :, :), rv_tend(:, :, :)
