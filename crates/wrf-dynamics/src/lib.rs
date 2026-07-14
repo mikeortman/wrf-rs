@@ -17,6 +17,7 @@
 
 #![forbid(unsafe_code)]
 
+mod acoustic_step_preparation;
 mod column_mass_staggering;
 mod dry_tendency_assembly;
 mod held_suarez;
@@ -30,6 +31,16 @@ mod runge_kutta_preparation;
 #[cfg(test)]
 mod test_support;
 
+pub use acoustic_step_preparation::{
+    AcousticStepPreparationAxis, AcousticStepPreparationCoefficient,
+    AcousticStepPreparationCoefficients, AcousticStepPreparationColumnMassTimeLevels,
+    AcousticStepPreparationDiagnosticInputs, AcousticStepPreparationError,
+    AcousticStepPreparationField, AcousticStepPreparationKernels,
+    AcousticStepPreparationMapFactors, AcousticStepPreparationMassInputs,
+    AcousticStepPreparationMassOutputs, AcousticStepPreparationPhase,
+    AcousticStepPreparationRegion, AcousticStepPreparationResult,
+    AcousticStepPreparationSavedOutputs, AcousticStepPreparationVolumeTimeLevels,
+};
 pub use column_mass_staggering::{
     ColumnMassStaggeringAxis, ColumnMassStaggeringError, ColumnMassStaggeringField,
     ColumnMassStaggeringKernels, ColumnMassStaggeringPeriodicity, ColumnMassStaggeringRegion,

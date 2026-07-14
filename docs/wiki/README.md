@@ -55,6 +55,9 @@ implemented system; proposed work is explicitly labeled.
 - [Dry Runge-Kutta tendency assembly](Dry-Tendency-Assembly.md) — persistent
   physics/boundary tendencies, map-factor coupling, staggered ranges, safe
   paired-output scheduling, and exact-bit evidence.
+- [Acoustic small-step preparation](Acoustic-Step-Preparation.md) — time-level
+  switching, mass-coupled perturbations, C-grid/full-level contracts, and exact
+  first/later-substep evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -88,6 +91,9 @@ implemented system; proposed work is explicitly labeled.
 - [Dry-tendency assembly performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/dry-tendency-assembly-2026-07-14.md)
   — matched first-substep workload, CPU scaling, paired-output allocation
   evidence, and the SIMD stopping decision.
+- [Acoustic-step preparation performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-step-preparation-2026-07-14.md)
+  — matched first-substep workload, CPU scaling, allocation evidence, and the
+  complexity stopping decision.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

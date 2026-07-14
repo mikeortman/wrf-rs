@@ -250,6 +250,18 @@ Implemented:
   all four translated routines;
 - exact finite/infinity output comparison, explicit NaN-class policy, and
   first-divergence reports containing seed, field, and linear index.
+- WRF `small_step_prep` behind a focused
+  `AcousticStepPreparationKernels` capability with typed previous/current time
+  levels, saved state, mass roles, diagnostics, map factors, coefficients,
+  phase, and region;
+- complete preflight of all 24 mutable fields, coefficient lengths, horizontal
+  staggers, the full acoustic column, and later-substep lower neighbors before
+  any mutation;
+- safe row-parallel horizontal and volume modules using paired saved/current
+  passes, no numerical scratch, no field clones, and backend-native storage;
+- a 9,936-value exact extracted-Fortran oracle covering first and later
+  substeps, U/V/W/geopotential staggers, interior lower neighbors, inactive
+  sentinels, and exceptional IEEE arithmetic;
 
 The differential drivers compile the pinned upstream Fortran module directly.
 The sheet covers nine exact-bit cases, including signed zero and the epsilon
@@ -314,6 +326,16 @@ ranges preserve the distinct U, V, W/geopotential, temperature, and mass
 stagger rules, including interior `kte-1` versus full-stagger `kte` behavior.
 All 5,616 focused values match the extracted pinned Fortran routine; validation
 is failure-atomic and one/four-worker results are bit-identical.
+
+Acoustic small-step preparation now ports `small_step_prep` at the next
+trajectory boundary. First substeps replace previous time levels and reset the
+mass perturbation; later substeps construct reference differences and
+west/south mass averages. Both paths form the source-ordered U, V, W,
+temperature, geopotential, pressure-coefficient, saved-state, and omega fields
+over their exact stagger ranges. All 9,936 focused values match the extracted
+pinned Fortran routine; validation is failure-atomic and one/four-worker
+results are bit-identical. The Rust API omits thirteen unused source arguments
+and only dead full-column `ww_save` stores.
 
 ### `wrf-io`
 
@@ -543,6 +565,19 @@ FatLTO screen was statistically flat. Parallel execution clears the gate, so
 explicit SIMD and further fusion wait for a trajectory profile. See
 `docs/performance/dry-tendency-assembly-2026-07-14.md`.
 
+## Acoustic small-step preparation performance baseline
+
+On a matched 256 × 256 × 40 first-substep workload, serial GNU Fortran 16.1.0
+`-O3 -flto` measured a 5.877800 ms median. Portable release Rust measured
+26.123 ms with one worker, 7.4138 ms with four, and 6.5595 ms with 16. The
+ordinary parallel paths are 26.1% and 11.6% slower than serial Fortran,
+respectively, which is within the project's operational stopping range.
+
+Every settled 100-call phase records 28 scheduler allocations totaling 42,560
+bytes, no reallocations, no numerical scratch, and no field clones. Explicit
+SIMD and more complex pass fusion wait for a coupled trajectory profile. See
+`docs/performance/acoustic-step-preparation-2026-07-14.md`.
+
 ## Kessler microphysics performance baseline
 
 For 655,360 grid points on a 128 × 128 × 40 domain, one-worker Rust measured
@@ -619,6 +654,7 @@ cargo test --workspace --release
 ./scripts/run-pressure-point-geopotential-oracle.sh
 ./scripts/run-runge-kutta-preparation-oracle.sh
 ./scripts/run-dry-tendency-assembly-oracle.sh
+./scripts/run-acoustic-step-preparation-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -638,6 +674,7 @@ cargo test --workspace --release
 ./scripts/benchmark-pressure-point-geopotential-fortran.sh
 ./scripts/benchmark-runge-kutta-preparation-fortran.sh
 ./scripts/benchmark-dry-tendency-assembly-fortran.sh
+./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -648,6 +685,7 @@ cargo bench -p wrf-dynamics --bench inverse_density -- --noplot
 cargo bench -p wrf-dynamics --bench pressure_point_geopotential -- --noplot
 cargo bench -p wrf-dynamics --bench runge_kutta_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -658,12 +696,13 @@ cargo run -p wrf-dynamics --release --example measure_inverse_density_allocation
 cargo run -p wrf-dynamics --release --example measure_pressure_point_geopotential_allocations
 cargo run -p wrf-dynamics --release --example measure_runge_kutta_preparation_allocations
 cargo run -p wrf-dynamics --release --example measure_dry_tendency_assembly_allocations
+cargo run -p wrf-dynamics --release --example measure_acoustic_step_preparation_allocations
 cargo run -p wrf-physics --release --example measure_kessler_allocations
 ```
 
-Result: 162 unit tests and twelve doctests passed in debug and release modes (one
+Result: 167 unit tests and 13 doctests passed in debug and release modes (one
 corpus-generator test, 15 `wrf-compute`, 15 `wrf-domain`, two
-`wrf-domain-mpi`, 75 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
+`wrf-domain-mpi`, 80 `wrf-dynamics`, eight `wrf-physics`, 15 `wrf-registry`,
 11 `wrf-io`, and 20 `wrf-time`),
 including all-target benchmark smoke execution. Clippy and rustdoc are clean.
 All 93 active WRF time cases are referenced by executing Rust assertions, both
@@ -689,6 +728,9 @@ all 1,728 coupled intermediate, final, and sentinel values; its all-stage
 preflight, matched timing, and allocation evidence are recorded. The WRF
 dry-tendency oracle matches all 5,616 first/later-substep, stagger, persistent,
 and sentinel values; its matched timing and allocation evidence are recorded.
+Acoustic small-step preparation matches all 9,936 first/later-substep,
+staggered, full-column, exceptional, and sentinel values; its matched timing,
+allocation evidence, and performance stopping decision are recorded.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -741,15 +783,17 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
+1. Port the coefficient construction and acoustic advance routines that consume
+   `small_step_prep`, then compare a complete small-step trajectory.
+2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
-2. Add Registry-generated asymmetric halo descriptors and multi-field message
+3. Add Registry-generated asymmetric halo descriptors and multi-field message
    aggregation to the domain transport.
-3. Extend Registry preprocessing with includes and conditional definitions.
-4. Add Registry-backed state binding and a short prognostic trajectory through
-   integrated `rk_step_prep` and `rk_addtend_dry` tendency assembly.
-5. Add Registry packages, typedefs, communication entries, and remaining
+4. Extend Registry preprocessing with includes and conditional definitions.
+5. Add Registry-backed state binding and a short prognostic trajectory through
+   integrated `rk_step_prep`, `rk_addtend_dry`, and acoustic preparation.
+6. Add Registry packages, typedefs, communication entries, and remaining
    generated artifacts in dependency-closed slices.
-6. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
-7. Connect Kessler fields to Registry moisture species and the microphysics
+7. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
+8. Connect Kessler fields to Registry moisture species and the microphysics
    driver, then add a coupled precipitation trajectory.
