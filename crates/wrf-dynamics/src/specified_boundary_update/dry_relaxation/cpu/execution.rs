@@ -8,7 +8,7 @@ use super::super::{
 };
 use super::inputs::{full_field_inputs, workspace_inputs};
 use super::mass_weighting::{DryBoundaryMassWeightingCpuKernel, DryBoundaryMassWeightingInputs};
-use super::validation::validate_operation;
+use super::validation::validate_cpu_dry_boundary_relaxation;
 use crate::specified_boundary_update::relaxation::has_relaxation_updates;
 use crate::{
     SpecifiedBoundaryRelaxationCoefficients, SpecifiedBoundaryRelaxationInputs,
@@ -61,7 +61,7 @@ impl<'a, 'coefficients, 'region> DryBoundaryRelaxationCpuExecution<'a, 'coeffici
     }
 
     pub(super) fn run(self) -> DryBoundaryRelaxationResult<()> {
-        validate_operation(
+        validate_cpu_dry_boundary_relaxation(
             &self.tendencies,
             &self.state,
             self.boundaries,

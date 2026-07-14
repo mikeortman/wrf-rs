@@ -14,6 +14,8 @@ mod tendencies;
 mod vertical;
 mod workspace;
 
+pub(crate) use cpu::validate_cpu_dry_boundary_relaxation;
+
 pub use boundary_data::DryBoundaryRelaxationBoundaryData;
 pub use boundary_fields::DryBoundaryRelaxationBoundaryFields;
 pub use coefficients::DryBoundaryRelaxationMassCoefficients;

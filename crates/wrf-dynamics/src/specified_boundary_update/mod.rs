@@ -30,6 +30,7 @@ pub use dry_relaxation::{
     DryBoundaryRelaxationResult, DryBoundaryRelaxationState, DryBoundaryRelaxationTarget,
     DryBoundaryRelaxationTendencies, DryBoundaryRelaxationWorkspace, DryBoundaryVerticalRelaxation,
 };
+pub(crate) use dry_relaxation::validate_cpu_dry_boundary_relaxation;
 pub(crate) use dry_tendency_assignment::validate_cpu_dry_boundary_tendency_assignment;
 pub use dry_tendency_assignment::{
     DryBoundaryTendencies, DryBoundaryTendencyBoundaryFields, DryBoundaryTendencyError,

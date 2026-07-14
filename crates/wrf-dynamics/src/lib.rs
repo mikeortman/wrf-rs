@@ -24,6 +24,8 @@
 //! dry prognostic fields in `relax_bdy_dry` order.
 //! [`DryTendencyBoundaryStageKernels`] joins `rk_addtend_dry` and
 //! `spec_bdy_dry` behind one cross-routine failure-atomic preflight.
+//! [`DryLargeStepBoundaryStageKernels`] extends that stage with first-substep
+//! `relax_bdy_dry`, completing the pinned `solve_em.F` dry boundary sequence.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -45,6 +47,7 @@ mod acoustic_step_preparation;
 mod acoustic_trajectory;
 mod acoustic_vertical_momentum;
 mod column_mass_staggering;
+mod dry_large_step_boundary_stage;
 mod dry_tendency_assembly;
 mod dry_tendency_boundary_stage;
 mod held_suarez;
@@ -126,6 +129,14 @@ pub use column_mass_staggering::{
     ColumnMassStaggeringAxis, ColumnMassStaggeringError, ColumnMassStaggeringField,
     ColumnMassStaggeringKernels, ColumnMassStaggeringPeriodicity, ColumnMassStaggeringRegion,
     ColumnMassStaggeringResult,
+};
+pub use dry_large_step_boundary_stage::{
+    DryLargeStepBoundaryStageControls, DryLargeStepBoundaryStageError,
+    DryLargeStepBoundaryStageInputs, DryLargeStepBoundaryStageKernels,
+    DryLargeStepBoundaryStageMode, DryLargeStepBoundaryStageRegions,
+    DryLargeStepBoundaryStageResult, DryLargeStepNestedVertical,
+    DryLargeStepRelaxationBoundaryValues, DryLargeStepRelaxationInputs,
+    DryLargeStepSavedTendencies,
 };
 pub use dry_tendency_assembly::{
     DryTendencyAssemblyAxis, DryTendencyAssemblyCoefficient, DryTendencyAssemblyCoefficients,

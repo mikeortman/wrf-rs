@@ -13,8 +13,9 @@ use crate::{
     SpecifiedBoundaryWestEastPeriodicity,
 };
 
+/// Preflights every active relaxation contract without mutating any field.
 #[allow(clippy::too_many_arguments)]
-pub(super) fn validate_operation(
+pub(crate) fn validate_cpu_dry_boundary_relaxation(
     tendencies: &DryBoundaryRelaxationTendencies<'_, CpuField<f32>>,
     state: &DryBoundaryRelaxationState<'_, CpuField<f32>>,
     boundaries: DryBoundaryRelaxationBoundaryFields<'_, CpuField<f32>>,
