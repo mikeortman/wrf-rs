@@ -728,6 +728,9 @@ cargo test --workspace --release
 ./scripts/run-acoustic-step-preparation-oracle.sh
 ./scripts/run-acoustic-pressure-oracle.sh
 ./scripts/run-vertical-acoustic-coefficients-oracle.sh
+./scripts/run-acoustic-horizontal-momentum-oracle.sh
+./scripts/run-acoustic-mass-theta-oracle.sh
+./scripts/run-acoustic-vertical-momentum-oracle.sh
 ./scripts/randomized-arw/run-oracles.sh
 ./scripts/run-registry-oracle.sh
 ./scripts/run-domain-topology-oracle.sh
@@ -750,6 +753,9 @@ cargo test --workspace --release
 ./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-acoustic-pressure-fortran.sh
 ./scripts/benchmark-vertical-acoustic-coefficients-fortran.sh
+./scripts/benchmark-acoustic-horizontal-momentum-fortran.sh
+./scripts/benchmark-acoustic-mass-theta-fortran.sh
+./scripts/benchmark-acoustic-vertical-momentum-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ./scripts/benchmark-netcdf-restart.sh 1000
 cargo bench -p wrf-dynamics --bench column_mass_staggering -- --noplot
@@ -763,6 +769,9 @@ cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
 cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_horizontal_momentum -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 cargo run -p wrf-dynamics --release --example measure_column_mass_staggering_allocations
@@ -828,6 +837,14 @@ complete-column typed region and scratch-free output reuse. Four direct global,
 nested, periodic-X, and partial-horizontal cases match all 3,168 stored values
 exactly. On the matched 256 × 256 × 40 workload, 16-worker Rust is 1.27× faster
 than optimized serial Fortran; SIMD tuning stops.
+Implicit acoustic vertical advancement implements `advance_w` in nested
+boundary, field, region, and CPU modules. Four direct cases cover both
+`phi_adv_z` formulations, rigid/nonrigid tops, upper damping, terrain
+reconstruction, lateral policies, and partial horizontal tiles; all 2,592
+state values match exactly. The complete-column contract and reusable 10.67 MiB
+RHS workspace are explicit. On the matched workload, four-worker Rust is 4.1%
+faster and 16-worker Rust is 2.53× faster than optimized serial Fortran, so
+SIMD tuning stops.
 The WRF
 Registry oracle matches five generated includes
 and eight state-metadata records exactly. Domain decomposition and clipped
@@ -880,9 +897,9 @@ also pass typed schema, metadata, and raw-bit comparison.
 
 ## Immediate next actions
 
-1. Port `advance_w`, then compare a complete acoustic small-step trajectory
-   with the existing preparation, pressure, coefficient, horizontal-momentum,
-   and mass/theta kernels.
+1. Compare a complete acoustic small-step trajectory through preparation,
+   pressure diagnosis, coefficient construction, horizontal momentum,
+   mass/theta, and vertical momentum.
 2. Extend NetCDF/restart support to arbitrary Registry-selected dimensions and
    fields, WRF alarm metadata, and a resumed idealized trajectory.
 3. Add Registry-generated asymmetric halo descriptors and multi-field message

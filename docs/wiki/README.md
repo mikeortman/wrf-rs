@@ -70,6 +70,9 @@ implemented system; proposed work is explicitly labeled.
 - [Acoustic mass, omega, and potential temperature](Acoustic-Mass-Omega-and-Theta.md)
   — continuity integration, vertical mass flux, theta transport, complete-column
   contracts, output reuse, and exact pinned-source evidence.
+- [Implicit acoustic vertical momentum and geopotential](Implicit-Acoustic-Vertical-Momentum-and-Geopotential.md)
+  — geopotential transport, terrain reconstruction, tridiagonal vertical solve,
+  upper damping, reusable workspace, and exact pinned-source evidence.
 - [Kessler warm-rain microphysics](Kessler-Microphysics.md) — sedimentation,
   cloud conversion, saturation adjustment, reusable workspace, parallel rows,
   and exact pinned-WRF evidence.
@@ -112,6 +115,9 @@ implemented system; proposed work is explicitly labeled.
 - [Vertical-acoustic coefficient performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/vertical-acoustic-coefficients-2026-07-14.md)
   — matched tridiagonal construction, layout correction, CPU scaling,
   allocations, and the deferred SIMD opportunity.
+- [Implicit acoustic vertical-momentum performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/acoustic-vertical-momentum-2026-07-14.md)
+  — matched complete-column solve, CPU scaling, reusable workspace accounting,
+  and the SIMD stopping decision.
 - [Kessler microphysics performance baseline](https://github.com/mikeortman/wrf-rs/blob/main/docs/performance/kessler-microphysics-2026-07-13.md)
   — matched optimized-Fortran timing, CPU scaling, and scratch/allocation
   accounting.

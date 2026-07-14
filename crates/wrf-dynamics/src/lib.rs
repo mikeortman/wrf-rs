@@ -6,6 +6,8 @@
 //! diagnostics behind one failure-atomic validation boundary.
 //! [`VerticalAcousticCoefficientKernels`] prepares the complete-column
 //! tridiagonal factors used by the implicit vertical acoustic solve.
+//! [`AcousticVerticalKernels`] consumes those factors to advance vertical
+//! momentum, geopotential, and normalized time-averaged thermodynamics.
 //!
 //! The crate preserves WRF's observable numerical behavior, not its Fortran
 //! implementation structure. Safe in-place mutation, persistent parallelism,
@@ -23,6 +25,7 @@ mod acoustic_horizontal_momentum;
 mod acoustic_mass_theta;
 mod acoustic_pressure;
 mod acoustic_step_preparation;
+mod acoustic_vertical_momentum;
 mod column_mass_staggering;
 mod dry_tendency_assembly;
 mod held_suarez;
@@ -74,6 +77,16 @@ pub use acoustic_step_preparation::{
     AcousticStepPreparationMassOutputs, AcousticStepPreparationPhase,
     AcousticStepPreparationRegion, AcousticStepPreparationResult,
     AcousticStepPreparationSavedOutputs, AcousticStepPreparationVolumeTimeLevels,
+};
+pub use acoustic_vertical_momentum::{
+    AcousticVerticalAdvection, AcousticVerticalAxis, AcousticVerticalBoundaryPolicy,
+    AcousticVerticalCoefficient, AcousticVerticalDamping, AcousticVerticalError,
+    AcousticVerticalField, AcousticVerticalGeopotentialInputs, AcousticVerticalInputs,
+    AcousticVerticalKernels, AcousticVerticalLateralDomain, AcousticVerticalLevelCoefficients,
+    AcousticVerticalMapFactors, AcousticVerticalMassInputs, AcousticVerticalMomentumInputs,
+    AcousticVerticalParameters, AcousticVerticalRegion, AcousticVerticalResult,
+    AcousticVerticalSolveInputs, AcousticVerticalState, AcousticVerticalThermodynamicInputs,
+    AcousticVerticalWestEastPeriodicity, AcousticVerticalWorkspace,
 };
 pub use column_mass_staggering::{
     ColumnMassStaggeringAxis, ColumnMassStaggeringError, ColumnMassStaggeringField,

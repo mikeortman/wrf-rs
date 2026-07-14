@@ -965,3 +965,78 @@ specified final values. This removes numerical scratch while matching all
 3,168 oracle values. WRF has no dedicated fixture spanning global, nested,
 periodic-X, partial horizontal, complete-column, and inactive-storage behavior.
 Suggested upstream action: add that fixture before refactoring scratch or loops.
+
+## WRF-053: `advance_w` carries seven dead arguments and four dead locals
+
+Status: source-confirmed interface maintenance opportunity.
+
+The executable body never reads `mu1`, `c3h`, `c4h`, `c3f`, `c4f`, `dnw`, or
+`alb`. Local array `mut_inv` and scalars `muthk` and `muthkm1` are declared but
+never used. `k_start` is assigned from `kts` but never read. The Rust capability
+omits these roles. Suggested upstream action: remove the dead plumbing during a
+planned interface revision and enable unused-dummy/local diagnostics in a
+focused build.
+
+## WRF-054: `advance_w` accepts vertical tiles but requires a complete column
+
+Status: source-confirmed correctness and contract defect.
+
+The routine declares automatic `rhs` and `wdwn` with `kts:kte` bounds, but its
+executable loops use literal level 1, level 2, `kte-1`, and the upper `kte`
+point. The assigned `k_start = kts` is ignored. A tile beginning above the
+surface can write outside those automatic arrays, and a tile ending below the
+physical top cannot represent the required forward/back recurrence. The lower
+boundary also unconditionally reads the first three velocity levels.
+
+The Rust region requires the complete mass column, its upper full level, and
+at least three mass levels. Suggested upstream action: document and assert the
+complete-column contract at the call boundary, or consistently reformulate
+every boundary and recurrence around supplied vertical bounds.
+
+## WRF-055: `advance_w` uses avoidable automatic scratch around one required RHS
+
+Status: source-confirmed local-memory opportunity; no independent whole-model
+speed claim is made.
+
+The geopotential `rhs` must coexist with old vertical momentum and
+geopotential, so one complete tile workspace is justified. The additional
+`wdwn` tile array can be evaluated from adjacent levels at its two consumption
+sites. `msft_inv` and `dampwt` are arrays even though each value is consumed as
+a scalar within its current row or level iteration. Rust retains one explicit,
+caller-owned RHS field and evaluates the other quantities locally, matching all
+2,592 state bits.
+
+Suggested upstream action: after adding a direct regression, evaluate removing
+the three auxiliary arrays and measure stack use plus end-to-end acoustic-step
+performance before accepting the change.
+
+## WRF-056: `advance_w` contains unresolved map-factor and surface-condition warnings
+
+Status: source-commented scientific-review item, not yet proven as an output
+defect.
+
+The routine header says the use of `msfty` as an inverse map factor was not
+fully worked through and describes a suspected surface vertical-velocity
+error. Those warnings remain in v4.7.1 while the routine sets the terrain-
+following lower boundary used by every nonhydrostatic acoustic step.
+
+Suggested upstream action: resolve the comments against the governing mapped-
+coordinate equations, document the intended discrete map-factor convention,
+and add an analytic sloping-terrain fixture before changing current behavior.
+Rust preserves the pinned result until that scientific decision is made.
+
+## WRF-057: no focused numerical regression covers `advance_w`
+
+Status: confirmed repository-level test gap for the pinned source tree.
+
+A repository search finds production, tangent-linear, and adjoint call sites
+but no dedicated nonlinear numerical fixture spanning both `phi_adv_z`
+formulations, rigid and nonrigid tops, `damp_opt = 3`, terrain reconstruction,
+specified/nested clipping, periodic X, partial horizontal tiles, inactive
+storage, and the forward/back tridiagonal sweeps.
+
+The local oracle extracts the exact pinned nonlinear routine and compares all
+2,592 stored `w`, `ph`, and `t_2ave` values across four cases. Suggested
+upstream action: adopt a compact routine fixture, then add a per-substep
+trajectory containing `calc_coef_w`, `advance_uv`, `advance_mu_t`, and
+`advance_w` together.

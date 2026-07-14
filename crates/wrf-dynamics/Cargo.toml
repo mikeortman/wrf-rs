@@ -76,3 +76,7 @@ harness = false
 [[bench]]
 name = "acoustic_mass_theta"
 harness = false
+
+[[bench]]
+name = "acoustic_vertical_momentum"
+harness = false

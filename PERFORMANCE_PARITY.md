@@ -77,6 +77,9 @@ recorded default; deployment-specific tuning stays an explicit opt-in screen.
 | Acoustic pressure, nonhydrostatic | 2,621,440 mass points | 1.529500 ms median `[1.512550, 2.006750]` | 1.8319 ms `[1.8075, 1.8596]` | 0.81126 ms (4 workers) | Rust serial 19.8% slower; Rust 4-worker 1.89× faster; stop tuning pending trajectory profile |
 | Acoustic pressure, hydrostatic | 2,621,440 mass points | 1.602750 ms median `[1.563400, 1.765500]` | 2.0816 ms `[2.0569, 2.1137]` | 0.95950 ms (4 workers) | Rust serial 29.9% slower; Rust 4-worker 1.67× faster; stop tuning pending trajectory profile |
 | Vertical acoustic coefficients | 256 × 256 × 40 columns | 1.867500 ms median `[1.829250, 1.956000]` | 14.608 ms `[14.536, 14.686]` | 1.7109 ms (16 workers) | Rust serial 7.82× slower; Rust 16-worker 1.09× faster; stop tuning pending trajectory profile |
+| Acoustic horizontal momentum | 256 × 256 × 40 mass grid plus U/V staggers | 7.569 ms median | 71.852 ms | 7.802 ms (16 workers) | Rust 16-worker 3.1% slower; operationally close, stop tuning pending trajectory profile |
+| Acoustic mass, omega, and theta | 256 × 256 × 40 mass grid | 5.368 ms median | 29.960 ms | 4.241 ms (16 workers) | Rust 16-worker 1.27× faster; stop tuning pending trajectory profile |
+| Implicit acoustic vertical momentum | 256 × 256 × 40 mass grid plus top level | 16.745 ms median `[16.014, 26.746]` | 61.295 ms `[61.074, 61.480]` | 6.621 ms (16 workers) | Rust 4-worker 1.04× faster; Rust 16-worker 2.53× faster; stop tuning pending trajectory profile |
 | Kessler microphysics | 655,360 grid points | 31.7804 ms median `[31.2696, 33.4162]` | 30.944 ms `[30.601, 31.340]` | 5.0144 ms (16 workers) | Rust serial 2.6% faster; Rust 16-worker 6.34× faster; stop tuning |
 | Classic NetCDF bulk write | 25 × 16 MiB field overwrites | 0.242086 s NetCDF-C | 0.543888 s | 0.543888 s | Rust 2.25× slower; Rust peak RSS 32% lower in separate run; gap recorded without bespoke serializer |
 
@@ -105,6 +108,9 @@ cargo bench -p wrf-dynamics --bench dry_tendency_assembly -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_step_preparation -- --noplot
 cargo bench -p wrf-dynamics --bench acoustic_pressure -- --noplot
 cargo bench -p wrf-dynamics --bench vertical_acoustic_coefficients -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_horizontal_momentum -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_mass_theta -- --noplot
+cargo bench -p wrf-dynamics --bench acoustic_vertical_momentum -- --noplot
 cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-netcdf-restart.sh 1000
 ./scripts/benchmark-positive-definite-fortran.sh
@@ -121,6 +127,9 @@ cargo bench -p wrf-physics --bench kessler_microphysics -- --noplot
 ./scripts/benchmark-acoustic-step-preparation-fortran.sh
 ./scripts/benchmark-acoustic-pressure-fortran.sh
 ./scripts/benchmark-vertical-acoustic-coefficients-fortran.sh
+./scripts/benchmark-acoustic-horizontal-momentum-fortran.sh
+./scripts/benchmark-acoustic-mass-theta-fortran.sh
+./scripts/benchmark-acoustic-vertical-momentum-fortran.sh
 ./scripts/benchmark-kessler-fortran.sh
 ```
 
@@ -395,3 +404,20 @@ scientific oracle.
 - Rust reuses required diagnostic outputs as short-lived divergence and prior-
   mass scratch, then writes their specified final values. It allocates no
   numerical scratch and clones no fields.
+
+## Implicit acoustic vertical-momentum comparison notes
+
+- Both implementations run `advance_w` over a 256 × 256 × 40 mass grid with
+  the full upper vertical-momentum level, gradient-first geopotential
+  advection, nonrigid top, terrain lower boundary, tridiagonal sweeps, and
+  upper damping.
+- GNU Fortran 16.1.0 uses `-O3 -flto -ffp-contract=off`; Rust uses optimization
+  level 3, ThinLTO, and one codegen unit. Neither enables fast-math or native-
+  CPU flags.
+- Serial Fortran measured 16.745 ms median. Rust measured 61.295 ms with one
+  worker, 16.084 ms with four, and 6.621 ms with 16 workers.
+- Four-worker Rust is 4.1% faster than serial Fortran, and the standard
+  16-worker path is 2.53× faster. SIMD and column-layout changes stop here.
+- The guarded workload's reusable RHS is 10.67 MiB. Every 100 settled calls
+  records four scheduler allocations totaling 6,080 bytes, four matching
+  deallocations, no reallocations, no field allocation, and no clones.
