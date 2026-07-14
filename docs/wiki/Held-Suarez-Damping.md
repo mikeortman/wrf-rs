@@ -69,6 +69,12 @@ The field bundle borrows six domain-sized fields; it neither clones nor
 allocates them. Shape validation finishes before either tendency is mutated.
 The hot loops allocate no point or line scratch storage.
 
+`pulp` performs safe runtime SIMD selection once around the complete kernel.
+Each worker then applies the same ordered single-precision formula to contiguous
+lane groups, followed by a scalar tail. SIMD is a computational layer beneath
+the backend capability; callers and future GPU implementations do not depend on
+its types.
+
 ## Parity evidence and added tests
 
 The differential oracle compiles the pinned upstream
@@ -83,6 +89,7 @@ checks raw bits at 16 selected points spanning:
 
 Rust additionally checks one-versus-four-worker bitwise determinism, validates
 all region ranges and staggered neighbors, rejects mismatched field shapes
-before mutation, and checks the pressure reference level. Randomized
+before mutation, and checks the pressure reference level. A 1–257-length corpus
+also compares runtime SIMD with the scalar implementation by raw bits. Randomized
 differential cases, exceptional floating-point inputs, and full Held-Suarez
 trajectory parity remain open coverage items.

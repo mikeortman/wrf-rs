@@ -10,6 +10,7 @@ description = "Parity-tested WRF dynamical-core numerical kernels"
 workspace = true
 
 [dependencies]
+pulp = "0.22.3"
 wrf-compute = { path = "../wrf-compute" }
 
 [dev-dependencies]

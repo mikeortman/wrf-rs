@@ -111,8 +111,9 @@ and the pressure reference level.
 - Allocate fields and scratch buffers during setup, not timesteps.
 - Prefer contiguous structure-of-arrays field layouts.
 - Preserve WRF precision and operation order until parity is established.
-- `pulp` is the leading stable-Rust SIMD candidate because it supports runtime
-  ISA dispatch. `wide` remains a candidate for controlled build targets.
+- `pulp` 0.22.3 is the accepted stable-Rust SIMD layer for Held-Suarez damping
+  because it supports one runtime ISA dispatch per kernel. It remains subject
+  to per-kernel evidence; `wide` is still a controlled-target candidate.
 - `std::simd` is not the stable production baseline while it requires nightly.
 - SIMD dispatch happens once per kernel and runs inside CPU worker chunks.
 - Criterion 0.7 is a dev-only statistical benchmark dependency; 0.8 is excluded
@@ -147,13 +148,18 @@ for this kernel. `pulp` remains a candidate for more pointwise-dominant kernels.
 
 ## Held-Suarez performance baseline
 
-For 2,097,152 momentum updates on the Apple M3 Max, Criterion measured 0.97808
-ms with one Rust worker, 0.30533 ms with four, and 0.55094 ms with 16. A matched
-GNU Fortran 14.2.0 `-O3 -flto` run of the pinned routine measured a 0.859712 ms
-median across seven samples. Current Rust is 13.8% slower serially and 2.82×
+For 2,097,152 momentum updates on the Apple M3 Max, accepted safe SIMD measured
+0.93459 ms with one Rust worker, 0.29105 ms with four, and 0.52122 ms with 16. A
+matched GNU Fortran 14.2.0 `-O3 -flto` run of the pinned routine measured a
+0.859712 ms median across seven samples. Current Rust is 8.7% slower serially and 2.95×
 faster with four workers than serial Fortran. This is an isolated-kernel result,
 not a whole-model claim. See `PERFORMANCE_PARITY.md` and
 `docs/performance/held-suarez-2026-07-13.md`.
+
+The `pulp` implementation preserves exact scalar bits for every tested line
+length from 1 through 257 and improves the scalar baseline by 4.4–5.4% across
+worker counts. Its warmed two-pass dispatch uses three 1,520-byte scheduler
+allocations per 100 calls, with no reallocations or numerical scratch.
 
 ## WRF time oracle
 
@@ -189,10 +195,11 @@ cargo test --workspace --release
 ./scripts/run-positive-definite-oracle.sh
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
+cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 ```
 
-Result: 44 unit tests and one doctest passed in debug and release modes (11
-`wrf-compute`, 13 `wrf-dynamics`, 20 `wrf-time`), including all-target benchmark
+Result: 45 unit tests and two doctests passed in debug and release modes (11
+`wrf-compute`, 14 `wrf-dynamics`, 20 `wrf-time`), including all-target benchmark
 smoke execution. Clippy and rustdoc are clean. The release gate exposed and
 fixed a scheduler-test assumption that a small workload would necessarily be
 stolen by multiple workers; the test now coordinates overlapping tasks before
@@ -219,11 +226,12 @@ Held-Suarez boundary oracle matches exactly.
 - `7389443` — instrumented steady-state allocation budgets and measurements.
 - `5b5f7aa` — documented and removed a parity-correct SIMD prototype that
   regressed representative positive-definite benchmarks.
+- `4e6af9a` — nested scientific module hierarchy, Held-Suarez scalar parity,
+  matched optimized-Fortran benchmark, wiki, and coverage/findings updates.
 
 ## Immediate next actions
 
-1. Close the Held-Suarez serial performance gap only if a safe optimization
-   preserves exact-bit parity and wins representative benchmarks.
-2. Backfill matched Fortran baselines for both positive-definite variants.
+1. Backfill matched Fortran baselines for both positive-definite variants.
+2. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
 3. Select the next dependency-closed ARW numerical kernel using the same
    oracle, adversarial-test, wiki, rustdoc, findings, and performance workflow.

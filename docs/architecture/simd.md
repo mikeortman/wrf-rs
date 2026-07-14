@@ -66,3 +66,17 @@ the representative one- and four-worker cases by roughly 1–4%. It improved
 only the 16-worker measurements. The path was therefore removed; see the
 baseline report for the full table. Explicit SIMD remains an evidence-based
 per-kernel choice, not a workspace-wide requirement.
+
+## First accepted explicit SIMD kernel
+
+Held-Suarez damping is the first accepted `pulp` implementation. Unlike the
+reduction-heavy positive-definite family, every west-east point is independent.
+Runtime dispatch occurs once per kernel, manual SIMD operates inside existing
+Rayon blocks, and scalar tails retain the same expression order. Raw-bit tests
+cover every length from 1 through 257 plus the upstream Fortran fixture.
+
+On the 2026-07-13 Apple M3 Max baseline, SIMD improved one-, four-, and
+16-worker times by 4.4%, 4.7%, and 5.4% respectively. This evidence accepts the
+AArch64 path. The portable scalar fallback is always available; x86-64 needs
+its own generated-code inspection and benchmark record before architecture-
+specific performance claims are made.

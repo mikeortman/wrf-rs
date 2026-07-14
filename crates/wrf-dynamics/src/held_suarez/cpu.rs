@@ -1,5 +1,6 @@
 use std::convert::Infallible;
 
+use pulp::{Arch, Simd, WithSimd};
 use wrf_compute::{CpuBackend, CpuField, FieldStorage, GridShape, ParallelExecutionError};
 
 use crate::{
@@ -7,9 +8,11 @@ use crate::{
     HeldSuarezDampingKernels, HeldSuarezDampingRegion, HeldSuarezDampingResult,
 };
 
-const SIGMA_BOUNDARY: f32 = 0.7;
-const DAY_LENGTH_SECONDS: f32 = 60.0 * 60.0 * 24.0;
-const FRICTION_RATE: f32 = 1.0 / DAY_LENGTH_SECONDS;
+use super::line_layout::{MomentumDampingInputSlices, MomentumDampingLayout};
+use super::simd::damp_momentum_line;
+
+#[cfg(test)]
+use super::line_layout::linear_index;
 
 impl HeldSuarezDampingKernels for CpuBackend {
     type Field = CpuField<f32>;
@@ -19,57 +22,93 @@ impl HeldSuarezDampingKernels for CpuBackend {
         fields: HeldSuarezDampingFields<'_, Self::Field>,
         region: &HeldSuarezDampingRegion,
     ) -> HeldSuarezDampingResult<()> {
-        let HeldSuarezDampingFields {
-            west_east_momentum_tendency,
-            south_north_momentum_tendency,
-            west_east_momentum,
-            south_north_momentum,
-            perturbation_pressure,
-            base_pressure,
-        } = fields;
-        let expected_shape = region.shape();
-        validate_field_shape(
-            west_east_momentum_tendency,
-            HeldSuarezDampingField::WestEastMomentumTendency,
-            expected_shape,
-        )?;
-        validate_field_shape(
-            south_north_momentum_tendency,
-            HeldSuarezDampingField::SouthNorthMomentumTendency,
-            expected_shape,
-        )?;
-        validate_field_shape(
-            west_east_momentum,
-            HeldSuarezDampingField::WestEastMomentum,
-            expected_shape,
-        )?;
-        validate_field_shape(
-            south_north_momentum,
-            HeldSuarezDampingField::SouthNorthMomentum,
-            expected_shape,
-        )?;
-        validate_field_shape(
-            perturbation_pressure,
-            HeldSuarezDampingField::PerturbationPressure,
-            expected_shape,
-        )?;
-        validate_field_shape(
-            base_pressure,
-            HeldSuarezDampingField::BasePressure,
-            expected_shape,
-        )?;
+        Arch::new().dispatch(ApplyHeldSuarezDamping {
+            backend: self,
+            fields,
+            region,
+        })
+    }
+}
 
-        let west_east_points = expected_shape.west_east_points();
-        let bottom_top_points = expected_shape.bottom_top_points();
-        let west_east_range = region.west_east_range();
-        let bottom_top_range = region.bottom_top_range();
-        let surface_level = region.surface_level();
-        let perturbation_pressure = perturbation_pressure.values();
-        let base_pressure = base_pressure.values();
+struct ApplyHeldSuarezDamping<'backend, 'fields, 'region> {
+    backend: &'backend CpuBackend,
+    fields: HeldSuarezDampingFields<'fields, CpuField<f32>>,
+    region: &'region HeldSuarezDampingRegion,
+}
 
-        let south_north_range = region.south_north_momentum_south_north_range();
-        let south_north_momentum = south_north_momentum.values();
-        self.try_for_each_output_block(
+impl WithSimd for ApplyHeldSuarezDamping<'_, '_, '_> {
+    type Output = HeldSuarezDampingResult<()>;
+
+    fn with_simd<S: Simd>(self, simd: S) -> Self::Output {
+        apply_held_suarez_damping_with_simd(self.backend, self.fields, self.region, simd)
+    }
+}
+
+fn apply_held_suarez_damping_with_simd<S: Simd>(
+    backend: &CpuBackend,
+    fields: HeldSuarezDampingFields<'_, CpuField<f32>>,
+    region: &HeldSuarezDampingRegion,
+    simd: S,
+) -> HeldSuarezDampingResult<()> {
+    let HeldSuarezDampingFields {
+        west_east_momentum_tendency,
+        south_north_momentum_tendency,
+        west_east_momentum,
+        south_north_momentum,
+        perturbation_pressure,
+        base_pressure,
+    } = fields;
+    let expected_shape = region.shape();
+    validate_field_shape(
+        west_east_momentum_tendency,
+        HeldSuarezDampingField::WestEastMomentumTendency,
+        expected_shape,
+    )?;
+    validate_field_shape(
+        south_north_momentum_tendency,
+        HeldSuarezDampingField::SouthNorthMomentumTendency,
+        expected_shape,
+    )?;
+    validate_field_shape(
+        west_east_momentum,
+        HeldSuarezDampingField::WestEastMomentum,
+        expected_shape,
+    )?;
+    validate_field_shape(
+        south_north_momentum,
+        HeldSuarezDampingField::SouthNorthMomentum,
+        expected_shape,
+    )?;
+    validate_field_shape(
+        perturbation_pressure,
+        HeldSuarezDampingField::PerturbationPressure,
+        expected_shape,
+    )?;
+    validate_field_shape(
+        base_pressure,
+        HeldSuarezDampingField::BasePressure,
+        expected_shape,
+    )?;
+
+    let west_east_points = expected_shape.west_east_points();
+    let bottom_top_points = expected_shape.bottom_top_points();
+    let bottom_top_range = region.bottom_top_range();
+    let input_slices = MomentumDampingInputSlices::new(
+        west_east_momentum.values(),
+        south_north_momentum.values(),
+        perturbation_pressure.values(),
+        base_pressure.values(),
+        MomentumDampingLayout {
+            west_east_points,
+            bottom_top_points,
+            west_east_range: region.west_east_range(),
+            surface_level: region.surface_level(),
+        },
+    );
+
+    let south_north_range = region.south_north_momentum_south_north_range();
+    backend
+        .try_for_each_output_block(
             south_north_momentum_tendency.values_mut(),
             west_east_points,
             |line_index, tendency_line| {
@@ -78,58 +117,23 @@ impl HeldSuarezDampingKernels for CpuBackend {
                 if south_north_range.contains(&south_north_index)
                     && bottom_top_range.contains(&bottom_top_index)
                 {
-                    for west_east_index in west_east_range.clone() {
-                        let current_index = linear_index(
-                            west_east_index,
+                    damp_momentum_line(
+                        simd,
+                        input_slices.south_north_momentum_line(
+                            tendency_line,
                             bottom_top_index,
                             south_north_index,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let preceding_index = linear_index(
-                            west_east_index,
-                            bottom_top_index,
-                            south_north_index - 1,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let current_surface_index = linear_index(
-                            west_east_index,
-                            surface_level,
-                            south_north_index,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let preceding_surface_index = linear_index(
-                            west_east_index,
-                            surface_level,
-                            south_north_index - 1,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let sigma = (perturbation_pressure[preceding_index]
-                            + base_pressure[preceding_index]
-                            + perturbation_pressure[current_index]
-                            + base_pressure[current_index])
-                            / (perturbation_pressure[preceding_surface_index]
-                                + base_pressure[preceding_surface_index]
-                                + perturbation_pressure[current_surface_index]
-                                + base_pressure[current_surface_index]);
-                        let sigma_term =
-                            0.0_f32.max((sigma - SIGMA_BOUNDARY) / (1.0 - SIGMA_BOUNDARY));
-                        let vertical_damping = FRICTION_RATE * sigma_term;
-                        tendency_line[west_east_index] -=
-                            vertical_damping * south_north_momentum[current_index];
-                    }
+                        ),
+                    );
                 }
                 Ok::<(), Infallible>(())
             },
         )
         .map_err(map_parallel_error)?;
 
-        let south_north_range = region.west_east_momentum_south_north_range();
-        let west_east_momentum = west_east_momentum.values();
-        self.try_for_each_output_block(
+    let south_north_range = region.west_east_momentum_south_north_range();
+    backend
+        .try_for_each_output_block(
             west_east_momentum_tendency.values_mut(),
             west_east_points,
             |line_index, tendency_line| {
@@ -138,55 +142,19 @@ impl HeldSuarezDampingKernels for CpuBackend {
                 if south_north_range.contains(&south_north_index)
                     && bottom_top_range.contains(&bottom_top_index)
                 {
-                    for west_east_index in west_east_range.clone() {
-                        let current_index = linear_index(
-                            west_east_index,
+                    damp_momentum_line(
+                        simd,
+                        input_slices.west_east_momentum_line(
+                            tendency_line,
                             bottom_top_index,
                             south_north_index,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let preceding_index = linear_index(
-                            west_east_index - 1,
-                            bottom_top_index,
-                            south_north_index,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let current_surface_index = linear_index(
-                            west_east_index,
-                            surface_level,
-                            south_north_index,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let preceding_surface_index = linear_index(
-                            west_east_index - 1,
-                            surface_level,
-                            south_north_index,
-                            west_east_points,
-                            bottom_top_points,
-                        );
-                        let sigma = (perturbation_pressure[preceding_index]
-                            + base_pressure[preceding_index]
-                            + perturbation_pressure[current_index]
-                            + base_pressure[current_index])
-                            / (perturbation_pressure[preceding_surface_index]
-                                + base_pressure[preceding_surface_index]
-                                + perturbation_pressure[current_surface_index]
-                                + base_pressure[current_surface_index]);
-                        let sigma_term =
-                            0.0_f32.max((sigma - SIGMA_BOUNDARY) / (1.0 - SIGMA_BOUNDARY));
-                        let vertical_damping = FRICTION_RATE * sigma_term;
-                        tendency_line[west_east_index] -=
-                            vertical_damping * west_east_momentum[current_index];
-                    }
+                        ),
+                    );
                 }
                 Ok::<(), Infallible>(())
             },
         )
         .map_err(map_parallel_error)
-    }
 }
 
 fn validate_field_shape(
@@ -203,16 +171,6 @@ fn validate_field_shape(
         });
     }
     Ok(())
-}
-
-const fn linear_index(
-    west_east_index: usize,
-    bottom_top_index: usize,
-    south_north_index: usize,
-    west_east_points: usize,
-    bottom_top_points: usize,
-) -> usize {
-    (south_north_index * bottom_top_points + bottom_top_index) * west_east_points + west_east_index
 }
 
 fn map_parallel_error(error: ParallelExecutionError<Infallible>) -> HeldSuarezDampingError {

@@ -1,8 +1,8 @@
 # Held-Suarez CPU baseline — 2026-07-13
 
 This is the first statistical release-mode baseline for the WRF
-`held_suarez_damp` port. It measures the scalar, exact-bit implementation over
-the persistent Rayon scheduler.
+`held_suarez_damp` port. The original scalar baseline and accepted safe-SIMD
+implementation both run over the persistent Rayon scheduler.
 
 ## Environment
 
@@ -11,6 +11,13 @@ the persistent Rayon scheduler.
 - rustc/cargo 1.96.0, LLVM 22.1.2
 - workspace release profile: thin LTO, one codegen unit
 - Criterion 0.7.0, 100 samples, default warm-up and statistical analysis
+
+The actual Rust bench invocation was verified as
+`-C opt-level=3 -C lto=thin -C codegen-units=1`. GNU Fortran uses `-O3 -flto`;
+its compiler reports `apple-m1` as the default CPU on this host. Neither side enables fast-math or an
+explicit native-CPU flag. These are comparable highest-normal optimization
+tiers, not identical compiler settings: GCC LTO and LLVM ThinLTO differ, and
+safe Rust retains language semantics absent from Fortran.
 
 ## Workload
 
@@ -37,14 +44,14 @@ Central estimates and 95% confidence intervals:
 
 | Workers | Time | Momentum-update throughput | Speedup vs. 1 worker |
 |---:|---:|---:|---:|
-| 1 | 978.08 µs `[969.95, 986.03]` | 2.1442 Gupdate/s | 1.00× |
-| 4 | 305.33 µs `[303.48, 307.13]` | 6.8684 Gupdate/s | 3.20× |
-| 16 | 550.94 µs `[545.63, 556.36]` | 3.8065 Gupdate/s | 1.78× |
+| 1 | 934.59 µs `[928.79, 940.90]` | 2.2439 Gupdate/s | 1.00× |
+| 4 | 291.05 µs `[288.32, 293.92]` | 7.2056 Gupdate/s | 3.21× |
+| 16 | 521.22 µs `[516.99, 526.23]` | 4.0236 Gupdate/s | 1.79× |
 
 ## Interpretation
 
 Four workers provide strong scaling and are the best configuration on this
-machine for this workload. Using all 16 heterogeneous cores is 80% slower than
+machine for this workload. Using all 16 heterogeneous cores is 79% slower than
 four workers, although still faster than one. The kernel performs repeated
 loads from four immutable fields and writes two outputs, so memory bandwidth,
 cache pressure, scheduling granularity, and the machine's four efficiency cores
@@ -55,11 +62,25 @@ other WRF kernels have different arithmetic intensity, and a full timestep can
 amortize scheduling differently. It does establish that worker-count tuning or
 topology-aware execution will matter before production-scale CPU runs.
 
-The contiguous west-east loop is a credible SIMD candidate because it performs
-independent pressure arithmetic and tendency updates without a reduction.
-Explicit SIMD still requires raw-bit differential tests across lane/tail
-boundaries and a benchmark win at representative worker counts. No SIMD crate
-is added by this baseline.
+## Accepted SIMD optimization
+
+GNU Fortran's `-fopt-info-vec-optimized` report confirms that both upstream
+west-east loops are vectorized with 128-bit and 64-bit vectors. The first Rust
+scalar pre-slicing experiment regressed one- and four-worker performance by
+2.6–2.8% and was removed. A dispatch-only `pulp` experiment produced a small
+gain but did not explicitly control vector operations.
+
+The accepted `pulp` 0.22.3 path dispatches once per complete kernel, then runs
+manual SIMD arithmetic inside each Rayon-owned west-east line. The scalar tail
+uses the original formula. Tests compare raw bits between `pulp::Scalar` and
+runtime SIMD for every length from 1 through 257, covering vector boundaries,
+unaligned staggered slices, and tails; the full Fortran fixture also remains
+exact.
+
+Compared with the retained scalar baseline, SIMD improves one worker by 4.4%,
+four workers by 4.7%, and 16 workers by 5.4%. The implementation is isolated in
+the `held_suarez::simd` submodule, uses no local unsafe code, and adds no
+concurrency layer.
 
 ## Memory behavior
 
@@ -67,8 +88,11 @@ The field bundle borrows all six fields. Shape/range descriptors are small
 values, and the numerical implementation creates no field-sized or per-line
 scratch storage. Criterion's output clones are fixture restoration outside the
 measured interval, not timestep behavior. The persistent scheduler's small
-dispatch allocations have been measured for the positive-definite family but
-have not yet been separately instrumented for this two-pass kernel.
+dispatch allocations were separately instrumented after warm-up. Each
+100-dispatch phase at 1, 4, and 16 workers used exactly three 1,520-byte
+allocations (4,560 bytes total), with no reallocations. That is an amortized
+0.03 allocation and 45.6 bytes per call, independent of field size and worker
+count; no numerical scratch or field clone occurs.
 
 ## Matched WRF Fortran comparison
 
@@ -77,11 +101,11 @@ The pinned upstream routine was compiled with GNU Fortran 14.2.0 using
 on the identical initialized field and active bounds measured 0.851224–0.877004
 ms per call, with a median of 0.859712 ms.
 
-The current one-worker Rust kernel is therefore 13.8% slower than optimized
-serial Fortran. Four-worker Rust is 2.82× faster than serial Fortran, and
-16-worker Rust is 1.56× faster. This is an isolated routine comparison, not a
-whole-model speedup. The serial gap is retained as an optimization target; the
-cross-language policy and summary are in `PERFORMANCE_PARITY.md`.
+The optimized one-worker Rust kernel is therefore 8.7% slower than optimized
+serial Fortran. Four-worker Rust is 2.95× faster than serial Fortran, and
+16-worker Rust is 1.65× faster. This is an isolated routine comparison, not a
+whole-model speedup. The remaining serial gap is retained as an optimization
+target; the cross-language policy and summary are in `PERFORMANCE_PARITY.md`.
 
 ## Caveats
 

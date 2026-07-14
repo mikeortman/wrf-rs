@@ -71,4 +71,8 @@ These are scheduler budgets, not permission for numerical scratch allocation.
 momentum-tendency updates over two staggered components. It retains six
 domain-sized fields but restores only the two outputs in excluded setup. The
 2026-07-13 Apple M3 Max baseline found four workers faster than both one and all
-16 host workers; see `docs/performance/held-suarez-2026-07-13.md`.
+16 host workers. Safe runtime SIMD was accepted after exact scalar/SIMD tests
+and a 4–5% improvement across worker counts. The warmed allocation harness is
+`cargo run -p wrf-dynamics --release --example
+measure_held_suarez_allocations`; see
+`docs/performance/held-suarez-2026-07-13.md`.

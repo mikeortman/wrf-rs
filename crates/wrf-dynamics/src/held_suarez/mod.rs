@@ -6,7 +6,9 @@ mod error;
 mod field;
 mod fields;
 mod kernels;
+mod line_layout;
 mod region;
+mod simd;
 
 pub use axis::HeldSuarezDampingAxis;
 pub use error::{HeldSuarezDampingError, HeldSuarezDampingResult};
