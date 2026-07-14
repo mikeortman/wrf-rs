@@ -4,9 +4,11 @@ use crate::{ColumnMassStaggeringRegion, ColumnMassStaggeringResult};
 
 /// Backend capability for interpolating full column mass to momentum points.
 ///
-/// The current capability represents WRF's interior-tile path, where each
-/// momentum point has a preceding mass-grid neighbor. Physical-boundary copy
-/// branches will be added before the upstream routine is considered complete.
+/// This capability reproduces WRF's interior, lower-boundary, upper-boundary,
+/// and two-boundary paths independently on both horizontal axes. Interior
+/// momentum points average adjacent mass points. A physical-boundary point
+/// copies the nearest full mass, while values outside the active output
+/// rectangles remain untouched.
 ///
 /// # Example
 ///
@@ -22,10 +24,10 @@ use crate::{ColumnMassStaggeringRegion, ColumnMassStaggeringResult};
 /// let mut south_north_mass = backend.create_field(shape, -1.0_f32)?;
 /// let region = ColumnMassStaggeringRegion::try_new(
 ///     shape,
-///     1..3,
-///     1..3,
-///     1..3,
-///     1..3,
+///     0..2,
+///     0..2,
+///     0..3,
+///     0..3,
 /// )?;
 ///
 /// backend.stagger_column_mass(
@@ -35,15 +37,18 @@ use crate::{ColumnMassStaggeringRegion, ColumnMassStaggeringResult};
 ///     &mut south_north_mass,
 ///     &region,
 /// )?;
-/// assert_eq!(west_east_mass.values()[4], 100.0);
-/// assert_eq!(south_north_mass.values()[4], 100.0);
+/// assert_eq!(west_east_mass.values()[0], 100.0);
+/// assert_eq!(south_north_mass.values()[0], 100.0);
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 pub trait ColumnMassStaggeringKernels {
     /// Floating-point field owned by this backend.
     type Field: FieldStorage<f32>;
 
-    /// Averages perturbation plus base mass onto both horizontal staggerings.
+    /// Places perturbation plus base mass onto both horizontal staggerings.
+    ///
+    /// Adjacent full-mass values are averaged at interior points. Physical
+    /// boundaries use WRF's nearest-point copy rule.
     fn stagger_column_mass(
         &self,
         perturbation_mass: &Self::Field,
