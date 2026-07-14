@@ -13,8 +13,8 @@ regression until a representative benchmark exists.
 | ID | Kind | Confidence | Area | Finding |
 |---|---|---:|---|---|
 | WRF-001 | Confirmed bug | Reproduced | ESMF time test | `Test1.F90` calls an obsolete dummy-argument keyword and does not compile against the bundled stub interface |
-| WRF-002 | Performance opportunity | Source-confirmed, not benchmarked | Positive-definite correction | The sheet and slab routines allocate scratch storage and copy every corrected line into and out of it |
-| WRF-003 | Performance opportunity | Source-confirmed, not benchmarked | Positive-definite correction | A full-array `ANY` scan is followed by a second `ANY` scan of each line |
+| WRF-002 | Performance opportunity | Matched routine benchmark; combined attribution | Positive-definite correction | The sheet and slab routines allocate scratch storage and copy every corrected line into and out of it |
+| WRF-003 | Performance opportunity | Matched routine benchmark; combined attribution | Positive-definite correction | A full-array `ANY` scan is followed by a second `ANY` scan of each line |
 | WRF-004 | Test gap | Repository search | Positive-definite correction | No dedicated regression test for either exported routine was found in the WRF tree |
 | WRF-005 | Test gap | Repository search | Held-Suarez damping | No dedicated numerical regression for `held_suarez_damp` was found in the WRF tree |
 | WRF-006 | Performance opportunity | Source-confirmed, not benchmarked | Held-Suarez damping | The surface-pressure denominator is recomputed for every vertical level although it is invariant in `k` |
@@ -49,7 +49,8 @@ meant to be `defaultCalendar`.
 
 ## WRF-002: positive-definite scratch allocation and line copies
 
-Status: source-confirmed performance opportunity; benchmark pending.
+Status: source-confirmed performance opportunity with a matched routine
+benchmark; individual cost not isolated.
 
 `dyn_em/module_positive_definite.F` allocates `line` once per routine call
 (lines 21/32 and 80/87), copies each affected line into it (lines 37 and 91),
@@ -65,9 +66,16 @@ representative `nx`, `ny`, correction frequency, compilers, and OpenMP/MPI
 configurations. Alias analysis and existing caller expectations should be
 checked before changing the Fortran routine.
 
+On the local 256 × 4,096-line all-correction workload, one-worker Rust is 1.48×
+faster than optimized serial Fortran for the sheet and 1.29× faster for the
+slab. Rust removes the scratch allocation and copies, but also removes the
+global `ANY` scan and uses a different compiler. The result supports upstream
+investigation but does not attribute the gain to line copies alone.
+
 ## WRF-003: repeated negativity scans
 
-Status: source-confirmed performance opportunity; benchmark pending.
+Status: source-confirmed performance opportunity with a matched routine
+benchmark; individual cost not isolated.
 
 The routines first evaluate `ANY(f < 0.)` over the full active array (lines 30
 and 86). If true, each line is scanned again with another `ANY` (lines 36 and
@@ -80,7 +88,9 @@ field size, cache behavior, correction frequency, and compiler lowering.
 
 Suggested upstream investigation: benchmark the current two-stage scan against
 a single per-line pass and against persistent/reused scratch storage. This is
-an optimization candidate, not yet a claim of net slowdown.
+an optimization candidate. The matched benchmark reported under WRF-002 shows
+a combined routine-level gain but does not isolate the scan from scratch-copy
+and compiler effects.
 
 ## WRF-004: positive-definite test coverage
 

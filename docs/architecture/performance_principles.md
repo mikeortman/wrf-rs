@@ -57,6 +57,12 @@ one, four when available, and all host workers. Input cloning occurs in
 Criterion's excluded batch setup so the measured interval contains the kernel,
 not fixture restoration. Sheet and slab variants report element throughput.
 
+`scripts/benchmark-positive-definite-fortran.sh` runs the exact pinned Fortran
+routines after 100 excluded warm-up calls and over 32 calls per sample. It
+restores one field immediately before each individually timed call, matching
+the Rust geometry while excluding setup, avoiding a large prewarmed field pool,
+and avoiding corrected-field early exits.
+
 Use `-- --quick` for a development smoke run. Saved performance claims must use
 the normal statistical run, record CPU/OS/toolchain details, and retain the raw
 Criterion output or machine-readable artifact.

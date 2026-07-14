@@ -112,3 +112,21 @@ target; the cross-language policy and summary are in `PERFORMANCE_PARITY.md`.
 The machine was not isolated or frequency-pinned. The 16-worker case reported
 9% outliers and mixes performance and efficiency cores. These measurements are
 a local optimization baseline, not a cross-machine WRF comparison.
+
+## Rejected bench-only compiler profiles
+
+Bench-only fat LTO and `target-cpu=native` were tested without changing the
+production release profile. The combined native/fat build received a full
+100-sample run; the separated knobs received quick screens.
+
+| Bench compilation | 1 worker | 4 workers | 16 workers | Decision |
+|---|---:|---:|---:|---|
+| Portable ThinLTO baseline | 934.59 µs | 291.05 µs | 521.22 µs | Retained |
+| Native CPU + fat LTO | 917.09 µs | 293.71 µs | 540.73 µs | Rejected: 1.9% serial gain, 4/16 regressions |
+| Native CPU + ThinLTO, quick | 936.23 µs | 311.49 µs | 517.57 µs | Rejected at screen |
+| Generic CPU + fat LTO, quick | 926.78 µs | 319.74 µs | 525.39 µs | Rejected at screen |
+
+No variant improves the representative worker counts consistently, and native
+compilation reduces binary portability. The workspace keeps portable ThinLTO;
+these experiments can be repeated per deployment target if a full-model profile
+later shows a meaningful opportunity.

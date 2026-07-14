@@ -51,6 +51,7 @@ RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
 ./scripts/run-positive-definite-oracle.sh
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
+./scripts/benchmark-positive-definite-fortran.sh
 ```
 
 The upstream source is intentionally ignored by the root repository. Its tag,

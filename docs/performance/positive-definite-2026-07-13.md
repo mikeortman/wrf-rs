@@ -89,6 +89,46 @@ cores. Criterion reported 2–11% outliers depending on the case. These results
 are appropriate as a local optimization baseline, not as a cross-machine WRF
 performance comparison.
 
+## Matched WRF Fortran comparison
+
+The pinned upstream module was compiled with GNU Fortran 14.2.0 using
+`-O3 -flto`, without fast-math or an explicit native-CPU flag. After 100
+excluded warm-up calls, eleven samples each contain 32 individually timed
+calls. One field is restored immediately before every call, excluding fixture
+restoration while preventing later calls from taking the already-corrected
+early exit and avoiding a prewarmed field pool.
+
+| Kernel | Fortran median and observed range | Rust, 1 worker | Serial ratio | Best Rust ratio |
+|---|---:|---:|---:|---:|
+| Sheet | 1.709219 ms `[1.676438, 1.775156]` | 1.1569 ms | Rust 1.48× faster | Rust 16-worker 6.22× faster |
+| Slab | 2.336656 ms `[2.322000, 2.371812]` | 1.8084 ms | Rust 1.29× faster | Rust 16-worker 6.71× faster |
+
+The workloads have identical 256 × 4,096 line geometry and initialization.
+This benchmark measures the combined routine implementations; it does not
+isolate scratch allocation/copies, the repeated negativity scan, or compiler
+code generation. See `PERFORMANCE_PARITY.md` for the cross-language policy and
+optimization-level caveats.
+
+## Rejected bench-only compiler profile
+
+The portable ThinLTO baseline was compared with an opt-in native CPU plus fat
+LTO build. This affected only the Cargo bench profile for the command; it did
+not change production release settings.
+
+| Kernel | Workers | Portable ThinLTO | Native CPU + fat LTO | Change |
+|---|---:|---:|---:|---:|
+| Sheet | 1 | 1.1569 ms | 1.1616 ms | 0.4% slower |
+| Sheet | 4 | 316.00 µs | 315.81 µs | effectively flat |
+| Sheet | 16 | 274.85 µs | 268.07 µs | 2.5% faster |
+| Slab | 1 | 1.8084 ms | 1.8147 ms | 0.3% slower |
+| Slab | 4 | 483.08 µs | 484.87 µs | 0.4% slower |
+| Slab | 16 | 347.98 µs | 323.93 µs | 6.9% faster |
+
+The profile does not improve the representative one- and four-worker cases,
+and its gains occur at the mixed performance/efficiency-core count with greater
+scheduling noise. It is not adopted as the benchmark default. The exact opt-in
+command is retained in `PERFORMANCE_PARITY.md` for deployment-specific repeats.
+
 ## Rejected `pulp` SIMD experiment
 
 `pulp` 0.22.3 was prototyped with one runtime dispatch per kernel. Minimum and

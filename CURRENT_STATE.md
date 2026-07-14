@@ -146,6 +146,13 @@ the one- and four-worker benchmarks by about 1–4%. Gains appeared only at 16
 workers. The implementation and dependency were removed; keep the scalar path
 for this kernel. `pulp` remains a candidate for more pointwise-dominant kernels.
 
+Matched GNU Fortran 14.2.0 `-O3 -flto` medians are 1.709219 ms for
+`positive_definite_sheet` and 2.336656 ms for `positive_definite_slab` on the
+same 1,048,576-value all-correction workload. One-worker Rust is respectively
+1.48× and 1.29× faster; 16-worker Rust is 6.22× and 6.71× faster than serial
+Fortran. These are combined routine results, not isolated attribution of scratch
+copies versus the repeated negativity scan.
+
 ## Held-Suarez performance baseline
 
 For 2,097,152 momentum updates on the Apple M3 Max, accepted safe SIMD measured
@@ -160,6 +167,13 @@ The `pulp` implementation preserves exact scalar bits for every tested line
 length from 1 through 257 and improves the scalar baseline by 4.4–5.4% across
 worker counts. Its warmed two-pass dispatch uses three 1,520-byte scheduler
 allocations per 100 calls, with no reallocations or numerical scratch.
+
+Bench-only native CPU and/or fat-LTO builds were screened. Native+fat gained
+1.9% on serial Held-Suarez but regressed its four- and 16-worker cases. It was
+flat to slightly slower for positive-definite at one and four workers, with
+gains limited to the noisier 16-worker cases. The separated settings also failed
+to improve representative worker counts consistently. Keep the portable
+ThinLTO production/benchmark baseline.
 
 ## WRF time oracle
 
@@ -195,6 +209,7 @@ cargo test --workspace --release
 ./scripts/run-positive-definite-oracle.sh
 ./scripts/run-held-suarez-oracle.sh
 ./scripts/benchmark-held-suarez-fortran.sh
+./scripts/benchmark-positive-definite-fortran.sh
 cargo run -p wrf-dynamics --release --example measure_held_suarez_allocations
 ```
 
@@ -228,10 +243,11 @@ Held-Suarez boundary oracle matches exactly.
   regressed representative positive-definite benchmarks.
 - `4e6af9a` — nested scientific module hierarchy, Held-Suarez scalar parity,
   matched optimized-Fortran benchmark, wiki, and coverage/findings updates.
+- `58bcb67` — accepted safe Held-Suarez SIMD, allocation evidence, scalar/SIMD
+  parity corpus, and docs.rs example.
 
 ## Immediate next actions
 
-1. Backfill matched Fortran baselines for both positive-definite variants.
-2. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
-3. Select the next dependency-closed ARW numerical kernel using the same
+1. Measure Held-Suarez SIMD on x86-64 when that architecture is available.
+2. Select the next dependency-closed ARW numerical kernel using the same
    oracle, adversarial-test, wiki, rustdoc, findings, and performance workflow.

@@ -36,11 +36,29 @@ the more aggressive interprocedural setting for this small driver. Results are
 therefore labeled **matched workload, comparable optimization**, never
 identical flags or identical compiler behavior.
 
+The more aggressive bench-only combination below was also measured without
+changing production release compilation:
+
+```sh
+CARGO_PROFILE_BENCH_LTO=fat \
+CARGO_PROFILE_BENCH_CODEGEN_UNITS=1 \
+RUSTFLAGS="-C target-cpu=native" \
+cargo bench -p wrf-dynamics --bench <benchmark> -- --noplot
+```
+
+It did not improve the representative kernels consistently: serial
+Held-Suarez improved 1.9% but its threaded cases regressed, while
+positive-definite was effectively flat at one and four workers and improved
+only its noisier 16-worker cases. Native CPU compilation also makes benchmark
+binaries machine-specific. The portable ThinLTO profile therefore remains the
+recorded default; deployment-specific tuning stays an explicit opt-in screen.
+
 ## Current results
 
 | Kernel | Work per call | WRF Fortran | Rust, 1 worker | Best measured Rust | Status |
 |---|---:|---:|---:|---:|---|
-| Positive-definite sheet/slab | 1,048,576 values | Pending matched run | Sheet 1.1569 ms; slab 1.8084 ms | Sheet 274.85 µs; slab 347.98 µs (16 workers) | Fortran baseline pending |
+| Positive-definite sheet | 1,048,576 values | 1.709219 ms median `[1.676438, 1.775156]` | 1.1569 ms `[1.1517, 1.1632]` | 0.27485 ms (16 workers) | Rust serial 1.48× faster; Rust 16-worker 6.22× faster |
+| Positive-definite slab | 1,048,576 values | 2.336656 ms median `[2.322000, 2.371812]` | 1.8084 ms `[1.7985, 1.8189]` | 0.34798 ms (16 workers) | Rust serial 1.29× faster; Rust 16-worker 6.71× faster |
 | Held-Suarez damping | 2,097,152 momentum updates | 0.859712 ms median `[0.851224, 0.877004]` | 0.93459 ms `[0.92879, 0.94090]` | 0.29105 ms (4 workers) | Rust serial 8.7% slower; Rust 4-worker 2.95× faster |
 
 ## Reproduction
@@ -48,12 +66,26 @@ identical flags or identical compiler behavior.
 ```sh
 cargo bench -p wrf-dynamics --bench positive_definite -- --noplot
 cargo bench -p wrf-dynamics --bench held_suarez -- --noplot
+./scripts/benchmark-positive-definite-fortran.sh
 ./scripts/benchmark-held-suarez-fortran.sh
 ```
 
 The Rust detailed results live under `docs/performance/`. Fortran drivers live
 beside their parity fixtures so workload mapping can be reviewed with the
 scientific oracle.
+
+## Positive-definite comparison notes
+
+- Date/machine/toolchains match the Held-Suarez comparison below.
+- After 100 excluded warm-up calls, Fortran uses 11 samples of 32 calls. One
+  field is restored immediately before every individually timed call, so setup
+  is excluded without prewarming 32 separate fields or measuring an
+  already-corrected early-exit path.
+- Both sheet and slab contain 4,096 west-east lines of length 256. Every line
+  contains a negative value and executes the correction path.
+- The serial advantage is a combined routine result. It does not separately
+  attribute savings from in-place mutation, removal of scratch allocation and
+  copies, removal of the global negativity scan, or LLVM/GCC code generation.
 
 ## Held-Suarez comparison notes
 
