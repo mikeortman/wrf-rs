@@ -24,11 +24,11 @@ impl<'a> ExpectedOutputReader<'a> {
             )
         });
         let mut columns = line.split_whitespace();
-        let expected_seed = parse_u64(columns.next(), "seed", line);
+        let expected_seed = Self::parse_u64(columns.next(), "seed", line);
         let expected_field_name = columns
             .next()
             .unwrap_or_else(|| panic!("missing field name in expected output line: {line}"));
-        let expected_index = parse_usize(columns.next(), "index", line);
+        let expected_index = Self::parse_usize(columns.next(), "index", line);
         let expected_value = columns
             .next()
             .unwrap_or_else(|| panic!("missing value in expected output line: {line}"));
@@ -74,22 +74,22 @@ impl<'a> ExpectedOutputReader<'a> {
             "Fortran expected output contains unconsumed values"
         );
     }
-}
 
-fn parse_u64(value: Option<&str>, column_name: &str, line: &str) -> u64 {
-    value
-        .unwrap_or_else(|| panic!("missing {column_name} in expected output line: {line}"))
-        .parse()
-        .unwrap_or_else(|error| {
-            panic!("invalid {column_name} in expected output line {line}: {error}")
-        })
-}
+    fn parse_u64(value: Option<&str>, column_name: &str, line: &str) -> u64 {
+        value
+            .unwrap_or_else(|| panic!("missing {column_name} in expected output line: {line}"))
+            .parse()
+            .unwrap_or_else(|error| {
+                panic!("invalid {column_name} in expected output line {line}: {error}")
+            })
+    }
 
-fn parse_usize(value: Option<&str>, column_name: &str, line: &str) -> usize {
-    value
-        .unwrap_or_else(|| panic!("missing {column_name} in expected output line: {line}"))
-        .parse()
-        .unwrap_or_else(|error| {
-            panic!("invalid {column_name} in expected output line {line}: {error}")
-        })
+    fn parse_usize(value: Option<&str>, column_name: &str, line: &str) -> usize {
+        value
+            .unwrap_or_else(|| panic!("missing {column_name} in expected output line: {line}"))
+            .parse()
+            .unwrap_or_else(|error| {
+                panic!("invalid {column_name} in expected output line {line}: {error}")
+            })
+    }
 }

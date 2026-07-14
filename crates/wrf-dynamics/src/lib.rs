@@ -7,6 +7,11 @@
 //! implementation structure. Safe in-place mutation, persistent parallelism,
 //! and typed shape checks replace temporary arrays and implicit contracts when
 //! those changes retain parity.
+//!
+//! Focused fixtures and seeded randomized corpora compile the pinned WRF
+//! routines and compare complete single-precision outputs. Finite values,
+//! signed zero, and infinities require raw-bit equality; NaN requires class
+//! equality because its payload is not a portable atmospheric data contract.
 
 #![forbid(unsafe_code)]
 

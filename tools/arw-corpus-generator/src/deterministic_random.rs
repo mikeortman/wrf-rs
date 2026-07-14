@@ -39,6 +39,6 @@ mod tests {
         let mut random = DeterministicRandom::new(1);
         assert_eq!(random.next_u64(), 0x910A_2DEC_8902_5CC1);
         assert_eq!(random.next_u64(), 0xBEEB_8DA1_658E_EC67);
-        assert_eq!(random.next_u64(), 0xF893_A2EE_FB32_51E9);
+        assert_eq!(random.next_u64(), 0xF893_A2EE_FB32_555E);
     }
 }

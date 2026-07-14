@@ -19,6 +19,10 @@ speedups predict whole-model speedup.
 - Compare serial Fortran with one-worker Rust. Report multithreaded Rust
   separately because these upstream routines contain no OpenMP directives.
 - Treat differences below ordinary benchmark noise as parity, not a win.
+- Stop tuning when Rust is in the same practical performance class, the
+  standard multithreaded path is competitive, memory behavior is bounded, and
+  no end-to-end profile identifies a material hotspot. A small benchmark gap
+  does not justify complex SIMD, target-specific flags, or less readable code.
 
 ## Optimization-level correspondence
 

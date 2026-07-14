@@ -49,6 +49,15 @@ Every substantial numerical slice should eventually include:
 An optimization is accepted only when parity remains within its documented
 policy and the benchmark shows a meaningful gain.
 
+Matched Fortran performance is a decision aid, not an invitation to polish
+every low-single-digit difference. Stop tuning and continue the port when Rust
+is already in the same practical performance class, the standard multithreaded
+path is competitive, allocation behavior is bounded, and no end-to-end profile
+identifies the kernel as a dominant regression. SIMD, native-only flags, loop
+restructuring, or new dependencies are reserved for material gaps or measured
+hotspots. Record close results honestly and prefer readable scalar code over a
+fragile marginal win.
+
 ## Current benchmark corpus
 
 `cargo bench -p wrf-dynamics --bench positive_definite` uses Criterion with a

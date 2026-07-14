@@ -90,6 +90,11 @@ checks raw bits at 16 selected points spanning:
 Rust additionally checks one-versus-four-worker bitwise determinism, validates
 all region ranges and staggered neighbors, rejects mismatched field shapes
 before mutation, and checks the pressure reference level. A 1–257-length corpus
-also compares runtime SIMD with the scalar implementation by raw bits. Randomized
-differential cases, exceptional floating-point inputs, and full Held-Suarez
-trajectory parity remain open coverage items.
+also compares runtime SIMD with the scalar implementation by raw bits.
+
+Twelve seeded cases add 19,698 complete tendency outputs across varying shapes,
+negative/non-one memory origins, clipped tiles, both C-grid staggers, signed
+zero, large finite momentum, and active NaN/infinity momentum. Finite values and
+infinities compare by raw bits; NaN compares by class. The default host-parallel
+and safe runtime-SIMD implementation matches the pinned Fortran corpus. A full
+Held-Suarez trajectory remains an open integration item.

@@ -4,9 +4,9 @@ This ledger records findings against pinned WRF v4.7.1 commit
 `f52c197ed39d12e087d02c50f412d90d418f6186`. It is written so each confirmed
 item can be handed to WRF maintainers without depending on the Rust port.
 
-Labels distinguish **confirmed bug**, **test gap**, and **performance
-opportunity**. A performance observation is not presented as a measured
-regression until a representative benchmark exists.
+Labels distinguish **confirmed bug**, **test gap**, **numerical robustness**,
+and **performance opportunity**. A performance observation is not presented as
+a measured regression until a representative benchmark exists.
 
 ## Summary
 
@@ -19,6 +19,7 @@ regression until a representative benchmark exists.
 | WRF-005 | Test gap | Repository search | Held-Suarez damping | No dedicated numerical regression for `held_suarez_damp` was found in the WRF tree |
 | WRF-006 | Performance opportunity | Source-confirmed, not benchmarked | Held-Suarez damping | The surface-pressure denominator is recomputed for every vertical level although it is invariant in `k` |
 | WRF-007 | Test gap | Repository search | Column-mass staggering | No dedicated numerical regression for `calc_mu_staggered` was found in the WRF tree |
+| WRF-008 | Numerical robustness | Reproduced against pinned Fortran | Positive-definite correction | Finite extreme inputs can overflow the intermediate scale multiplication and produce infinity even when the normalized result is representable |
 
 ## WRF-001: obsolete keyword in the bundled time test
 
@@ -168,3 +169,29 @@ upper-boundary, and both-boundaries paths on both staggerings. It checks all
 clipping. This closes the routine-level local gap while leaving the upstream
 test gap unchanged. Periodic `calc_mu_uv` variants and full idealized-case
 integration remain separate coverage requirements.
+
+## WRF-008: avoidable intermediate overflow during normalization
+
+Status: reproduced numerical robustness limitation outside ordinary atmospheric
+input ranges; not classified as an operational forecast bug.
+
+Both positive-definite routines normalize translated values with left-to-right
+single-precision multiplication:
+
+```fortran
+line = line*f_total*rftotal_post
+```
+
+For the slab, `f_total` is the original line total; the sheet uses the supplied
+target total. A translated finite value near `2e30` multiplied by a finite
+target near `1e20` overflows before multiplication by the small reciprocal,
+even though multiplying by the combined scale factor would produce a finite
+normalized result. The seeded sheet case `1695930` and slab case `2771003`
+reproduce positive infinities from finite inputs with the pinned routine. Rust
+retains these bits for compatibility.
+
+Suggested upstream investigation: establish realistic field bounds first, then
+consider a scale-safe normalization such as computing the ratio before applying
+it. Any change must evaluate underflow and rounding, because reassociation will
+alter ordinary single-precision results. At minimum, a focused regression could
+document the accepted behavior for extreme finite inputs.

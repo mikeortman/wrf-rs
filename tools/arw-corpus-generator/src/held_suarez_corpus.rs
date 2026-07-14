@@ -9,6 +9,14 @@ const QUIET_NAN_BITS: u32 = 0x7FC5_4321;
 
 pub(crate) struct HeldSuarezCorpus;
 
+struct FieldLayout {
+    memory_west_east_start: i32,
+    memory_bottom_top_start: i32,
+    memory_south_north_start: i32,
+    west_east_points: usize,
+    bottom_top_points: usize,
+}
+
 impl HeldSuarezCorpus {
     pub(crate) fn write(output_directory: &Path) -> GeneratorResult<()> {
         let mut writer = CorpusWriter::create(&output_directory.join("held_suarez.in"))?;
@@ -67,6 +75,13 @@ impl HeldSuarezCorpus {
             let value_count = west_east_points as usize
                 * south_north_points as usize
                 * bottom_top_points as usize;
+            let field_layout = FieldLayout {
+                memory_west_east_start,
+                memory_bottom_top_start,
+                memory_south_north_start,
+                west_east_points: west_east_points as usize,
+                bottom_top_points: bottom_top_points as usize,
+            };
             let mut west_east_tendency = Vec::with_capacity(value_count);
             let mut south_north_tendency = Vec::with_capacity(value_count);
             let mut west_east_momentum = Vec::with_capacity(value_count);
@@ -96,15 +111,10 @@ impl HeldSuarezCorpus {
             }
 
             if case_index == 0 {
-                let active_index = Self::linear_index(
+                let active_index = field_layout.linear_index(
                     tile_west_east_start,
                     tile_bottom_top_start,
                     tile_south_north_start,
-                    memory_west_east_start,
-                    memory_bottom_top_start,
-                    memory_south_north_start,
-                    west_east_points as usize,
-                    bottom_top_points as usize,
                 );
                 west_east_momentum[active_index] = (-0.0_f32).to_bits();
                 west_east_tendency[active_index] = (-0.0_f32).to_bits();
@@ -113,29 +123,16 @@ impl HeldSuarezCorpus {
                 }
             }
             if case_index + 1 == CASE_COUNT {
-                let active_index = Self::linear_index(
-                    tile_west_east_start,
-                    1,
-                    tile_south_north_start,
-                    memory_west_east_start,
-                    memory_bottom_top_start,
-                    memory_south_north_start,
-                    west_east_points as usize,
-                    bottom_top_points as usize,
-                );
+                let active_index =
+                    field_layout.linear_index(tile_west_east_start, 1, tile_south_north_start);
                 west_east_momentum[active_index] = QUIET_NAN_BITS;
                 if active_index + 1 < value_count {
                     west_east_momentum[active_index + 1] = f32::INFINITY.to_bits();
                 }
-                let south_north_active_index = Self::linear_index(
+                let south_north_active_index = field_layout.linear_index(
                     tile_west_east_start,
                     1,
                     (domain_south_north_start + 1).max(tile_south_north_start),
-                    memory_west_east_start,
-                    memory_bottom_top_start,
-                    memory_south_north_start,
-                    west_east_points as usize,
-                    bottom_top_points as usize,
                 );
                 south_north_momentum[south_north_active_index] = QUIET_NAN_BITS;
                 if south_north_active_index + 1 < value_count {
@@ -154,22 +151,19 @@ impl HeldSuarezCorpus {
 
         writer.finish()
     }
+}
 
-    #[allow(clippy::too_many_arguments)]
+impl FieldLayout {
     fn linear_index(
+        &self,
         west_east_index: i32,
         bottom_top_index: i32,
         south_north_index: i32,
-        memory_west_east_start: i32,
-        memory_bottom_top_start: i32,
-        memory_south_north_start: i32,
-        west_east_points: usize,
-        bottom_top_points: usize,
     ) -> usize {
-        let west_east_offset = (west_east_index - memory_west_east_start) as usize;
-        let bottom_top_offset = (bottom_top_index - memory_bottom_top_start) as usize;
-        let south_north_offset = (south_north_index - memory_south_north_start) as usize;
-        (south_north_offset * bottom_top_points + bottom_top_offset) * west_east_points
+        let west_east_offset = (west_east_index - self.memory_west_east_start) as usize;
+        let bottom_top_offset = (bottom_top_index - self.memory_bottom_top_start) as usize;
+        let south_north_offset = (south_north_index - self.memory_south_north_start) as usize;
+        (south_north_offset * self.bottom_top_points + bottom_top_offset) * self.west_east_points
             + west_east_offset
     }
 }
