@@ -450,6 +450,18 @@
       "fortran_script": "scripts/benchmark-kessler-precipitation-trajectory-fortran.sh",
       "parity_oracle": "scripts/run-kessler-precipitation-trajectory-oracle.sh",
       "watch": ["crates/wrf-physics/Cargo.toml", "crates/wrf-physics/src/microphysics/trajectory/**", "crates/wrf-physics/src/microphysics/driver/**", "crates/wrf-physics/src/microphysics/kessler/**", "crates/wrf-physics/benches/kessler_precipitation_trajectory.rs", "crates/wrf-physics/benches/support/kessler_precipitation_trajectory_fixture.rs", "crates/wrf-physics/examples/kessler_precipitation_trajectory_oracle.rs", "crates/wrf-physics/examples/measure_kessler_precipitation_trajectory_allocations.rs", "parity/kessler-precipitation-trajectory/**", "scripts/benchmark-kessler-precipitation-trajectory-fortran.sh", "scripts/run-kessler-precipitation-trajectory-oracle.sh"]
+    },
+    {
+      "id": "registry-backed-arw-trajectory",
+      "label": "Registry-backed ARW accepted-stage trajectory",
+      "package": "wrf-model",
+      "rust_bench": "registry_backed_arw_trajectory",
+      "criterion_group": "registry_backed_arw_trajectory",
+      "rust_case": "canonical_continuous",
+      "fortran_case": "canonical_continuous",
+      "fortran_script": "scripts/benchmark-registry-backed-arw-trajectory-fortran.sh",
+      "parity_oracle": "scripts/run-registry-backed-arw-trajectory-oracle.sh",
+      "watch": ["crates/wrf-model/Cargo.toml", "crates/wrf-model/src/**", "crates/wrf-model/benches/registry_backed_arw_trajectory.rs", "crates/wrf-model/benches/support/registry_backed_arw_trajectory_fixture.rs", "crates/wrf-model/examples/registry_backed_arw_trajectory_oracle.rs", "crates/wrf-model/examples/measure_registry_backed_arw_trajectory_allocations.rs", "crates/wrf-compute/Cargo.toml", "crates/wrf-compute/src/**", "crates/wrf-registry/Cargo.toml", "crates/wrf-registry/src/**", "crates/wrf-dynamics/Cargo.toml", "crates/wrf-dynamics/src/column_mass_staggering/**", "crates/wrf-dynamics/src/momentum_coupling/**", "crates/wrf-dynamics/src/omega_diagnosis/**", "crates/wrf-dynamics/src/moisture_coefficients/**", "crates/wrf-dynamics/src/inverse_density/**", "crates/wrf-dynamics/src/pressure_point_geopotential/**", "crates/wrf-dynamics/src/runge_kutta_preparation/**", "crates/wrf-dynamics/src/dry_tendency_assembly/**", "crates/wrf-dynamics/src/acoustic_step_preparation/**", "crates/wrf-dynamics/src/acoustic_pressure/**", "crates/wrf-dynamics/src/vertical_acoustic_coefficients/**", "crates/wrf-dynamics/src/acoustic_horizontal_momentum/**", "crates/wrf-dynamics/src/acoustic_mass_theta/**", "crates/wrf-dynamics/src/acoustic_vertical_momentum/**", "crates/wrf-dynamics/src/acoustic_flux_accumulation/**", "crates/wrf-dynamics/src/acoustic_trajectory/**", "crates/wrf-dynamics/src/acoustic_step_finalization/**", "crates/wrf-physics/Cargo.toml", "crates/wrf-physics/src/microphysics/trajectory/**", "crates/wrf-physics/src/microphysics/driver/**", "crates/wrf-physics/src/microphysics/kessler/**", "parity/registry-backed-arw-trajectory/**", "scripts/benchmark-registry-backed-arw-trajectory-fortran.sh", "scripts/run-registry-backed-arw-trajectory-oracle.sh"]
     }
   ]
 }

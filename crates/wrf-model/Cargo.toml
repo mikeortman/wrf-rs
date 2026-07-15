@@ -1,0 +1,24 @@
+[package]
+name = "wrf-model"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Registry-backed accepted-stage WRF model trajectories"
+
+[lints]
+workspace = true
+
+[dependencies]
+wrf-compute = { path = "../wrf-compute" }
+wrf-dynamics = { path = "../wrf-dynamics" }
+wrf-physics = { path = "../wrf-physics" }
+wrf-registry = { path = "../wrf-registry" }
+
+[dev-dependencies]
+criterion = "0.7"
+stats_alloc = "0.1.10"
+
+[[bench]]
+name = "registry_backed_arw_trajectory"
+harness = false

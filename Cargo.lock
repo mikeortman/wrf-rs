@@ -1096,6 +1096,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "wrf-model"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "stats_alloc",
+ "wrf-compute",
+ "wrf-dynamics",
+ "wrf-physics",
+ "wrf-registry",
+]
+
+[[package]]
 name = "wrf-physics"
 version = "0.1.0"
 dependencies = [

@@ -144,6 +144,8 @@ jobs:
         run: ./scripts/run-kessler-oracle.sh
       - name: Verify Kessler precipitation trajectory
         run: ./scripts/run-kessler-precipitation-trajectory-oracle.sh
+      - name: Verify Registry-backed ARW accepted-stage trajectory
+        run: ./scripts/run-registry-backed-arw-trajectory-oracle.sh
       - name: Verify WRF NetCDF restart compatibility
         run: ./scripts/run-netcdf-restart-oracle.sh
 
