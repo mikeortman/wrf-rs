@@ -56,6 +56,93 @@ class SelectionTests(unittest.TestCase):
         suite["label"] = f"{suite['label']} before change"
         return previous, current
 
+    @staticmethod
+    def workspace_bootstrap_context() -> tuple[
+        dict[str, object],
+        dict[str, object],
+        dict[str, object],
+        dict[str, object],
+        dict[str, object],
+        dict[str, object],
+    ]:
+        benchmarks = tracking.load_benchmarks()
+        previous_benchmarks = copy.deepcopy(benchmarks)
+        previous_benchmarks["suites"] = [
+            suite
+            for suite in previous_benchmarks["suites"]
+            if suite["id"] != "registry-backed-arw-trajectory"
+        ]
+        previous_manifest = {
+            "workspace": {
+                "members": ["crates/wrf-compute", "crates/wrf-dynamics"],
+                "resolver": "2",
+            },
+            "profile": {"release": {"lto": "thin"}},
+        }
+        manifest = copy.deepcopy(previous_manifest)
+        manifest["workspace"]["members"].append("crates/wrf-model")
+        previous_lockfile = {
+            "version": 4,
+            "package": [
+                {"name": "wrf-compute", "version": "0.1.0"},
+                {
+                    "name": "wrf-dynamics",
+                    "version": "0.1.0",
+                    "dependencies": ["wrf-compute"],
+                },
+            ],
+        }
+        lockfile = copy.deepcopy(previous_lockfile)
+        lockfile["package"].append(
+            {
+                "name": "wrf-model",
+                "version": "0.1.0",
+                "dependencies": ["wrf-compute", "wrf-dynamics"],
+            }
+        )
+        return (
+            previous_benchmarks,
+            benchmarks,
+            previous_manifest,
+            manifest,
+            previous_lockfile,
+            lockfile,
+        )
+
+    @staticmethod
+    def select_workspace_bootstrap(
+        context: tuple[
+            dict[str, object],
+            dict[str, object],
+            dict[str, object],
+            dict[str, object],
+            dict[str, object],
+            dict[str, object],
+        ],
+    ) -> list[dict[str, str]]:
+        (
+            previous_benchmarks,
+            benchmarks,
+            previous_manifest,
+            manifest,
+            previous_lockfile,
+            lockfile,
+        ) = context
+        return tracking.select_suites(
+            [
+                "Cargo.toml",
+                "Cargo.lock",
+                "tracking/benchmarks.json",
+                "crates/wrf-model/src/lib.rs",
+            ],
+            benchmarks=benchmarks,
+            previous_benchmarks=previous_benchmarks,
+            previous_workspace_manifest=previous_manifest,
+            workspace_manifest=manifest,
+            previous_lockfile=previous_lockfile,
+            lockfile=lockfile,
+        )
+
     def test_selects_a_scientific_family(self) -> None:
         selected = tracking.select_suites(
             ["crates/wrf-dynamics/src/held_suarez/cpu.rs"]
@@ -69,13 +156,13 @@ class SelectionTests(unittest.TestCase):
     def test_docs_only_change_selects_nothing(self) -> None:
         self.assertEqual(tracking.select_suites(["docs/wiki/Home.md"]), [])
 
-    def test_kessler_driver_change_selects_only_coupled_trajectory(self) -> None:
+    def test_kessler_driver_change_selects_component_and_composed_trajectories(self) -> None:
         selected = tracking.select_suites(
             ["crates/wrf-physics/src/microphysics/driver/microphysics_driver.rs"]
         )
         self.assertEqual(
             [suite["id"] for suite in selected],
-            ["kessler-precipitation-trajectory"],
+            ["kessler-precipitation-trajectory", "registry-backed-arw-trajectory"],
         )
 
     def test_catalog_only_change_selects_the_changed_current_suite(self) -> None:
@@ -87,7 +174,7 @@ class SelectionTests(unittest.TestCase):
         )
         self.assertEqual([suite["id"] for suite in selected], ["held-suarez"])
 
-    def test_catalog_and_driver_change_select_only_the_changed_current_suite(self) -> None:
+    def test_catalog_and_driver_change_selects_changed_and_composed_suites(self) -> None:
         current = tracking.load_benchmarks()
         previous = copy.deepcopy(current)
         previous["suites"] = [
@@ -110,10 +197,10 @@ class SelectionTests(unittest.TestCase):
         )
         self.assertEqual(
             [suite["id"] for suite in selected],
-            ["kessler-precipitation-trajectory"],
+            ["kessler-precipitation-trajectory", "registry-backed-arw-trajectory"],
         )
 
-    def test_routing_catalog_and_driver_change_select_only_changed_suite(self) -> None:
+    def test_routing_catalog_and_driver_change_selects_changed_and_composed_suites(self) -> None:
         current = tracking.load_benchmarks()
         previous = copy.deepcopy(current)
         previous["suites"] = [
@@ -134,12 +221,54 @@ class SelectionTests(unittest.TestCase):
 
         self.assertEqual(
             [suite["id"] for suite in selected],
-            ["kessler-precipitation-trajectory"],
+            ["kessler-precipitation-trajectory", "registry-backed-arw-trajectory"],
         )
 
     def test_routing_code_change_without_catalog_change_selects_every_suite(self) -> None:
         selected = tracking.select_suites(["tools/tracking.py"])
         self.assertEqual(len(selected), len(tracking.load_benchmarks()["suites"]))
+
+    def test_additive_workspace_bootstrap_selects_only_added_suite(self) -> None:
+        selected = self.select_workspace_bootstrap(self.workspace_bootstrap_context())
+        self.assertEqual(
+            [suite["id"] for suite in selected],
+            ["registry-backed-arw-trajectory"],
+        )
+
+    def test_workspace_profile_change_selects_every_suite(self) -> None:
+        context = self.workspace_bootstrap_context()
+        context[3]["profile"]["release"]["lto"] = "fat"
+
+        selected = self.select_workspace_bootstrap(context)
+
+        self.assertEqual(len(selected), len(context[1]["suites"]))
+
+    def test_existing_lock_stanza_change_selects_every_suite(self) -> None:
+        context = self.workspace_bootstrap_context()
+        context[5]["package"][0]["version"] = "0.2.0"
+
+        selected = self.select_workspace_bootstrap(context)
+
+        self.assertEqual(len(selected), len(context[1]["suites"]))
+
+    def test_workspace_bootstrap_without_previous_catalog_selects_every_suite(self) -> None:
+        context = list(self.workspace_bootstrap_context())
+        context[0] = None
+
+        selected = self.select_workspace_bootstrap(tuple(context))
+
+        self.assertEqual(len(selected), len(context[1]["suites"]))
+
+    def test_ambiguous_catalog_bootstrap_selects_every_suite(self) -> None:
+        context = self.workspace_bootstrap_context()
+        second_suite = copy.deepcopy(context[1]["suites"][-1])
+        second_suite["id"] = "second-new-suite"
+        second_suite["package"] = "wrf-second-model"
+        context[1]["suites"].append(second_suite)
+
+        selected = self.select_workspace_bootstrap(context)
+
+        self.assertEqual(len(selected), len(context[1]["suites"]))
 
     def test_top_level_catalog_change_selects_every_current_suite(self) -> None:
         current = tracking.load_benchmarks()

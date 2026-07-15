@@ -42,5 +42,6 @@ CI runner classification: **self hosted mac studio 2**.
 | Complete dry boundary-tendency assignment | `wrf-dynamics::dry_boundary_tendencies::nested_full_tile` | `scripts/benchmark-dry-boundary-tendencies-fortran.sh` (default) | `scripts/run-dry-boundary-tendencies-oracle.sh` |
 | Kessler warm-rain microphysics | `wrf-physics::kessler_microphysics::mixed_warm_rain` | `scripts/benchmark-kessler-fortran.sh` (default) | `scripts/run-kessler-oracle.sh` |
 | Kessler precipitation trajectory | `wrf-physics::kessler_precipitation_trajectory::three_step_warm_rain` | `scripts/benchmark-kessler-precipitation-trajectory-fortran.sh` (default) | `scripts/run-kessler-precipitation-trajectory-oracle.sh` |
+| Registry-backed ARW accepted-stage trajectory | `wrf-model::registry_backed_arw_trajectory::canonical_continuous` | `scripts/benchmark-registry-backed-arw-trajectory-fortran.sh` (canonical_continuous) | `scripts/run-registry-backed-arw-trajectory-oracle.sh` |
 
 The catalog defines commands and change routing. Measurements are produced after successful parity on main.

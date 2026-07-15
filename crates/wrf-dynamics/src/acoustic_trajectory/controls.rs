@@ -29,6 +29,66 @@ pub struct AcousticTrajectoryControls {
 }
 
 impl AcousticTrajectoryControls {
+    /// Returns the Runge-Kutta phase used by acoustic preparation.
+    pub const fn preparation_phase(self) -> AcousticStepPreparationPhase {
+        self.preparation_phase
+    }
+
+    /// Returns the number of acoustic substeps.
+    pub const fn substep_count(self) -> usize {
+        self.substep_count
+    }
+
+    /// Returns inverse west-east grid spacing.
+    pub const fn inverse_west_east_grid_spacing(self) -> f32 {
+        self.inverse_west_east_grid_spacing
+    }
+
+    /// Returns inverse south-north grid spacing.
+    pub const fn inverse_south_north_grid_spacing(self) -> f32 {
+        self.inverse_south_north_grid_spacing
+    }
+
+    /// Returns the acoustic timestep in seconds.
+    pub const fn acoustic_time_step(self) -> f32 {
+        self.acoustic_time_step
+    }
+
+    /// Returns the horizontal boundary policy.
+    pub const fn horizontal_boundary_policy(self) -> AcousticHorizontalBoundaryPolicy {
+        self.horizontal_boundary_policy
+    }
+
+    /// Returns the mass/theta boundary policy.
+    pub const fn mass_theta_boundary_policy(self) -> AcousticMassThetaBoundaryPolicy {
+        self.mass_theta_boundary_policy
+    }
+
+    /// Returns the vertical boundary policy.
+    pub const fn vertical_boundary_policy(self) -> AcousticVerticalBoundaryPolicy {
+        self.vertical_boundary_policy
+    }
+
+    /// Returns the pressure mode.
+    pub const fn pressure_mode(self) -> AcousticPressureMode {
+        self.pressure_mode
+    }
+
+    /// Returns the upper boundary mode.
+    pub const fn top_boundary(self) -> VerticalAcousticTopBoundary {
+        self.top_boundary
+    }
+
+    /// Returns the vertical advection discretization.
+    pub const fn vertical_advection(self) -> AcousticVerticalAdvection {
+        self.vertical_advection
+    }
+
+    /// Returns whether upper-level damping is disabled.
+    pub const fn is_vertical_damping_disabled(self) -> bool {
+        matches!(self.vertical_damping, AcousticVerticalDamping::Disabled)
+    }
+
     /// Validates the substep count and preserves all IEEE scalar inputs.
     #[allow(clippy::too_many_arguments)]
     pub fn try_new(

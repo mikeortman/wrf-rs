@@ -15,6 +15,7 @@ import shutil
 import statistics
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -281,6 +282,23 @@ def load_benchmarks_at_revision(revision: str) -> dict[str, Any] | None:
     return catalog
 
 
+def load_toml_at_revision(revision: str, path: str) -> dict[str, Any] | None:
+    """Load a TOML object from Git, returning ``None`` when it is unavailable."""
+    completed = subprocess.run(
+        ["git", "show", f"{revision}:{path}"],
+        cwd=ROOT,
+        check=False,
+        text=True,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        return None
+    try:
+        return tomllib.loads(completed.stdout)
+    except tomllib.TOMLDecodeError:
+        return None
+
+
 def changed_catalog_suite_ids(
     previous: dict[str, Any] | None,
     current: dict[str, Any],
@@ -351,16 +369,177 @@ def is_scoped_routing_watch_migration(
     )
 
 
+def added_suite_package(
+    previous: dict[str, Any] | None,
+    current: dict[str, Any],
+) -> str | None:
+    """Return the package when the catalog only adds one new suite and package."""
+    if previous is None:
+        return None
+    previous_suites = previous.get("suites")
+    current_suites = current.get("suites")
+    if not isinstance(previous_suites, list) or not isinstance(current_suites, list):
+        return None
+    if len(current_suites) != len(previous_suites) + 1:
+        return None
+    if not all(isinstance(suite, dict) for suite in previous_suites + current_suites):
+        return None
+    if any(
+        not isinstance(suite.get("id"), str)
+        or not isinstance(suite.get("package"), str)
+        for suite in previous_suites + current_suites
+    ):
+        return None
+
+    previous_by_id = {suite.get("id"): suite for suite in previous_suites}
+    current_by_id = {suite.get("id"): suite for suite in current_suites}
+    if len(previous_by_id) != len(previous_suites) or len(current_by_id) != len(current_suites):
+        return None
+    if any(current_by_id.get(identifier) != suite for identifier, suite in previous_by_id.items()):
+        return None
+
+    added_ids = current_by_id.keys() - previous_by_id.keys()
+    if len(added_ids) != 1:
+        return None
+    added_identifier = next(iter(added_ids))
+    if [suite["id"] for suite in current_suites if suite["id"] != added_identifier] != [
+        suite["id"] for suite in previous_suites
+    ]:
+        return None
+
+    package = current_by_id[added_identifier].get("package")
+    if not isinstance(package, str) or not package:
+        return None
+    previous_packages = {suite.get("package") for suite in previous_suites}
+    return package if package not in previous_packages else None
+
+
+def is_additive_workspace_member(
+    previous: dict[str, Any] | None,
+    current: dict[str, Any] | None,
+    package: str,
+) -> bool:
+    """Return whether the root manifest only adds one package workspace member."""
+    if previous is None or current is None:
+        return False
+    previous_workspace = previous.get("workspace")
+    current_workspace = current.get("workspace")
+    if not isinstance(previous_workspace, dict) or not isinstance(current_workspace, dict):
+        return False
+    previous_members = previous_workspace.get("members")
+    current_members = current_workspace.get("members")
+    if not isinstance(previous_members, list) or not isinstance(current_members, list):
+        return False
+    if not all(isinstance(member, str) for member in previous_members + current_members):
+        return False
+
+    member = f"crates/{package}"
+    if member in previous_members or current_members.count(member) != 1:
+        return False
+    if [current_member for current_member in current_members if current_member != member] != previous_members:
+        return False
+
+    previous_without_members = {
+        **previous,
+        "workspace": {
+            key: value for key, value in previous_workspace.items() if key != "members"
+        },
+    }
+    current_without_members = {
+        **current,
+        "workspace": {
+            key: value for key, value in current_workspace.items() if key != "members"
+        },
+    }
+    return previous_without_members == current_without_members
+
+
+def is_additive_lock_package(
+    previous: dict[str, Any] | None,
+    current: dict[str, Any] | None,
+    package: str,
+) -> bool:
+    """Return whether the lockfile only adds one stanza for ``package``."""
+    if previous is None or current is None:
+        return False
+    previous_packages = previous.get("package")
+    current_packages = current.get("package")
+    if not isinstance(previous_packages, list) or not isinstance(current_packages, list):
+        return False
+    if len(current_packages) != len(previous_packages) + 1:
+        return False
+    if not all(isinstance(entry, dict) for entry in previous_packages + current_packages):
+        return False
+
+    previous_without_packages = {
+        key: value for key, value in previous.items() if key != "package"
+    }
+    current_without_packages = {
+        key: value for key, value in current.items() if key != "package"
+    }
+    if previous_without_packages != current_without_packages:
+        return False
+
+    for index, entry in enumerate(current_packages):
+        if entry.get("name") != package:
+            continue
+        if current_packages[:index] + current_packages[index + 1 :] == previous_packages:
+            return not any(
+                previous_entry.get("name") == package
+                for previous_entry in previous_packages
+            )
+    return False
+
+
+def scoped_workspace_bootstrap_paths(
+    previous_benchmarks: dict[str, Any] | None,
+    benchmarks: dict[str, Any],
+    previous_workspace_manifest: dict[str, Any] | None,
+    workspace_manifest: dict[str, Any] | None,
+    previous_lockfile: dict[str, Any] | None,
+    lockfile: dict[str, Any] | None,
+) -> set[str]:
+    """Return global paths proven to contain only one new benchmark package."""
+    package = added_suite_package(previous_benchmarks, benchmarks)
+    if package is None:
+        return set()
+    if not is_additive_workspace_member(
+        previous_workspace_manifest, workspace_manifest, package
+    ):
+        return set()
+    if not is_additive_lock_package(previous_lockfile, lockfile, package):
+        return set()
+    return {"Cargo.toml", "Cargo.lock"}
+
+
 def select_suites(
     paths: list[str],
     run_all: bool = False,
     *,
     benchmarks: dict[str, Any] | None = None,
     previous_benchmarks: dict[str, Any] | None = None,
+    previous_workspace_manifest: dict[str, Any] | None = None,
+    workspace_manifest: dict[str, Any] | None = None,
+    previous_lockfile: dict[str, Any] | None = None,
+    lockfile: dict[str, Any] | None = None,
 ) -> list[dict[str, str]]:
     benchmarks = benchmarks or load_benchmarks()
     suites = benchmarks["suites"]
-    global_change = any(path_matches(path, benchmarks["global_watch"]) for path in paths)
+    scoped_global_paths = set()
+    if {"Cargo.toml", "Cargo.lock"}.issubset(paths):
+        scoped_global_paths = scoped_workspace_bootstrap_paths(
+            previous_benchmarks,
+            benchmarks,
+            previous_workspace_manifest,
+            workspace_manifest,
+            previous_lockfile,
+            lockfile,
+        )
+    global_change = any(
+        path not in scoped_global_paths
+        and path_matches(path, benchmarks["global_watch"])
+        for path in paths
+    )
     if run_all or global_change:
         selected = suites
     else:
@@ -1321,16 +1500,35 @@ def main() -> int:
             paths = arguments.path
             benchmarks = None
             previous_benchmarks = None
+            previous_workspace_manifest = None
+            workspace_manifest = None
+            previous_lockfile = None
+            lockfile = None
             if arguments.base:
                 paths.extend(changed_paths(arguments.base, arguments.head))
                 if "tracking/benchmarks.json" in paths:
                     previous_benchmarks = load_benchmarks_at_revision(arguments.base)
                     benchmarks = load_benchmarks_at_revision(arguments.head)
+                if {"Cargo.toml", "Cargo.lock"}.issubset(paths):
+                    previous_workspace_manifest = load_toml_at_revision(
+                        arguments.base, "Cargo.toml"
+                    )
+                    workspace_manifest = load_toml_at_revision(
+                        arguments.head, "Cargo.toml"
+                    )
+                    previous_lockfile = load_toml_at_revision(
+                        arguments.base, "Cargo.lock"
+                    )
+                    lockfile = load_toml_at_revision(arguments.head, "Cargo.lock")
             selected = select_suites(
                 sorted(set(paths)),
                 arguments.run_all,
                 benchmarks=benchmarks,
                 previous_benchmarks=previous_benchmarks,
+                previous_workspace_manifest=previous_workspace_manifest,
+                workspace_manifest=workspace_manifest,
+                previous_lockfile=previous_lockfile,
+                lockfile=lockfile,
             )
             matrix = {"include": selected}
             encoded = json.dumps(matrix, separators=(",", ":"))

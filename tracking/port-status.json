@@ -29,7 +29,7 @@
       "id": "registry",
       "area": "Registry and configuration",
       "state": "in-progress",
-      "evidence": "Typed dimspec, state, rconfig, and package parsing includes nested source expansion, physical source locations, signed package conditions, ordered scalar groups, reserved-slot-aware PARAM/P/dense indices, source-order activation and deduplication, six exact artifact goldens, and a direct executable WRF package oracle.",
+      "evidence": "Typed dimspec, state, rconfig, and package parsing includes nested source expansion, physical source locations, signed package conditions, ordered scalar groups, reserved-slot-aware PARAM/P/dense indices, source-order activation and deduplication, six exact artifact goldens, a direct executable WRF package oracle, and validated ordinary-state dimension-order, time-level, and staggering bindings for the accepted-stage ARW model projection.",
       "next_gate": "Typedefs, communication entries, generalized four-dimensional scalar metadata, and complete scalar-index artifact generation.",
       "tracking_issue": 85
     },
@@ -45,7 +45,7 @@
       "id": "dynamics",
       "area": "ARW dynamical core",
       "state": "in-progress",
-      "evidence": "Dependency-closed dry, acoustic, and specified-boundary kernels have direct pinned-Fortran parity; WRF physical boundary-zone assignment covers periodic, specified, nested, partial-tile, inactive, and IEEE cases; the complete failure-atomic three-substep nonhydrostatic acoustic boundary stage matches 149 complete affected-field snapshots per case and all final fields across full periodic/specified/nested, partial, inactive, and IEEE-injected cases.",
+      "evidence": "Dependency-closed dry, acoustic, and specified-boundary kernels have direct pinned-Fortran parity; WRF physical boundary-zone assignment covers periodic, specified, nested, partial-tile, inactive, and IEEE cases; the complete failure-atomic three-substep nonhydrostatic acoustic boundary stage matches 149 complete affected-field snapshots per case and all final fields across full periodic/specified/nested, partial, inactive, and IEEE-injected cases; acoustic finalization preserves the pinned small_step_finish expression order through a safe typed capability.",
       "next_gate": "Compose halo exchange, polar filtering, and distributed patch ownership around the verified acoustic boundary stage.",
       "tracking_issue": 86
     },
@@ -53,8 +53,8 @@
       "id": "physics",
       "area": "Physics drivers and schemes",
       "state": "in-progress",
-      "evidence": "Kessler warm-rain microphysics matches all 660 mutable oracle values; the Registry-selected ARW preparation-driver-finish trajectory matches 35,280 pinned-Fortran raw-bit stage and checkpoint values through a reordered species layout, including inactive exceptional sentinels; active non-finite evolution is compiler-dependent, separate tests cover canonical ordering, checkpoint-split execution is exact, and one/four-worker results are deterministic.",
-      "next_gate": "Bind the accepted time-split Kessler trajectory into the Registry-backed ARW model runner; NetCDF resume remains issue #84.",
+      "evidence": "Kessler warm-rain microphysics matches all 660 mutable oracle values; the Registry-selected ARW preparation-driver-finish trajectory matches 35,280 pinned-Fortran raw-bit stage and checkpoint values through a reordered species layout, including inactive exceptional sentinels; the accepted-stage model runner binds Registry-selected fields to typed restart state and composes the verified dry, acoustic, finalization, and Kessler stages against a direct pinned-Fortran first-divergence oracle. The runner is explicitly a dependency-closed projection, not complete solve_em parity; recreating nonrestart storage with identical projected stage inputs is exact and one/four-worker results are deterministic.",
+      "next_gate": "Resume the accepted-stage trajectory from a Registry-driven NetCDF restart in issue #84, while full solve_em remains gated on the omitted dynamics, transport, boundary, and communication stages.",
       "tracking_issue": 82
     },
     {
@@ -76,7 +76,7 @@
       "id": "end-to-end",
       "area": "End-to-end idealized and regression suite",
       "state": "not-started",
-      "evidence": "No Rust executable trajectory accepted yet.",
+      "evidence": "No complete Rust solve_em or idealized-case trajectory is accepted; the issue #82 Registry-backed runner is an accepted-stage projection and does not satisfy this area's definition.",
       "next_gate": "em_b_wave, then em_squall2d_x differential runs.",
       "tracking_issue": 8
     }

@@ -5,6 +5,7 @@ members = [
     "crates/wrf-domain-mpi",
     "crates/wrf-dynamics",
     "crates/wrf-io",
+    "crates/wrf-model",
     "crates/wrf-physics",
     "crates/wrf-registry",
     "crates/wrf-time",

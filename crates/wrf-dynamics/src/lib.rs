@@ -48,6 +48,7 @@ mod acoustic_flux_accumulation;
 mod acoustic_horizontal_momentum;
 mod acoustic_mass_theta;
 mod acoustic_pressure;
+mod acoustic_step_finalization;
 mod acoustic_step_preparation;
 mod acoustic_trajectory;
 mod acoustic_vertical_momentum;
@@ -106,6 +107,14 @@ pub use acoustic_pressure::{
     AcousticPressureKernels, AcousticPressureMasses, AcousticPressureMode,
     AcousticPressureParameters, AcousticPressureRegion, AcousticPressureResult,
     AcousticPressureState, AcousticPressureThermodynamics, AcousticPressureVerticalMetrics,
+};
+pub use acoustic_step_finalization::{
+    AcousticStepFinalizationAxis, AcousticStepFinalizationCoefficient,
+    AcousticStepFinalizationCoefficients, AcousticStepFinalizationControls,
+    AcousticStepFinalizationError, AcousticStepFinalizationField, AcousticStepFinalizationKernels,
+    AcousticStepFinalizationMapFactors, AcousticStepFinalizationMasses,
+    AcousticStepFinalizationPhase, AcousticStepFinalizationRegion, AcousticStepFinalizationResult,
+    AcousticStepFinalizationSavedState, AcousticStepFinalizationState,
 };
 pub use acoustic_step_preparation::{
     AcousticStepPreparationAxis, AcousticStepPreparationCoefficient,
